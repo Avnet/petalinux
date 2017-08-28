@@ -93,8 +93,7 @@ petalinux_project_set_boot_config_sd ()
   echo "Overriding meta-user level BSP platform-top.h to add SD boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform.${HDL_BOARD_NAME} \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.uz3eg ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -207,7 +206,7 @@ create_petalinux_bsp ()
     echo "Overwriting system-user level devicetree source include file..."
     echo " "
     cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.uz3eg \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
   else
     echo " "
     echo "WARNING: No board specific PetaLinux project configuration files found, "
@@ -268,6 +267,23 @@ create_petalinux_bsp ()
   # Package the bitstream within the PetaLinux pre-built folder.
   petalinux-package --prebuilt --fpga hw_platform/system_wrapper.bit
 
+  # Rename the pre-built bitstream file to download.bit so that the default 
+  # format for the petalinux-boot command over jtag will not need the bit file 
+  # specified explicitly.
+  mv -f pre-built/linux/implementation/system_wrapper.bit \
+  pre-built/linux/implementation/download.bit
+
+  # Change to PetaLinux projects folder.
+  cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/
+
+  # Copy the BOOT_SD.BIN to the pre-built images folder.
+  cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT_SD.bin \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+
+  # Copy the image.ub to the pre-built images folder.
+  cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/image.ub \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+
   # Change to PetaLinux projects folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/
 
@@ -313,9 +329,9 @@ main_make_function ()
   #
   # Create the PetaLinux BSP for the UZ3EG_IOCC target.
   #
-  HDL_BOARD_NAME=UZ3EG_IOCC
-  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
-  create_petalinux_bsp
+#  HDL_BOARD_NAME=UZ3EG_IOCC
+#  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
+#  create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
