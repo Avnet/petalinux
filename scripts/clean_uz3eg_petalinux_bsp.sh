@@ -88,9 +88,9 @@ main_clean_function ()
   #
   # Remove project files created for PetaLinux BSP on the UZ3EG_IOCC target.
   #
-#  HDL_BOARD_NAME=UZ3EG_IOCC
-#  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
-#  clean_petalinux_bsp
+  HDL_BOARD_NAME=UZ3EG_IOCC
+  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
+  clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the UZ3EG_PCIEC target.
