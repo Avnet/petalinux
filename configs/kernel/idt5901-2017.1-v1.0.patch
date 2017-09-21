@@ -1,0 +1,829 @@
+diff -urN a/drivers/clk/clk-idt5901.c b/drivers/clk/clk-idt5901.c
+--- a/drivers/clk/clk-idt5901.c	1969-12-31 19:00:00.000000000 -0500
++++ b/drivers/clk/clk-idt5901.c	2017-02-25 06:18:38.415415000 -0500
+@@ -0,0 +1,795 @@
++/*  idt5901.c - Program 5P49V5901 settings via I2C.
++ *
++ *  Copyright (C) 2016 by Integrated Device Technologies
++ *
++ *  08/17/2016 - Created by David Cater (david.cater@idt.com)
++ */
++
++//#define KEEP_TOGETHER
++
++#include <linux/clk.h>
++#include <linux/clk-provider.h>
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/i2c.h>
++#include <linux/regmap.h>
++
++// The configurations in the settings file only contain 0x6A of the registers.
++#define NUM_CONFIG_REGISTERS 0x6A
++
++// Masks
++#define FRACDIV_5_0_MASK 0xFC
++#define FRACDIV_SSCE_MASK 0x02
++#define IDT5901_REG_CLK1_OS_MASK 0x40
++#define IDT5901_REG_CLK2_OS_MASK 0x20
++#define IDT5901_REG_CLK3_OS_MASK 0x10
++#define IDT5901_REG_CLK4_OS_MASK 0x08
++#define IDT5901_REG_EN_CLKBUF_MASK 0x01
++#define IDT5901_REG_EN_FOD_MASK 0x01
++#define IDT5901_REG_RESET_FOD_MASK_CLR ~0x80
++#define IDT5901_REG_RESET_FOD_MASK_SET 0x80
++
++// Other registers
++#define IDT5901_REG_REF_DIVIDER 0x15
++#define IDT5901_REG_VCO_CONTROL 0x16
++#define IDT5901_REG_CLK_OS 0x69
++#define IDT5901_REG_FBINTDIV_11_4 0x17
++#define IDT5901_REG_FBINTDIV_3_0 0x18
++#define IDT5901_REG_FBFRCDIV_23_16 0x19
++#define IDT5901_REG_FBFRCDIV_15_8 0x1A
++#define IDT5901_REG_FBFRCDIV_7_0 0x1B
++#define IDT5901_REG_I2CRESET 0x76
++#define IDT5901_REG_I2CRESET_SET 0xC3
++#define IDT5901_REG_I2CRESET_RELEASE 0xE3
++
++// Clock1
++#define IDT5901_REG_CLK1_OUTPUTDIVIDERCTRL 0x21
++#define IDT5901_REG_CLK1_CONFIG1 0x60
++#define IDT5901_REG_CLK1_CONFIG2 0x61
++#define IDT5901_REG_CLK1_INTDIV_11_4 0x2D
++#define IDT5901_REG_CLK1_INTDIV_3_0 0x2E
++#define IDT5901_REG_CLK1_FRACDIV_29_22 0x22
++#define IDT5901_REG_CLK1_FRACDIV_21_14 0x23
++#define IDT5901_REG_CLK1_FRACDIV_13_6 0x24
++#define IDT5901_REG_CLK1_FRACDIV_5_0_SSCE 0x25
++
++// Clock2
++#define IDT5901_REG_CLK2_OUTPUTDIVIDERCTRL 0x31
++#define IDT5901_REG_CLK2_CONFIG1 0x62
++#define IDT5901_REG_CLK2_CONFIG2 0x63
++#define IDT5901_REG_CLK2_INTDIV_11_4 0x3D
++#define IDT5901_REG_CLK2_INTDIV_3_0 0x3E
++#define IDT5901_REG_CLK2_FRACDIV_29_22 0x32
++#define IDT5901_REG_CLK2_FRACDIV_21_14 0x33
++#define IDT5901_REG_CLK2_FRACDIV_13_6 0x34
++#define IDT5901_REG_CLK2_FRACDIV_5_0_SSCE 0x35
++
++// Clock3
++#define IDT5901_REG_CLK3_OUTPUTDIVIDERCTRL 0x41
++#define IDT5901_REG_CLK3_CONFIG1 0x64
++#define IDT5901_REG_CLK3_CONFIG2 0x65
++#define IDT5901_REG_CLK3_INTDIV_11_4 0x4D
++#define IDT5901_REG_CLK3_INTDIV_3_0 0x4E
++#define IDT5901_REG_CLK3_FRACDIV_29_22 0x42
++#define IDT5901_REG_CLK3_FRACDIV_21_14 0x43
++#define IDT5901_REG_CLK3_FRACDIV_13_6 0x44
++#define IDT5901_REG_CLK3_FRACDIV_5_0_SSCE 0x45
++
++// Clock4
++#define IDT5901_REG_CLK4_OUTPUTDIVIDERCTRL 0x51
++#define IDT5901_REG_CLK4_CONFIG1 0x66
++#define IDT5901_REG_CLK4_CONFIG2 0x67
++#define IDT5901_REG_CLK4_INTDIV_11_4 0x5D
++#define IDT5901_REG_CLK4_INTDIV_3_0 0x5E
++#define IDT5901_REG_CLK4_FRACDIV_29_22 0x52
++#define IDT5901_REG_CLK4_FRACDIV_21_14 0x53
++#define IDT5901_REG_CLK4_FRACDIV_13_6 0x54
++#define IDT5901_REG_CLK4_FRACDIV_5_0_SSCE 0x55
++
++#define IDT5901_MIN_FREQ		1000000L
++#define IDT5901_MAX_FREQ		300000000L
++
++#define DRV_NAME			"idt5901"
++
++struct clk_idt5901 {
++	struct clk_hw hw;
++	struct regmap *regmap;
++	struct i2c_client *i2c_client;
++
++	// min/max freq for this chip.
++	u32 min_freq;
++	u32 max_freq;
++
++	// user inputs from device tree
++	u32 input_freq;	// The xtal input freq
++	u8 output_num;	// The output pin on the chip that should generate the frequency (1-4)
++	u32 frequency;	// Requested frequency
++	u8 settings[NUM_CONFIG_REGISTERS];	// Will be filled in if user specified settings. TODO: remember how to dynamically allocate.
++	bool has_settings;					// True if we have settings.  TODO: replace with u8* settings & check for null.
++
++	// Dividers needed to generate the requested frequency
++	u32 int_div;
++	u32 frac_div;
++
++	// To store VCO calculated from values on the hw.
++	u32 vco_freq;
++
++
++	// Registers and bitsets read from hw to preserve contents (because we have to write back to them).
++	u8 ssce;
++	u8 reg_clk_os;
++	u8 reg_clk_config;
++	u8 reg_output_divider_control;
++};
++
++#define to_clk_idt5901(_hw)	container_of(_hw, struct clk_idt5901, hw)
++
++struct clk_register_offsets {
++	u8 int_div_offset;
++	u8 frac_div_offset;
++	u8 clk_config_offset;
++	u8 output_divider_control_offset;
++	u8 clk_os_mask;
++};
++
++enum clk_idt5901_variant {
++	idt5901
++};
++
++static int idt5901_get_offsets(u8 output_num, struct clk_register_offsets *offsets) {
++	switch(output_num) {
++		case 1: 
++			offsets->int_div_offset = IDT5901_REG_CLK1_INTDIV_11_4;
++			offsets->frac_div_offset = IDT5901_REG_CLK1_FRACDIV_29_22;
++			offsets->clk_config_offset = IDT5901_REG_CLK1_CONFIG2;
++			offsets->output_divider_control_offset = IDT5901_REG_CLK1_OUTPUTDIVIDERCTRL;
++			offsets->clk_os_mask = IDT5901_REG_CLK1_OS_MASK;
++			break;
++		case 2: 
++			offsets->int_div_offset = IDT5901_REG_CLK2_INTDIV_11_4;
++			offsets->frac_div_offset = IDT5901_REG_CLK2_FRACDIV_29_22;
++			offsets->clk_config_offset = IDT5901_REG_CLK2_CONFIG2;
++			offsets->output_divider_control_offset = IDT5901_REG_CLK2_OUTPUTDIVIDERCTRL;
++			offsets->clk_os_mask = IDT5901_REG_CLK2_OS_MASK;
++			break;
++		case 3: 
++			offsets->int_div_offset = IDT5901_REG_CLK3_INTDIV_11_4;
++			offsets->frac_div_offset = IDT5901_REG_CLK3_FRACDIV_29_22;
++			offsets->clk_config_offset = IDT5901_REG_CLK3_CONFIG2;
++			offsets->output_divider_control_offset = IDT5901_REG_CLK3_OUTPUTDIVIDERCTRL;
++			offsets->clk_os_mask = IDT5901_REG_CLK3_OS_MASK;
++			break;
++		case 4: 
++			offsets->int_div_offset = IDT5901_REG_CLK4_INTDIV_11_4;
++			offsets->frac_div_offset = IDT5901_REG_CLK4_FRACDIV_29_22;
++			offsets->clk_config_offset = IDT5901_REG_CLK4_CONFIG2;
++			offsets->output_divider_control_offset = IDT5901_REG_CLK4_OUTPUTDIVIDERCTRL;
++			offsets->clk_os_mask = IDT5901_REG_CLK4_OS_MASK;
++			break;
++		default:
++			return -EINVAL;
++			break;
++	}
++	return 0;
++}
++
++/**
++ * idt5901_get_divs() - Read clock dividers from HW
++ * @data:		Pointer to struct clk_idt5901
++ * @int_div:	Integer divider (output)
++ * @frac_div:	Fractional divider (output)
++ * @ssce:		SSCE bit (output)
++ * @vco_freq:	Actual VCO freq (output)
++ * Returns 0 on success, negative errno otherwise.
++ *
++ * Retrieve clock dividers, etc from the HW.
++ */
++static int idt5901_get_divs(struct clk_idt5901 *data, u32 *int_div, u32 *frac_div, u8* ssce)
++{
++	int err;
++	u8 intdivreg[2];
++	u8 fracdivreg[4];
++	u32 tmp;
++	struct i2c_client *client = data->i2c_client;
++	struct clk_register_offsets offsets;
++
++	err = idt5901_get_offsets(data->output_num, &offsets);
++	if (err) return err;
++	dev_info(&client->dev, "get_divs: got register offsets: int_div @ 0x%x, frac_div @ 0x%x", offsets.int_div_offset, offsets.frac_div_offset);
++
++	err = regmap_bulk_read(data->regmap, offsets.int_div_offset, intdivreg, ARRAY_SIZE(intdivreg));
++	if (err) {
++		dev_err(&client->dev, "get_divs: an error occurred reading int_div from hw (%i)", err);
++		return err;
++	}
++
++	err = regmap_bulk_read(data->regmap, offsets.frac_div_offset, fracdivreg, ARRAY_SIZE(fracdivreg));
++	if (err) {
++		dev_err(&client->dev, "get_divs: an error occurred reading frac_div from hw (%i)", err);
++		return err;
++	}
++
++	tmp = intdivreg[0];
++	tmp = (tmp << 4) + ((intdivreg[1] >> 4)&0x0f);
++	*int_div = tmp;
++	dev_info(&client->dev, "get_divs: 0x%x 0x%x int_div: %u", intdivreg[0], intdivreg[1], *int_div);
++
++	tmp = fracdivreg[0];
++	tmp = (tmp << 8) + fracdivreg[1];
++	tmp = (tmp << 8) + fracdivreg[2];
++	tmp = (tmp << 6) + ((fracdivreg[3] & FRACDIV_5_0_MASK) >> 2);
++	*frac_div = tmp;
++	dev_info(&client->dev, "get_divs: 0x%x 0x%x 0x%x 0x%x frac_div: %u", fracdivreg[0], fracdivreg[1], fracdivreg[2], fracdivreg[3], *frac_div);
++
++	*ssce = (fracdivreg[3] & FRACDIV_SSCE_MASK) >> 1;
++
++	return 0;
++}
++
++static int i2cwritebulk(struct i2c_client *client, struct regmap *map, unsigned int reg, u8 val[], size_t val_count) {
++	char dbg[1000];
++	int x;
++	int err;
++	sprintf(dbg, "I2C->0x%x : [hex] ", reg);
++	for (x = 0; x < val_count; x++) {
++		char data[4];
++		sprintf(data, "%x ", val[x]);
++		strcat(dbg, data);
++	}
++	dev_info(&client->dev, dbg);
++	err = regmap_bulk_write(map, reg, val, val_count);
++	usleep_range(100, 200);
++	return err;
++}
++
++static int i2cwrite(struct i2c_client *client,struct regmap *map, unsigned int reg, unsigned int val) {
++	int err;
++	dev_info(&client->dev, "I2C->0x%x : [hex] %x", reg, val);
++	err = regmap_write(map, reg, val);
++	usleep_range(100, 200);
++	return err;
++}
++
++/**
++ * idt5901_read_from_hw() - Get the current values on the hw
++ * @data:	Driver data structure
++ * @fout:	Factory frequency output
++ * Returns 0 on success, negative errno otherwise.
++ */
++static int idt5901_read_from_hw(struct clk_idt5901 *data)
++{
++	int err;
++	struct i2c_client *client = data->i2c_client;
++	struct clk_register_offsets offsets;
++	u32 tmp;
++	bool bypass_ref_div;
++	u32 ref_div;
++	bool prediv2;
++	u32 fb_intdiv;
++	u32 fb_fracdiv;
++	u8 fbintdivreg[2];
++	u8 fbfracdivreg[3];
++	u32 div;
++
++	err = idt5901_get_offsets(data->output_num, &offsets);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error getting offsets: %i", err);
++		return err;
++	}
++
++	err = idt5901_get_divs(data, &data->int_div, &data->frac_div, &data->ssce);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error calling idt5901_get_divs: %i", err);
++		return err;
++	}
++
++	err = regmap_read(data->regmap, offsets.clk_config_offset, &tmp);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading clk_config: %i", err);
++		return err;
++	}
++	data->reg_clk_config = tmp;
++
++	err = regmap_read(data->regmap, offsets.output_divider_control_offset, &tmp);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading output_divider_control: %i", err);
++		return err;
++	}
++	data->reg_output_divider_control = tmp;
++
++	err = regmap_read(data->regmap, IDT5901_REG_CLK_OS, &tmp);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading clk_os: %i", err);
++		return err;
++	}
++	data->reg_clk_os = tmp;
++
++
++	// read FB div and Ref div off the hw and use it to calculate actual VCO freq.
++
++	err = regmap_read(data->regmap, IDT5901_REG_REF_DIVIDER, &tmp);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading ref divider: %i", err);
++		return err;
++	}
++	prediv2 = (tmp & 0x80) == 0x80;
++	ref_div = tmp & 0x7F;
++
++	err = regmap_read(data->regmap, IDT5901_REG_VCO_CONTROL, &tmp);
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading VCO control: %i", err);
++		return err;
++	}
++	bypass_ref_div = (tmp & 0x80) == 0x80;
++
++	err = regmap_bulk_read(data->regmap, IDT5901_REG_FBINTDIV_11_4, fbintdivreg, ARRAY_SIZE(fbintdivreg));
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading FB int div: %i", err);
++		return err;
++	}
++	fb_intdiv = fbintdivreg[0];
++	fb_intdiv = (fb_intdiv << 4) + ((fbintdivreg[1] >> 4) & 0x0F);
++
++	err = regmap_bulk_read(data->regmap, IDT5901_REG_FBFRCDIV_23_16, fbfracdivreg, ARRAY_SIZE(fbfracdivreg));
++	if (err) {
++		dev_err(&client->dev, "idt5901_read_from_hw: error reading FB int div: %i", err);
++		return err;
++	}
++	fb_fracdiv = fbfracdivreg[0];
++	fb_fracdiv = (fb_fracdiv << 8) + fbfracdivreg[1];
++	fb_fracdiv = (fb_fracdiv << 8) + fbfracdivreg[2];
++
++	dev_info(&client->dev, "idt5901_read_from_hw:vco. bypass: %i, prediv2: %i, ref_div: %i, fb_intdiv: %i, fb_fracdiv: %i, input freq: %u Hz", 
++		bypass_ref_div, prediv2, ref_div, fb_intdiv, fb_fracdiv, data->input_freq);
++
++	div = bypass_ref_div ? 1 : (prediv2 ? 2 : ref_div);
++	data->vco_freq = (data->input_freq / div) * (fb_intdiv + (fb_fracdiv / (1 << 24)));
++	
++	dev_info(&client->dev, "idt5901_read_from_hw: vco_freq: %u Hz. CLK_CONFIG [0x%x]=0x%x, OUTPUT_DIV_CTRL [0x%x]=0x%x, CLK_OS [0x%x]=0x%x", 
++		data->vco_freq, offsets.clk_config_offset, data->reg_clk_config, 
++		offsets.output_divider_control_offset, data->reg_output_divider_control,
++		IDT5901_REG_CLK_OS, data->reg_clk_os);
++
++	return 0;
++}
++
++/**
++ * idt5901_calc_divs() - Calculate dividers to generate the specified frequency.
++ * @frequency:		target frequency
++ * @data:			driver data structure
++ * @out_int_div:	integer divider
++ * @out_frac_div:	fractional divider
++ *
++ * Returns 0 on success, negative errno otherwise.
++ *
++ * Calculate the clock dividers (*int_div, *frac_div) for a given target frequency.
++ */
++static int idt5901_calc_divs(u32 frequency, struct clk_idt5901 *data, u32 *out_int_div, u32 *out_frac_div)
++{
++	u64 rem;
++	u64 frac;
++	//div = data->vco_freq / frequency / 2;
++	*out_int_div = div64_u64_rem(data->vco_freq, frequency * 2, &rem);
++	dev_info(&data->i2c_client->dev, "calc_divs. intdiv: %u, remainder: %llu, *2^24: %llu", *out_int_div, rem, rem * (1<<24)); 
++	frac = div64_u64(rem * (1<<24), frequency * 2);
++	dev_info(&data->i2c_client->dev, "calc_divs. frac: %llu", frac); 
++	*out_frac_div = frac;
++	dev_info(&data->i2c_client->dev, "calc_divs. input: %u, vco: %u,  int: %u, frac: %u", frequency, data->vco_freq, *out_int_div, *out_frac_div); 
++	return 0;
++}
++
++#ifndef KEEP_TOGETHER
++/**
++ * idt5901_update_intdiv() - Write int div to hardware.
++ * @data:		Driver data structure
++ * @offsets:	Register offsets for the current output number.
++ * Passes on regmap_bulk_write() return value.
++ */
++static int idt5901_update_intdiv(struct clk_idt5901 *data, struct clk_register_offsets *offsets)
++{
++	u8 reg[2];
++	reg[0] = (data->int_div >> 4) & 0xff;
++	reg[1] = (data->int_div << 4) & 0xf0;
++	return i2cwritebulk(data->i2c_client, data->regmap, offsets->int_div_offset, reg, ARRAY_SIZE(reg));
++}
++
++/**
++ * idt5901_update_fracdiv() - Write frac div to hardware.
++ * @data:		Driver data structure
++ * @offsets:	Register offsets for the current output number.
++ * Passes on regmap_bulk_write() return value.
++ */
++static int idt5901_update_fracdiv(struct clk_idt5901 *data, struct clk_register_offsets *offsets)
++{
++	u8 reg[4];
++	reg[0] = (data->frac_div >> 22) & 0xff;
++	reg[1] = (data->frac_div >> 14) & 0xff;
++	reg[2] = (data->frac_div >> 6) & 0xff;
++	reg[3] = ((data->frac_div << 2) & 0xfc) + (data->ssce << 1);
++	return i2cwritebulk(data->i2c_client, data->regmap, offsets->frac_div_offset, reg, ARRAY_SIZE(reg));
++}
++#else
++/**
++ * idt5901_update_writedivskeeptogether() - Test function. In Timing Commander, we write all of the bytes from 0x22 to 0x30 (or 
++ * whichever offset is appropriate for the current clock). Write all of the bytes in a single block.
++ * @data:		Driver data structure
++ * @offsets:	Register offsets for the current output number.
++ * Passes on regmap_bulk_write() return value.
++ */
++static int idt5901_update_writedivskeeptogether(struct clk_idt5901 *data, struct clk_register_offsets *offsets)
++{
++	u8 reg[15];
++	int x;
++	reg[0] = (data->frac_div >> 22) & 0xff;
++	reg[1] = (data->frac_div >> 14) & 0xff;
++	reg[2] = (data->frac_div >> 6) & 0xff;
++	reg[3] = ((data->frac_div << 2) & 0xfc) + (data->ssce << 1);
++	for (x=4; x<11; x++) reg[x] = 0;
++	reg[11] = (data->int_div >> 4) & 0xff;
++	reg[12] = (data->int_div << 4) & 0xf0;
++	reg[13] = reg[14] = 0;
++	return i2cwritebulk(data->i2c_client, data->regmap, offsets->frac_div_offset, reg, ARRAY_SIZE(reg));
++}
++#endif
++
++/**
++ * idt5901_set_frequency() - Adjust output frequency
++ * @data:	Driver data structure
++ * @frequency:	Target frequency
++ * Returns 0 on success.
++ *
++ * Update output frequency for big frequency changes (> 3,500 ppm).
++ */
++static int idt5901_set_frequency(struct clk_idt5901 *data, unsigned long frequency)
++{
++	int err;
++	struct clk_register_offsets offsets;
++	struct i2c_client *client = data->i2c_client;
++
++	err = idt5901_get_offsets(data->output_num, &offsets);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error calling idt5901_get_offsets: %i", err);
++		return err;
++	}
++
++	err = idt5901_calc_divs(frequency, data, &data->int_div, &data->frac_div);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error calling idt5901_calc_divs: %i", err);
++		return err;
++	}
++
++#ifndef KEEP_TOGETHER
++	err = idt5901_update_intdiv(data, &offsets);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error setting intdiv: %i", err);
++		return err;
++	}
++
++	err = idt5901_update_fracdiv(data, &offsets);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error setting fracdiv: %i", err);
++		return err;
++	}
++#else
++	err = idt5901_update_writedivskeeptogether(data, &offsets);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error writing block: %i", err);
++		return err;
++	}
++#endif
++
++	// turn on CLKx_OS
++	if (data->reg_clk_os != (data->reg_clk_os | offsets.clk_os_mask)) {
++		data->reg_clk_os |= offsets.clk_os_mask;
++		err = i2cwrite(client, data->regmap, IDT5901_REG_CLK_OS, data->reg_clk_os);
++		if (err) {
++			dev_err(&client->dev, "set_frequency: error setting IDT5901_REG_CLK_OS: %i", err);
++			return err;
++		}
++	} else {
++		dev_info(&client->dev, "set_frequency: CLKx_OS already set.");
++	}
++
++	// turn on EN_CLKBUFx
++	if (data->reg_clk_config != (data->reg_clk_config | IDT5901_REG_EN_CLKBUF_MASK)) {
++		data->reg_clk_config |= IDT5901_REG_EN_CLKBUF_MASK;
++		err = i2cwrite(client, data->regmap, offsets.clk_config_offset, data->reg_clk_config);
++		if (err) {
++			dev_err(&client->dev, "set_frequency: error setting EN_CLKBUFx: %i", err);
++			return err;
++		}
++	} else {
++		dev_info(&client->dev, "set_frequency: EN_CLKBUFx already set.");
++	}
++
++	// turn on ODx_EN_FOD. NOTE: always turn on I2C RESET bit as well; seems to be required to make output functional.
++	if (data->reg_output_divider_control != (data->reg_output_divider_control | IDT5901_REG_EN_FOD_MASK | IDT5901_REG_RESET_FOD_MASK_SET)) {
++		data->reg_output_divider_control |= IDT5901_REG_EN_FOD_MASK | IDT5901_REG_RESET_FOD_MASK_SET;
++		err = i2cwrite(client, data->regmap, offsets.output_divider_control_offset, data->reg_output_divider_control);
++		if (err) {
++			dev_err(&client->dev, "set_frequency: error setting ODx_EN_FOD: %i", err);
++			return err;
++		}
++	} else {
++		dev_info(&client->dev, "set_frequency: ODx_EN_FOD already set.");
++	}
++
++	err = i2cwrite(client, data->regmap, IDT5901_REG_I2CRESET, IDT5901_REG_I2CRESET_SET);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error setting I2CReset: %i", err);
++		return err;
++	}
++	err = i2cwrite(client, data->regmap, IDT5901_REG_I2CRESET, IDT5901_REG_I2CRESET_RELEASE);
++	if (err) {
++		dev_err(&client->dev, "set_frequency: error releasing I2CReset: %i", err);
++		return err;
++	}
++
++	return 0;
++}
++
++
++// Looks like the intent here is to return the actual rate we expect to produce by reading
++// registers from the hardware.
++static unsigned long idt5901_recalc_rate(struct clk_hw *hw,
++		unsigned long parent_rate)
++{
++	struct clk_idt5901 *data = to_clk_idt5901(hw);
++
++	int err;
++	u32 rate;
++	u32 intdiv, fracdiv;
++	u8 ssce;
++	u64 numer;
++	u64 denom;
++
++	if (data->has_settings) {
++		dev_info(&data->i2c_client->dev, "recalc_rate. settings string used, so can't recalc rate.");
++		return 0;
++	}
++
++	err = idt5901_get_divs(data, &intdiv, &fracdiv, &ssce);
++	if (err) {
++		dev_err(&data->i2c_client->dev, "recalc_rate: error calling idt5901_get_divs: %i", err);
++		return data->frequency;
++	}
++
++	// target_freq * 2 == fVCO/(intdiv + (frac/2^24))
++	// therefore
++	// (2^24*fVCO)/((2^25*intdiv)+(2*frac) == target_freq (w/ no floating point ops)
++
++	numer = data->vco_freq;
++	numer *= (1<<24);
++	denom = intdiv;
++	denom *= (1<<25);
++	denom += (2*fracdiv);
++	rate = div_u64(numer, denom);
++	dev_info(&data->i2c_client->dev, "recalc_rate. vco: %u, intdiv: %u, fracdiv: %u, numer: %llu, denom: %llu, result: %u", data->vco_freq, intdiv, fracdiv, numer, denom, rate);
++	return rate;
++}
++
++static int idt5901_set_rate(struct clk_hw *hw, unsigned long rate,
++		unsigned long parent_rate)
++{
++	struct clk_idt5901 *data = to_clk_idt5901(hw);
++	int err = 0;
++	struct i2c_client *client = data->i2c_client;
++
++	if (rate < data->min_freq || rate > data->max_freq) {
++		dev_err(&client->dev, "requested frequency (%luHz) is out of range\n", rate);
++		return -EINVAL;
++	}
++
++	if (data->has_settings) {
++		dev_err(&client->dev, "a settings strings was specified in the device tree; set_rate isn't supported.");
++		return -EINVAL;
++	}
++
++	err = idt5901_set_frequency(data, rate);
++
++	if (err == 0)
++		data->frequency = rate;
++	else
++		dev_err(&client->dev, "error calling set_frequency: %d", err);
++
++	return err;
++}
++
++
++static long idt5901_round_rate(struct clk_hw *hw, unsigned long rate,
++		unsigned long *parent_rate)
++{
++	//TODO: determine what round_rate is supposed to do and implement.  Sounds like it 
++	// should round the specified rate to something the chip can support.  Documentation is sparse.
++	return rate;
++}
++
++
++static const struct clk_ops idt5901_clk_ops = {
++	.recalc_rate = idt5901_recalc_rate,
++	.round_rate = idt5901_round_rate,
++	.set_rate = idt5901_set_rate,
++};
++
++static bool idt5901_regmap_is_volatile(struct device *dev, unsigned int reg)
++{
++	return false;
++}
++
++static bool idt5901_regmap_is_writeable(struct device *dev, unsigned int reg)
++{
++	return true;
++}
++
++static const struct regmap_config idt5901_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.cache_type = REGCACHE_RBTREE,
++	.max_register = 0xff,
++	.writeable_reg = idt5901_regmap_is_writeable,
++	.volatile_reg = idt5901_regmap_is_volatile,
++};
++
++
++static int idt5901_probe(struct i2c_client *client,
++		const struct i2c_device_id *id)
++{
++	struct clk_idt5901 *data;
++	struct clk_init_data init;
++	struct clk *clk;
++	u32 target_frequency;
++	u32 tmp32;
++	int err = 0;
++	char dbg[800];
++
++	printk(KERN_ALERT "idt5901_probe\n");
++	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	init.ops = &idt5901_clk_ops;
++	init.flags = 0; //CLK_IS_ROOT;
++	init.num_parents = 0;
++	data->hw.init = &init;
++	data->i2c_client = client;
++
++	data->min_freq = IDT5901_MIN_FREQ;
++	data->max_freq = IDT5901_MAX_FREQ;
++
++	init.name = "idt5901";
++
++	
++	err = of_property_read_u32(client->dev.of_node, "input-freq", &tmp32);
++	if (err) {
++		dev_err(&client->dev, "'input-freq' property missing or error (%i)\n", err);
++		return err;
++	} else {
++		data->input_freq = tmp32;
++		dev_info(&client->dev, "input-freq: %u Hz", data->input_freq);
++	}
++
++	err = of_property_read_u8_array(client->dev.of_node, "settings", data->settings, ARRAY_SIZE(data->settings));
++	if (!err) {
++		data->has_settings = true;
++	} else {
++		dev_err(&client->dev, "settings property missing or error (%i). The settings property is optional.\n", err);
++		data->has_settings = false;
++		err = of_property_read_u32(client->dev.of_node, "clk-freq", &target_frequency);
++		if (err) {
++			dev_err(&client->dev, "'clk-freq' property missing or error (%i)\n", err);
++			return err;
++		} else
++			dev_info(&client->dev, "clk-freq: %u Hz", target_frequency);
++	
++		err = of_property_read_u32(client->dev.of_node, "output-num", &tmp32);
++		if (err) {
++			dev_err(&client->dev, "'output-num' property missing or error (%i)\n", err);
++			return err;
++		} else {
++			data->output_num = tmp32;
++			dev_info(&client->dev, "output-num: %i", data->output_num);
++		}
++	}
++
++	data->regmap = devm_regmap_init_i2c(client, &idt5901_regmap_config);
++	if (IS_ERR(data->regmap)) {
++		dev_err(&client->dev, "failed to allocate register map\n");
++		return PTR_ERR(data->regmap);
++	}
++
++	i2c_set_clientdata(client, data);
++
++	if (data->has_settings) {
++		// we've got a raw settings array.  we can use that instead of the other settings.  Write this
++		// immediately.  Then we can read defaults off the hw and handle other code setting a
++		// new frequency.
++		//TODO: Pull info from the settings array to calculate VCO freq instead
++		// of calling read_from_hw. As long as nothing tries to call set_frequency, that doesn't 
++		// really matter.
++		int x;
++		sprintf(dbg, "settings [hex] (writing): ");
++		for (x = 0; x < ARRAY_SIZE(data->settings); x++) {
++			char dbg2[4];
++			sprintf(dbg2, "%x ", data->settings[x]);
++			strcat(dbg, dbg2);
++		}
++		dev_info(&client->dev, dbg);
++
++		err = i2cwritebulk(data->i2c_client, data->regmap, 0, data->settings, ARRAY_SIZE(data->settings));
++		if (err) {
++			dev_err(&client->dev, "error writing all settings to chip (%i)\n", err);
++			return err;
++		} else {
++			dev_info(&client->dev, "successfully wrote full settings array");
++		}
++	} else {
++		err = idt5901_read_from_hw(data);
++		if (err) {
++			dev_err(&client->dev, "failed calling idt5901_read_from_hw (%i)\n", err);
++			return err;
++		}
++	}
++
++	clk = devm_clk_register(&client->dev, &data->hw);
++	if (IS_ERR(clk)) {
++		dev_err(&client->dev, "clock registration failed\n");
++		return PTR_ERR(clk);
++	}
++
++	err = of_clk_add_provider(client->dev.of_node, of_clk_src_simple_get, clk);
++	if (err) {
++		dev_err(&client->dev, "unable to add clk provider\n");
++		return err;
++	}
++	
++	if (!data->has_settings) {
++		dev_info(&client->dev, "input-freq: %u Hz, output-num: %i, clk1-freq: %u Hz\n", data->input_freq, data->output_num, target_frequency);
++		err = clk_set_rate(clk, target_frequency);
++		if (err) {
++			of_clk_del_provider(client->dev.of_node);
++			return err;
++		}
++		dev_info(&client->dev, "registered: output %u Hz on CKL%i\n", data->frequency, data->output_num);
++	} else {
++		dev_info(&client->dev, "registered: full settings string specified\n");
++	}
++
++	return 0;
++}
++
++static int idt5901_remove(struct i2c_client *client)
++{
++   printk(KERN_ALERT "idt5901_remove\n");
++   of_clk_del_provider(client->dev.of_node);
++   return 0;
++}
++
++
++static const struct i2c_device_id idt5901_id[] = {
++	{ "idt5901", idt5901 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, idt5901_id);
++
++static const struct of_device_id idt5901_of_match[] = {
++        { .compatible = "idt,idt5901" },
++        {},
++};
++MODULE_DEVICE_TABLE(of, idt5901_of_match);
++
++static struct i2c_driver idt5901_driver = {
++	.driver = {
++		.name = DRV_NAME,
++		.of_match_table = idt5901_of_match,
++	},
++	.probe		= idt5901_probe,
++	.remove		= idt5901_remove,
++	.id_table	= idt5901_id,
++};
++
++module_i2c_driver(idt5901_driver);
++
++MODULE_DESCRIPTION("Common clock framework driver for the 5P49V5901 (Versaclock5)");
++MODULE_AUTHOR("David Cater <david.cater@idt.com>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:" DRV_NAME);
+diff -urN a/drivers/clk/Kconfig b/drivers/clk/Kconfig
+--- a/drivers/clk/Kconfig	2017-07-18 07:36:20.746389446 -0400
++++ b/drivers/clk/Kconfig	2017-07-18 07:35:32.153388144 -0400
+@@ -86,6 +86,15 @@
+ 	  This driver supports Silicon Labs 570/571/598/599 programmable
+ 	  clock generators.
+ 
++config COMMON_CLK_IDT5901
++	tristate "Clock driver for IDT 5P49N5901 and compatible devices"
++	depends on I2C
++	depends on OF
++	select REGMAP_I2C
++	help
++	---help---
++	  This driver supports IDT Versaclock5 (5P49N5901) programmable clock generator.
++
+ config COMMON_CLK_CDCE706
+ 	tristate "Clock driver for TI CDCE706 clock synthesizer"
+ 	depends on I2C
+diff -urN a/drivers/clk/Makefile b/drivers/clk/Makefile
+--- a/drivers/clk/Makefile	2017-07-18 07:36:26.814389608 -0400
++++ b/drivers/clk/Makefile	2017-07-18 07:35:49.973388622 -0400
+@@ -41,6 +41,7 @@
+ obj-$(CONFIG_COMMON_CLK_SI5351)		+= clk-si5351.o
+ obj-$(CONFIG_COMMON_CLK_SI514)		+= clk-si514.o
+ obj-$(CONFIG_COMMON_CLK_SI570)		+= clk-si570.o
++obj-$(CONFIG_COMMON_CLK_IDT5901)	+= clk-idt5901.o
+ obj-$(CONFIG_ARCH_STM32)		+= clk-stm32f4.o
+ obj-$(CONFIG_ARCH_TANGO)		+= clk-tango4.o
+ obj-$(CONFIG_CLK_TWL6040)		+= clk-twl6040.o
