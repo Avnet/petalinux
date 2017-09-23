@@ -19,51 +19,29 @@
  */
 
 /* production silicon */
-//&gem3 {
-//	status = "okay";
-//	local-mac-address = [00 0a 35 00 02 90];
-//	phy-mode = "rgmii-id";
-//	phy-handle = <&phy0>;
-//	phy0: phy@9 {
-//		reg = <0x9>;
-//		ti,rx-internal-delay = <0x5>;
-//		ti,tx-internal-delay = <0x5>;
-//		ti,fifo-depth = <0x1>;
-//	};
-//};
-/* ES1 silicon */
 &gem3 {
 	status = "okay";
 	local-mac-address = [00 0a 35 00 02 90];
 	phy-mode = "rgmii-id";
 	phy-handle = <&phy0>;
-	phy0: phy@5 {
-		reg = <0x5>;
+	phy0: phy@9 {
+		reg = <0x9>;
 		ti,rx-internal-delay = <0x5>;
 		ti,tx-internal-delay = <0x5>;
 		ti,fifo-depth = <0x1>;
 	};
 };
-
-//&i2c1 {
+/* ES1 silicon */
+//&gem3 {
 //	status = "okay";
-//	clock-frequency = <400000>;
-//
-//	i2cswitch@70 { /* U7 on UZ3EG SOM */
-//		compatible = "nxp,pca9542";
-//		#address-cells = <1>;
-//		#size-cells = <0>;
-//		reg = <0x70>;
-//		i2c@0 { /* i2c mw 70 0 1 */
-//			#address-cells = <1>;
-//			#size-cells = <0>;
-//			reg = <0>;
-//			/* IIC_EEPROM */
-//			eeprom@52 { /* U5 on UZ3EG IO Carrier*/
-//				compatible = "at,24c08";
-//				reg = <0x52>;
-//			};
-//		};
+//	local-mac-address = [00 0a 35 00 02 90];
+//	phy-mode = "rgmii-id";
+//	phy-handle = <&phy0>;
+//	phy0: phy@5 {
+//		reg = <0x5>;
+//		ti,rx-internal-delay = <0x5>;
+//		ti,tx-internal-delay = <0x5>;
+//		ti,fifo-depth = <0x1>;
 //	};
 //};
 
@@ -216,14 +194,6 @@
 	status = "okay";
 };
 
-
-//&tca6416_u97 {
-//	gtr_sel0 {
-//		/* PCIE = 0, DP = 1 */
-//		/delete-property/ output-low;
-//		output-high;
-//	};
-//};
 
 //&pss_ref_clk {
 //	clock-frequency = <33330000>;
