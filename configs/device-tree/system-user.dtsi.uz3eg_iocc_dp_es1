@@ -19,31 +19,31 @@
  */
 
 /* production silicon */
-&gem3 {
-	status = "okay";
-	local-mac-address = [00 0a 35 00 02 90];
-	phy-mode = "rgmii-id";
-	phy-handle = <&phy0>;
-	phy0: phy@9 {
-		reg = <0x9>;
-		ti,rx-internal-delay = <0x5>;
-		ti,tx-internal-delay = <0x5>;
-		ti,fifo-depth = <0x1>;
-	};
-};
-/* ES1 silicon */
 //&gem3 {
 //	status = "okay";
 //	local-mac-address = [00 0a 35 00 02 90];
 //	phy-mode = "rgmii-id";
 //	phy-handle = <&phy0>;
-//	phy0: phy@5 {
-//		reg = <0x5>;
+//	phy0: phy@9 {
+//		reg = <0x9>;
 //		ti,rx-internal-delay = <0x5>;
 //		ti,tx-internal-delay = <0x5>;
 //		ti,fifo-depth = <0x1>;
 //	};
 //};
+/* ES1 silicon */
+&gem3 {
+	status = "okay";
+	local-mac-address = [00 0a 35 00 02 90];
+	phy-mode = "rgmii-id";
+	phy-handle = <&phy0>;
+	phy0: phy@5 {
+		reg = <0x5>;
+		ti,rx-internal-delay = <0x5>;
+		ti,tx-internal-delay = <0x5>;
+		ti,fifo-depth = <0x1>;
+	};
+};
 
 &i2c1 {
      status = "okay";
@@ -68,14 +68,14 @@
                      reg = <0x51>;
                 };
 
-                //idt5901: clock-generator@6a { /* IDT 5P49V5935 clock generator - IOCC U1 */
-                //     #clock-cells = <0>;
-                //     compatible = "idt,idt5901";
-                //     reg = <0x6a>;
-                //     input-freq = <25000000>;
-                //     clk-freq = <75000000>;
-                //     output-num = <4>;
-                //};
+                idt5901: clock-generator@6a { /* IDT 5P49V5935 clock generator - IOCC U1 */
+                     #clock-cells = <0>;
+                     compatible = "idt,idt5901";
+                     reg = <0x6a>;
+                     input-freq = <25000000>;
+                     clk-freq = <75000000>;
+                     output-num = <4>;
+                };
            };
            i2c@1 { /* i2c mw 70 0 2 */
                 #address-cells = <1>;
@@ -155,7 +155,7 @@
 
 &xilinx_drm {
 	status = "okay";
-	//clocks = <&idt5901>;
+	clocks = <&idt5901>;
 	xlnx,vid-clk-pl;
 	planes {
 		xlnx,pixel-format = "argb8888";
