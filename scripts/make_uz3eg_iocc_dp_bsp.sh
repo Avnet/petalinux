@@ -196,13 +196,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_iocc_dp/recipes-apps ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-apps ]
     then
     # Copy the applications to the meta-user apps recipe folder.
     echo " "
     echo "Adding applications ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_iocc_dp/recipes-apps/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-apps/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-apps/.
   else
     echo " "
@@ -211,13 +211,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_iocc_dp/recipes-core ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-core ]
     then
     # Copy the applications to the meta-user core recipe folder.
     echo " "
     echo "Adding core files ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_iocc_dp/recipes-core/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-core/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-core/.
   else
     echo " "
@@ -226,14 +226,14 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_iocc_dp/recipes-graphics ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-graphics ]
     then
     # Copy the applications to the meta-user graphics recipe folder.
     echo " "
     echo "Adding graphics files ..."
     echo " "
     mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-graphics
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_iocc_dp/recipes-graphics/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-graphics/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-graphics/.
   else
     echo " "
@@ -260,7 +260,7 @@ petalinux_project_set_boot_config_sd ()
   echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.uz3eg ./platform-top.h
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.${HDL_PROJECT_NAME} ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
