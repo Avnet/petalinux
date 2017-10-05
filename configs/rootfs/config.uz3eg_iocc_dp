@@ -4430,9 +4430,9 @@ CONFIG_trd-files=y
 #
 # user packages 
 #
-# CONFIG_packagegroup-trd=y
-# CONFIG_packagegroup-trd-dev=y
-# CONFIG_trd-files-dev=y
+# CONFIG_packagegroup-trd is not set
+# CONFIG_packagegroup-trd-dev is not set
+# CONFIG_trd-files-dev is not set
 
 #
 # PetaLinux RootFS Settings
