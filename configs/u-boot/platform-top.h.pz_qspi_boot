@@ -24,7 +24,7 @@
 	"netstart=0x10000000\0" \ 
 	"dtbnetstart=0x11800000\0" \ 
 	"loadaddr=0x10000000\0" \ 
-	"bootsize=0x500000\0" \
+	"bootsize=0x640000\0" \
 	"bootstart=0x0\0" \
 	"boot_img=BOOT.BIN\0" \ 
 	"load_boot=tftpboot ${clobstart} ${boot_img}\0" \ 
@@ -33,7 +33,7 @@
 	"install_boot=sf probe 0 && sf erase ${bootstart} ${bootsize} && " \
         "sf write ${clobstart} ${bootstart} ${filesize}\0" \
 	"bootenvsize=0x20000\0" \ 
-	"bootenvstart=0x500000\0" \ 
+	"bootenvstart=0x640000\0" \ 
 	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \ 
 	"jffs2_img=rootfs.jffs2\0" \ 
 	"load_jffs2=tftpboot ${clobstart} ${jffs2_img}\0" \ 
@@ -42,7 +42,7 @@
 	"install_jffs2=sf probe 0 && sf erase ${jffs2start} ${jffs2size} && " \ 
 		"sf write ${clobstart} ${jffs2start} ${filesize}\0" \ 
 	"kernelsize=0x9A0000\0" \
-	"kernelstart=0x640000\0" \
+	"kernelstart=0x660000\0" \
 	"kernel_img=image.ub\0" \ 
 	"load_kernel=tftpboot ${clobstart} ${kernel_img}\0" \ 
 	"update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel test_crc; setenv img; setenv psize; setenv installcmd\0" \

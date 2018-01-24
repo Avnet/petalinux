@@ -4422,12 +4422,16 @@ CONFIG_bridge-utils=y
 #
 # apps 
 #
+CONFIG_blinky=y
+CONFIG_blinky-init=y
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
 
 #
 # user packages 
 #
+CONFIG_iperf=y
+CONFIG_iperf3=y
 
 #
 # PetaLinux RootFS Settings

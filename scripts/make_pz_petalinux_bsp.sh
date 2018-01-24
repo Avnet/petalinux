@@ -57,7 +57,7 @@
 # Set global variables here.
 APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.2-final
 APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.2
-BUILD_BOOT_QSPI_OPTION=no
+BUILD_BOOT_QSPI_OPTION=yes
 BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_OPTION=yes
@@ -440,6 +440,8 @@ create_petalinux_bsp ()
     echo " "
   fi
 
+  #read -p "Press enter to continue"
+
   # Configure the root file system.
   petalinux_project_configure_rootfs
 
@@ -451,6 +453,11 @@ create_petalinux_bsp ()
 
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
+
+  # Do an initial bogus build, because it usually fails the first time
+  # Some sort of problem with building the PMU firmware or FSBL.  
+  #petalinux-build -x mrproper
+  #petalinux-build
 
   # If the QSPI boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI.
@@ -676,6 +683,8 @@ create_petalinux_bsp ()
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
   echo "#!/bin/sh" > cptftp_jtag.sh
+  echo "rm -f ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
+  echo "cp -f ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -f ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "petalinux-boot --jtag --fpga --bitstream ./hw_platform/system_wrapper.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
@@ -811,16 +820,16 @@ main_make_function ()
   #
   # Create the PetaLinux BSP for the PZ7015_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz7015_fmc2_2017_2
-  create_petalinux_bsp
+  #HDL_BOARD_NAME=PZ7015_FMC2
+  #PETALINUX_PROJECT_NAME=pz7015_fmc2_2017_2
+  #create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7020_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz7020_fmc2_2017_2
-  create_petalinux_bsp
+  #HDL_BOARD_NAME=PZ7020_FMC2
+  #PETALINUX_PROJECT_NAME=pz7020_fmc2_2017_2
+  #create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the PZ7030_FMC2 target.

@@ -57,7 +57,7 @@
 # Set global variables here.
 APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.2-final
 APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.2
-BUILD_BOOT_QSPI_OPTION=no
+BUILD_BOOT_QSPI_OPTION=yes
 BUILD_BOOT_SD_OPTION=yes
 BUILD_BOOT_SD_OOB_OPTION=yes
 BUILD_BOOT_SD_NO_BIT_OPTION=no
@@ -397,6 +397,8 @@ create_petalinux_bsp ()
     echo " "
   fi
 
+  #read -p "Press enter to continue"
+
   # Configure the root file system.
   petalinux_project_configure_rootfs
 
@@ -408,6 +410,11 @@ create_petalinux_bsp ()
 
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
+  
+  # Do an initial bogus build, because it usually fails the first time
+  # Some sort of problem with building the PMU firmware or FSBL.  
+  #petalinux-build -x mrproper
+  #petalinux-build
 
   # If the QSPI boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI.
@@ -435,15 +442,16 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf
   fi
 
-  # Restore project configurations and wipe out any changes made for special 
-  # boot options.
-  petalinux_project_restore_boot_config
 
   # If the SD no bit boot option is set, then perform the steps needed to  
   # build BOOT.BIN for booting from SD with the bistream loaded from a file
   # on the SD card instead of from the BOOT.BIN container image.
   if [ "$BUILD_BOOT_SD_NO_BIT_OPTION" == "yes" ]
   then
+    # Restore project configurations and wipe out any changes made for special 
+    # boot options.
+    petalinux_project_restore_boot_config
+
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd_no_bit
 
@@ -481,15 +489,16 @@ create_petalinux_bsp ()
     rm -f swap_bits.tcl
   fi
 
-  # Restore project configurations and wipe out any changes made for special 
-  # boot options.
-  petalinux_project_restore_boot_config
 
   # If the SD boot option is set, then perform the steps needed to  
   # build BOOT.BIN for booting from SD with the bistream loaded from 
   # the BOOT.BIN container image on the SD card.
   if [ "$BUILD_BOOT_SD_OPTION" == "yes" ]
   then
+    # Restore project configurations and wipe out any changes made for special 
+    # boot options.
+    petalinux_project_restore_boot_config
+    
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd
 
@@ -557,6 +566,8 @@ create_petalinux_bsp ()
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
   echo "#!/bin/sh" > cptftp_jtag.sh
+  echo "rm -f ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
+  echo "cp -f ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -f ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "petalinux-boot --jtag --fpga --bitstream ./hw_platform/system_wrapper.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
@@ -567,6 +578,18 @@ create_petalinux_bsp ()
   # Copy the image.ub to the pre-built images folder.
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/image.ub \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+
+  # If the BOOT_QSPI_OPTION is set, copy the BOOT_QSPI.BIN to the 
+  # pre-built images folder.
+  if [ "$BUILD_BOOT_QSPI_OPTION" == "yes" ]
+  then
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_QSPI.bin \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+
+    # Also copy the u-boot_QSPI.elf file to the pre-build images folder.
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+  fi
 
   # If the BOOT_SD_OPTION is set, copy the BOOT_SD.BIN to the 
   # pre-built images folder.
@@ -589,18 +612,6 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
   
-  # If the BOOT_QSPI_OPTION is set, copy the BOOT_QSPI.BIN to the 
-  # pre-built images folder.
-  if [ "$BUILD_BOOT_QSPI_OPTION" == "yes" ]
-  then
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_QSPI.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-
-    # Also copy the u-boot_QSPI.elf file to the pre-build images folder.
-    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
-  fi
-
   # If the BOOT_SD_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
   # the system.bit.bin files into the pre-built images folder.
   if [ "$BUILD_BOOT_SD_NO_BIT_OPTION" == "yes" ]
@@ -658,9 +669,9 @@ main_make_function ()
   #
   # Create the PetaLinux BSP for the MZ7010_FMCCC target.
   #
-  HDL_BOARD_NAME=MZ7010_FMCCC
-  PETALINUX_PROJECT_NAME=mz7010_fmccc_2017_2
-  create_petalinux_bsp
+  #HDL_BOARD_NAME=MZ7010_FMCCC
+  #PETALINUX_PROJECT_NAME=mz7010_fmccc_2017_2
+  #create_petalinux_bsp
 
   #
   # Create the PetaLinux BSP for the MZ7020_FMCCC target.

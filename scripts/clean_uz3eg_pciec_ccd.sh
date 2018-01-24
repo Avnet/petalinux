@@ -33,30 +33,30 @@
 # ----------------------------------------------------------------------------
 # 
 #  Create Date:         Aug 25, 2017
-#  Design Name:         Avnet UltraZed-3EG SOM PetaLinux BSP Generator
-#  Module Name:         clean_uz3eg_petalinux_bsp.tcl
-#  Project Name:        Avnet UltraZed-3EG SOM  PetaLinux BSP Generator
+#  Design Name:         Avnet UltraZed-EG SOM 
+#                       Cybersecurity Concept Design (CCD) BSP Generator
+#  Module Name:         clean_uz3eg_pciec_ccd.tcl
+#  Project Name:        Avnet UltraZed-EG SOM
+#                       Cybersecurity Concept Design (CCD) BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     Avnet UltraZed-3EG SOM and supported development
-#                       carriers such as the IOCC (UZ3EG_IOCC) and the
-#                       PCIEC (UZ3EG_PCIEC)
+#  Hardware Boards:     Avnet UltraZed-EG SOM and the PCIEC (UZ3EG_PCIEC)
 # 
 #  Tool versions:       Xilinx Vivado 2017.2
 # 
-#  Description:         Clean Script for UZ3EG PetaLinux BSPs and related 
-#                       HW Platforms
+#  Description:         Clean Script for UZ3EG CCD BSP and related 
+#                       HW Platform
 # 
 #  Dependencies:        None
 #
-#  Revision:            Aug 25, 2017: 1.00 Initial version
+#  Revision:            Jan 24, 2018: 1.00 Initial version
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-HDL_HARDWARE_NAME=uz_petalinux_hw
-HDL_PROJECT_NAME=uz_petalinux
+HDL_HARDWARE_NAME=uz3eg_pciec_ccd_hw
+HDL_PROJECT_NAME=uz3eg_pciec_ccd
 HDL_PROJECTS_FOLDER=../../hdl/Projects
 HDL_SCRIPTS_FOLDER=../../hdl/Scripts
 PETALINUX_APPS_FOLDER=../../petalinux/apps
@@ -86,17 +86,10 @@ main_clean_function ()
   # the targets.
 
   #
-  # Remove project files created for PetaLinux BSP on the UZ3EG_IOCC target.
-  #
-  HDL_BOARD_NAME=UZ3EG_IOCC
-  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
-  clean_petalinux_bsp
-
-  #
   # Remove project files created for PetaLinux BSP on the UZ3EG_PCIEC target.
   #
   HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_2017_2
+  PETALINUX_PROJECT_NAME=uz3eg_pciec_ccd_2017_2
   clean_petalinux_bsp
 }
 

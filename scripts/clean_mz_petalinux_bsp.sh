@@ -89,7 +89,7 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the MZ7010_FMCCC target.
   #
   HDL_BOARD_NAME=MZ7010_FMCCC
-  PETALINUX_PROJECT_NAME=mz7020_fmccc_2017_2
+  PETALINUX_PROJECT_NAME=mz7010_fmccc_2017_2
   clean_petalinux_bsp
 
   #

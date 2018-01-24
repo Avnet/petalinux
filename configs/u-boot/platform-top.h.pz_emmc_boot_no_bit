@@ -31,7 +31,7 @@
 	"netstart=0x10000000\0" \ 
 	"dtbnetstart=0x11800000\0" \ 
 	"loadaddr=0x10000000\0" \ 
-	"bootsize=0x500000\0" \
+	"bootsize=0x640000\0" \
 	"bootstart=0x0\0" \
 	"boot_img=BOOT.BIN\0" \ 
 	"load_boot=tftpboot ${clobstart} ${boot_img}\0" \ 
@@ -40,7 +40,7 @@
 	"install_boot=sf probe 0 && sf erase ${bootstart} ${bootsize} && " \
 		"sf write ${clobstart} ${bootstart} ${filesize}\0" \
 	"bootenvsize=0x20000\0" \ 
-	"bootenvstart=0x500000\0" \ 
+	"bootenvstart=0x640000\0" \ 
 	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \ 
 	"jffs2_img=rootfs.jffs2\0" \ 
 	"load_jffs2=tftpboot ${clobstart} ${jffs2_img}\0" \ 
