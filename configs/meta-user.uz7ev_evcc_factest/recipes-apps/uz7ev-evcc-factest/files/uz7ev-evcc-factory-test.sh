@@ -1,11 +1,15 @@
 # ----------------------------------------------------------------------------
-#       _____
-#      *     *
-#     *____   *____
-#    * *===*   *==*
-#   *___*===*___**  AVNET
-#        *======*
-#         *====*
+#
+#        ** **        **          **  ****      **  **********  **********
+#       **   **        **        **   ** **     **  **              **
+#      **     **        **      **    **  **    **  **              **
+#     **       **        **    **     **   **   **  *********       **
+#    **         **        **  **      **    **  **  **              **
+#   **           **        ****       **     ** **  **              **
+#  **  .........  **        **        **      ****  **********      **
+#     ...........
+#                                     Reach Further
+#
 # ----------------------------------------------------------------------------
 # 
 #  This design is the property of Avnet.  Publication of this
@@ -45,10 +49,10 @@
 #  Revision:            Dec 20, 2017: 1.0 Initial version
 # 
 # ----------------------------------------------------------------------------
-#!/etc/sh
+#!/bin/sh
 
 # FAT version information.
-FAT_VERSION_NUMBER=1.0
+FAT_VERSION_NUMBER=1.1
 
 # Sleep interval between tests.
 SLEEP_INTERVAL_NORMAL=1
@@ -90,25 +94,26 @@ USER_SWITCH_TEST_APP=user-switch-test
 USER_LED_TEST_APP=user-led-test
 
 
-
 # Setup variables to store individual test results into.
 # Common tests
 IIC_MAC_EEPROM_TEST_RESULT=-1
-IIC_CLOCK_EEPROM_EMPTY_TEST_RESULT=-1
-IIC_CLOCK_EEPROM_CONTENTS_TEST_RESULT=-1
 USB_DEVICE_READ_TEST_RESULT=-1
 USB3_LINK_TEST_RESULT=-1
-ETHERNET_PING_TEST_RESULT=-1
+PL_GPIO_LOOPBACK_TEST_RESULT=-1
+
+# Carrier-only tests
+IIC_CLOCK_EEPROM_EMPTY_TEST_RESULT=-1
+IIC_CLOCK_EEPROM_CONTENTS_TEST_RESULT=-1
 PCIE_TEST_RESULT=-1
 
 # SOM-only tests
-IIC_SOM_EEPROM_TEST_RESULT=-1
+ETHERNET_PING_TEST_RESULT=-1
 IIC_GPIO_EXPANDER_TEST_RESULT=-1
-PL_DDR4_TEST_RESULT=-1
-PL_GPIO_LOOPBACK_TEST_RESULT=-1
 PS_PMOD_LOOPBACK_TEST_RESULT=-1
 USER_SWITCH_TEST_RESULT=-1
 USER_LED_TEST_RESULT=-1
+IIC_SOM_EEPROM_TEST_RESULT=-1
+PL_DDR4_TEST_RESULT=-1
 OOB_IMAGE_PROGRAM_RESULT=-1
 
 # Information used to execute comparison test between expected results
@@ -183,6 +188,202 @@ print_fat_start_banner ()
 
 # Performs all of the tests that are common to both SOM and Carrier boards.
 launch_all_common_tests ()
+{
+  # Launch the USB device read test
+  
+  # The USB test involves mounting the test USB drive and checking that a 
+  # file can be read from the removable drive.
+  echo " "
+  echo "+++ Running USB Device Read Test..."
+  echo " "
+
+  # Check to see if the USB mass storage block device is enumerated.
+  if [ -b /dev/sda1 ]
+  then
+    mkdir /mnt/sda
+    mount /dev/sda1 /mnt/sda
+
+    echo "Avnet is one of the world's largest electronics components, technology, distribution and services companies, offering leading design chain services combined with world-class supply chain services in support of the electronics industry. It is an operating group of Avnet, Inc. 
+
+Avnet is focused on exceeding customers'​ expectations. We serve electronic original equipment manufacturers (EOEMs) and electronic manufacturing services (EMS) providers in more than 80 countries, distributing electronic components and embedded solutions from leading manufacturers. From design to delivery, we are a company that is dedicated to support across the board. 
+
+Avnet Americas specifically serves customers in the United States, Canada, Mexico and Brazil. Providing leading products, training and support to the electronics community.
+
+Bring the power of the world's largest distributor to your desktop. Get access to over 5 million products, including pricing and availability, datasheets, cross reference and parametric data and more on the Avnet e-commerce site: http://avnetexpress.avnet.com/
+
+Follow Avnet on Twitter: @AvnetDesignWire
+
+Our Markets and Technologies include:
+Automotive
+Defense & Aerospace
+Embedded Vision
+Internet of Things
+IP & E
+Programmable Logic
+& More!
+
+Specialties
+Electronics Components Design-Chain, Electronics Components Supply-Chain, Electronics Components Distribution, Embedded Solutions, Interconnect, Passive, Electromechanical Components
+
+Website
+http://www.products.avnet.com
+
+Industry
+Semiconductors
+
+Type
+Public Company
+
+Headquarters
+2211 S 47th St Phoenix, AZ 85034 United States
+
+Company Size
+10,001+ employees
+
+Founded
+1921" > /tmp/usb_device_read_golden.txt
+
+    sync
+    cp -f /tmp/usb_device_read_golden.txt /mnt/sda/usb_device_read_test.txt
+    sync
+
+    if [ -f /mnt/sda/usb_device_read_test.txt ]
+    then
+      diff -q /tmp/usb_device_read_golden.txt /mnt/sda/usb_device_read_test.txt
+      USB_DEVICE_READ_TEST_RESULT=$?
+    else
+      echo "******************************************************************"
+      echo " "
+      echo "   Test file not found on USB Thumb Drive, make sure that you are"
+      echo "   using the USB test thumb drive and re-run factoy tests"
+      echo " "
+      echo "******************************************************************"
+      echo " "
+    fi
+	
+    umount /mnt/sda
+    rm -rf /mnt/sda
+
+  else
+    echo "******************************************************************"
+    echo " "
+    echo "   No USB Mass Storage Block Device Enumerated!"
+    echo "   Connect the test USB Thumb drive to Carrier board"
+    echo "   USB Type-A connector and re-run factory tests"
+    echo " "
+    echo "******************************************************************"
+    echo " "
+  fi
+
+  if [ $USB_DEVICE_READ_TEST_RESULT == "0" ]; 
+  then
+    echo " "
+    echo "******************************************************************"
+    echo "***                                                            ***"                
+    echo "*** USB READ TEST:  PASS                                       ***"
+    echo "***                                                            ***"
+    echo "******************************************************************"
+    echo " "
+  else
+    echo " "
+    echo "******************************************************************"
+    echo "***                                                            ***"                
+    echo "*** USB READ TEST:  FAIL                                       ***"
+    echo "***                                                            ***"
+    echo "******************************************************************"
+    echo " "
+  fi
+
+  sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
+
+  # Launch the Carrier USB3 LINK test.
+  if [ -e ${TEST_APP_FOLDER}/${USB3_LINK_TEST_APP} ]
+  then
+    if [ -f ${TEST_APP_FOLDER}/${USB3_LINK_TEST_APP} ]
+    then
+      echo " "
+      echo "+++ Running USB3 LINK Test..."
+      echo " "
+      ${TEST_APP_FOLDER}/${USB3_LINK_TEST_APP}
+      USB3_LINK_TEST_RESULT=$?
+    fi
+  else
+    echo " "
+    echo "The file ${USB3_LINK_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
+    echo " "
+  fi
+
+  sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
+
+  # Launch the PL GPIO loopback test.
+  if [ -e ${TEST_APP_FOLDER}/${PL_GPIO_LOOPBACK_TEST_APP} ]
+  then
+    if [ -f ${TEST_APP_FOLDER}/${PL_GPIO_LOOPBACK_TEST_APP} ]
+    then
+      echo " "
+      echo "+++ Running PL GPIO Loopback Test..."
+      echo " "
+      ${TEST_APP_FOLDER}/${PL_GPIO_LOOPBACK_TEST_APP}
+      PL_GPIO_LOOPBACK_TEST_RESULT=$?
+    fi
+  else
+    echo " "
+    echo "The file ${PL_GPIO_LOOPBACK_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
+    echo " "
+  fi
+
+  sleep ${SLEEP_INTERVAL_NORMAL}
+
+  if [ $PL_GPIO_LOOPBACK_TEST_RESULT == "0" ]; 
+  then
+    echo " "
+    echo "******************************************************************"
+    echo "***                                                            ***"                
+    echo "*** PL GPIO/PMOD LOOPBACK:  PASS                               ***"
+    echo "***                                                            ***"
+    echo "******************************************************************"
+    echo " "
+  else
+    echo " "
+    echo "******************************************************************"
+    echo "***                                                            ***"                
+    echo "*** PL GPIO/PMOD LOOPBACK:  FAIL                               ***"
+    echo "***                                                            ***"
+    echo "******************************************************************"
+    echo " "
+  fi
+
+  sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
+
+  # Launch the Carrier IIC Ethernet MAC EEPROM test.
+  if [ -e ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} ]
+  then
+    if [ -f ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} ]
+    then
+      echo " "
+      echo "+++ Running Carrier IIC Ethernet MAC EEPROM Test..."
+      echo " "
+      ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} --bus 2 --slave 0x51
+      IIC_MAC_EEPROM_TEST_RESULT=$?
+    fi
+  else
+    echo " "
+    echo "The file ${EEPROM_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
+    echo " "
+  fi
+
+  sleep ${SLEEP_INTERVAL_NORMAL}
+
+} # launch_all_common_tests ()
+
+# Performs all of the tests that are specific to the carrier board.
+launch_all_carrier_specific_tests ()
 {
   # Launch carrier IIC clock2 config EEPROM test IF the EEPROM is empty
   # Define the expected output of eeprog here for an empty EEPROM
@@ -314,14 +515,41 @@ launch_all_common_tests ()
     fi
   fi
 
-##########
-
   sleep ${SLEEP_INTERVAL_NORMAL}
 
+##########
+
+  # Launch the Carrier PCIe enumeration test.
+  if [ -e ${TEST_APP_FOLDER}/${PCIE_TEST_APP} ]
+  then
+    if [ -f ${TEST_APP_FOLDER}/${PCIE_TEST_APP} ]
+    then
+      echo " "
+      echo "+++ Running PCIe Enumeration Test..."
+      echo " "
+      ${TEST_APP_FOLDER}/${PCIE_TEST_APP}
+      PCIE_TEST_RESULT=$?
+    fi
+  else
+    echo " "
+    echo "The file ${PCIE_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
+    echo " "
+  fi
+
+} # launch_all_carrier_specific_tests ()
+
+
+# Performs all of the tests that are related to the SOM only.
+launch_all_som_specific_tests ()
+{
   # Launch the Ethernet ping test.
   echo " "
   echo "+++ Running Ethernet Ping Test..."
   echo " "
+  
+  ifconfig eth0 192.168.1.100
+  sleep ${SLEEP_INTERVAL_NORMAL}
+  
   ping -c 10 192.168.1.10
   ETHERNET_PING_TEST_RESULT=$?
 
@@ -344,180 +572,10 @@ launch_all_common_tests ()
     echo " "
   fi
 
-##########
-
-  sleep ${SLEEP_INTERVAL_NORMAL}
-
-  # Launch the Carrier IIC Ethernet MAC EEPROM test.
-  if [ -e ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} ]
-  then
-    if [ -f ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} ]
-    then
-      echo " "
-      echo "+++ Running Carrier IIC Ethernet MAC EEPROM Test..."
-      echo " "
-      ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} --bus 2 --slave 0x51
-      IIC_MAC_EEPROM_TEST_RESULT=$?
-    fi
-  else
-    echo " "
-    echo "The file ${EEPROM_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
-    echo " "
-  fi
-
-##########
-
-  sleep ${SLEEP_INTERVAL_NORMAL}
-
-  # Launch the USB device read test
-  
-  # The USB test involves mounting the test USB drive and checking that a 
-  # file can be read from the removable drive.
-  echo " "
-  echo "+++ Running USB Device Read Test..."
-  echo " "
-
-  # Check to see if the USB mass storage block device is enumerated.
-  if [ -b /dev/sda1 ]
-  then
-    mkdir /mnt/sda
-    mount /dev/sda1 /mnt/sda
-
-    echo "Avnet is one of the world's largest electronics components, technology, distribution and services companies, offering leading design chain services combined with world-class supply chain services in support of the electronics industry. It is an operating group of Avnet, Inc. 
-
-Avnet is focused on exceeding customers'​ expectations. We serve electronic original equipment manufacturers (EOEMs) and electronic manufacturing services (EMS) providers in more than 80 countries, distributing electronic components and embedded solutions from leading manufacturers. From design to delivery, we are a company that is dedicated to support across the board. 
-
-Avnet Americas specifically serves customers in the United States, Canada, Mexico and Brazil. Providing leading products, training and support to the electronics community.
-
-Bring the power of the world's largest distributor to your desktop. Get access to over 5 million products, including pricing and availability, datasheets, cross reference and parametric data and more on the Avnet e-commerce site: http://avnetexpress.avnet.com/
-
-Follow Avnet on Twitter: @AvnetDesignWire
-
-Our Markets and Technologies include:
-Automotive
-Defense & Aerospace
-Embedded Vision
-Internet of Things
-IP & E
-Programmable Logic
-& More!
-
-Specialties
-Electronics Components Design-Chain, Electronics Components Supply-Chain, Electronics Components Distribution, Embedded Solutions, Interconnect, Passive, Electromechanical Components
-
-Website
-http://www.products.avnet.com
-
-Industry
-Semiconductors
-
-Type
-Public Company
-
-Headquarters
-2211 S 47th St Phoenix, AZ 85034 United States
-
-Company Size
-10,001+ employees
-
-Founded
-1921" > /tmp/usb_device_read_golden.txt
-
-    sync
-    cp -f /tmp/usb_device_read_golden.txt /mnt/sda/usb_device_read_test.txt
-    sync
-
-    if [ -f /mnt/sda/usb_device_read_test.txt ]
-    then
-      diff -q /tmp/usb_device_read_golden.txt /mnt/sda/usb_device_read_test.txt
-      USB_DEVICE_READ_TEST_RESULT=$?
-    else
-      echo "******************************************************************"
-      echo " "
-      echo "   Test file not found on USB Thumb Drive, make sure that you are"
-      echo "   using the USB test thumb drive and re-run factoy tests"
-      echo " "
-      echo "******************************************************************"
-      echo " "
-    fi
-	
-    umount /mnt/sda
-  else
-    echo "******************************************************************"
-    echo " "
-    echo "   No USB Mass Storage Block Device Enumerated!"
-    echo "   Connect the test USB Thumb drive to Carrier board"
-    echo "   USB Type-A connector and re-run factory tests"
-    echo " "
-    echo "******************************************************************"
-    echo " "
-  fi
-
-  if [ $USB_DEVICE_READ_TEST_RESULT == "0" ]; 
-  then
-    echo " "
-    echo "******************************************************************"
-    echo "***                                                            ***"                
-    echo "*** USB READ TEST:  PASS                                       ***"
-    echo "***                                                            ***"
-    echo "******************************************************************"
-    echo " "
-  else
-    echo " "
-    echo "******************************************************************"
-    echo "***                                                            ***"                
-    echo "*** USB READ TEST:  FAIL                                       ***"
-    echo "***                                                            ***"
-    echo "******************************************************************"
-    echo " "
-  fi
-
   sleep ${SLEEP_INTERVAL_NORMAL}
 
 ##########
 
-  # Launch the Carrier USB3 LINK test.
-  if [ -e ${TEST_APP_FOLDER}/${USB3_LINK_TEST_APP} ]
-  then
-    if [ -f ${TEST_APP_FOLDER}/${USB3_LINK_TEST_APP} ]
-    then
-      echo " "
-      echo "+++ Running USB3 LINK Test..."
-      echo " "
-      ${TEST_APP_FOLDER}/${USB3_LINK_TEST_APP}
-      USB3_LINK_TEST_RESULT=$?
-    fi
-  else
-    echo " "
-    echo "The file ${USB3_LINK_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
-    echo " "
-  fi
-
-  sleep ${SLEEP_INTERVAL_NORMAL}
-
-  # Launch the Carrier PCIe enumeration test.
-  if [ -e ${TEST_APP_FOLDER}/${PCIE_TEST_APP} ]
-  then
-    if [ -f ${TEST_APP_FOLDER}/${PCIE_TEST_APP} ]
-    then
-      echo " "
-      echo "+++ Running PCIe Enumeration Test..."
-      echo " "
-      ${TEST_APP_FOLDER}/${PCIE_TEST_APP}
-      PCIE_TEST_RESULT=$?
-    fi
-  else
-    echo " "
-    echo "The file ${PCIE_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
-    echo " "
-  fi
-
-
-} # launch_all_common_tests ()
-
-# Performs all of the tests that are related to the SOM only.
-launch_all_som_specific_tests ()
-{
   # Launch the IIC GPIO expander test.
   if [ -e ${TEST_APP_FOLDER}/${IIC_GPIO_EXPANDER_TEST_APP} ]
   then
@@ -535,51 +593,9 @@ launch_all_som_specific_tests ()
     echo " "
   fi
 
-##########
-
   sleep ${SLEEP_INTERVAL_NORMAL}
-
-  # Launch the PL GPIO loopback test.
-  if [ -e ${TEST_APP_FOLDER}/${PL_GPIO_LOOPBACK_TEST_APP} ]
-  then
-    if [ -f ${TEST_APP_FOLDER}/${PL_GPIO_LOOPBACK_TEST_APP} ]
-    then
-      echo " "
-      echo "+++ Running PL GPIO Loopback Test..."
-      echo " "
-      ${TEST_APP_FOLDER}/${PL_GPIO_LOOPBACK_TEST_APP}
-      PL_GPIO_LOOPBACK_TEST_RESULT=$?
-    fi
-  else
-    echo " "
-    echo "The file ${PL_GPIO_LOOPBACK_TEST_APP} does not exist in the ${TEST_APP_FOLDER} folder"
-    echo " "
-  fi
-
-  sleep ${SLEEP_INTERVAL_NORMAL}
-
-  if [ $PL_GPIO_LOOPBACK_TEST_RESULT == "0" ]; 
-  then
-    echo " "
-    echo "******************************************************************"
-    echo "***                                                            ***"                
-    echo "*** PL GPIO/PMOD LOOPBACK:  PASS                               ***"
-    echo "***                                                            ***"
-    echo "******************************************************************"
-    echo " "
-  else
-    echo " "
-    echo "******************************************************************"
-    echo "***                                                            ***"                
-    echo "*** PL GPIO/PMOD LOOPBACK:  FAIL                               ***"
-    echo "***                                                            ***"
-    echo "******************************************************************"
-    echo " "
-  fi
 
 ##########
-
-  sleep ${SLEEP_INTERVAL_NORMAL}
 
   # Launch the PS Pmod loopback test.
   if [ -e ${TEST_APP_FOLDER}/${PS_PMOD_LOOPBACK_TEST_APP} ]
@@ -619,9 +635,9 @@ launch_all_som_specific_tests ()
     echo " "
   fi
 
-##########
-
   sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
 
   # Launch the User Switch test.
   if [ -e ${TEST_APP_FOLDER}/${USER_SWITCH_TEST_APP} ]
@@ -661,9 +677,9 @@ launch_all_som_specific_tests ()
     echo " "
   fi
 
-##########
-
   sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
 
   # Launch the User LED and PB Switch test.
   if [ -e ${TEST_APP_FOLDER}/${USER_LED_TEST_APP} ]
@@ -703,9 +719,9 @@ launch_all_som_specific_tests ()
     echo " "
   fi
 
-##########
-
   sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
 
   # Launch the SOM IIC EEPROM test.
   if [ -e ${TEST_APP_FOLDER}/${EEPROM_TEST_APP} ]
@@ -724,9 +740,9 @@ launch_all_som_specific_tests ()
     echo " "
   fi
 
-##########
-
   sleep ${SLEEP_INTERVAL_NORMAL}
+
+##########
 
   # Launch the PL DDR4 test.
 
@@ -778,22 +794,21 @@ launch_all_som_specific_tests ()
     echo "******************************************************************"
     echo " "
   fi
-
-
+  
 } # launch_all_som_specific_tests ()
 
 # Programs the OOB boot images to QSPI.  Used on SOM FAT runs.
-program_oob_boot_firmware_to_qspi ()
-{
-  if [ -f ${OOB_IMAGE_FOLDER}/${OOB_BOOT_IMAGE} ]
-  then		
-    echo " "
-    echo "+++ Programming QSPI OOB Image..."
-    echo " "
-    flashcp -v ${OOB_IMAGE_FOLDER}/${OOB_BOOT_IMAGE} /dev/mtd2
-    OOB_IMAGE_PROGRAM_RESULT=$?
-  fi
-} # program_oob_boot_firmware_to_qspi ()
+#program_oob_boot_firmware_to_qspi ()
+#{
+  #if [ -f ${OOB_IMAGE_FOLDER}/${OOB_BOOT_IMAGE} ]
+  #then		
+    #echo " "
+    #echo "+++ Programming QSPI OOB Image..."
+    #echo " "
+    #flashcp -v ${OOB_IMAGE_FOLDER}/${OOB_BOOT_IMAGE} /dev/mtd2
+    #OOB_IMAGE_PROGRAM_RESULT=$?
+  #fi
+#} # program_oob_boot_firmware_to_qspi ()
 
 # Programs the OOB Linux images to eMMC.  Used on SOM FAT runs.
 program_oob_linux_image_to_emmc ()
@@ -852,6 +867,7 @@ w" | fdisk /dev/mmcblk0 && sleep 3 && sync
 
   # Unmount the destination eMMC partition.			
   umount /mnt/emmc
+  rm -rf /mnt/emmc
 
   # Show some more meaningful results to the test operator.
   sleep ${SLEEP_INTERVAL_NORMAL}
@@ -897,20 +913,6 @@ print_fat_results_banner_header ()
 print_fat_results_common_tests ()
 {
   echo "***                                                            ***"
-  if [ $IIC_CLOCK_EEPROM_CONTENTS_TEST_RESULT == 0 ];
-  then
-    echo "*** IIC Clock Config EEPROM Test:      PASS                    ***"
-  else
-    echo "*** IIC Clock Config EEPROM Test:  --- FAIL ---                ***"
-  fi
-
-  if [ $ETHERNET_PING_TEST_RESULT == 0 ];
-  then
-    echo "*** Ethernet Ping:                     PASS                    ***"
-  else
-    echo "*** Ethernet Ping:                 --- FAIL ---                ***"
-  fi
-
   if [ $IIC_MAC_EEPROM_TEST_RESULT == "0" ]; 
   then
     echo "*** IIC MAC EEPROM Test:               PASS                    ***"
@@ -932,31 +934,54 @@ print_fat_results_common_tests ()
     echo "*** USB3 Link Test:                --- FAIL ---                ***"
   fi
 
+  if [ $PL_GPIO_LOOPBACK_TEST_RESULT == "0" ]; 
+  then
+    echo "*** PL GPIO Loopback Test:             PASS                    ***"
+  else
+    echo "*** PL GPIO Loopback Test:         --- FAIL ---                ***"
+  fi
+  
+} # print_fat_results_common_tests ()
+
+
+# Display the test results for all carrier tests.
+print_fat_results_carrier_specific_tests ()
+{
+  echo "***                                                            ***"
+  if [ $IIC_CLOCK_EEPROM_CONTENTS_TEST_RESULT == 0 ];
+  then
+    echo "*** IIC Clock Config EEPROM Test:      PASS                    ***"
+  else
+    echo "*** IIC Clock Config EEPROM Test:  --- FAIL ---                ***"
+  fi
+
   if [ $PCIE_TEST_RESULT == "0" ]; 
   then
     echo "*** PCIe Enumeration Test:             PASS                    ***"
   else
     echo "*** PCIe Enumeration Test:         --- FAIL ---                ***"
   fi
-} # print_fat_results_common_tests ()
+
+  echo "***                                                            ***"
+} # print_fat_results_carrier_specific_tests ()
 
 # Displays also the test results for the SOM.
 print_fat_results_som_specific_tests ()
 {
   echo "***                                                            ***"
 
+  if [ $ETHERNET_PING_TEST_RESULT == 0 ];
+  then
+    echo "*** Ethernet Ping:                     PASS                    ***"
+  else
+    echo "*** Ethernet Ping:                 --- FAIL ---                ***"
+  fi
+
   if [ $IIC_GPIO_EXPANDER_TEST_RESULT == "0" ]; 
   then
     echo "*** IIC GPIO Expander Test:            PASS                    ***"
   else
     echo "*** IIC GPIO Expander Test:        --- FAIL ---                ***"
-  fi
-
-  if [ $PL_GPIO_LOOPBACK_TEST_RESULT == "0" ]; 
-  then
-    echo "*** PL GPIO Loopback Test:             PASS                    ***"
-  else
-    echo "*** PL GPIO Loopback Test:         --- FAIL ---                ***"
   fi
 
   if [ $PS_PMOD_LOOPBACK_TEST_RESULT == "0" ]; 
@@ -1035,22 +1060,24 @@ launch_all_common_tests
 if [ $SOM_ONLY_TESTS == "1" ];
 then
   launch_all_som_specific_tests
+else
+  launch_all_carrier_specific_tests
 fi 
 
 # If this is a SOM FAT run, program the OOB firmware images to QSPI.
-if [ $SOM_ONLY_TESTS == "1" ];
-then
-  program_oob_boot_firmware_to_qspi
-fi
+#if [ $SOM_ONLY_TESTS == "1" ];
+#then
+  #program_oob_boot_firmware_to_qspi
+#fi
 
 # If this is a SOM FAT run, program the OOB Linux image(s) to eMMC.
 if [ $SOM_ONLY_TESTS == "1" ];
 then
   # But only if the QSPI programming was successful.
-  if [ $OOB_IMAGE_PROGRAM_RESULT == "0" ];
-  then
+  #if [ $OOB_IMAGE_PROGRAM_RESULT == "0" ];
+  #then
     program_oob_linux_image_to_emmc
-  fi
+  #fi
 fi
 
 # Display the "Results" test banner so that the test operator can see that 
@@ -1062,10 +1089,13 @@ print_fat_results_banner_header
 print_fat_results_common_tests
 
 # If this is a SOM FAT run, show test results for tests that are only for
-# the SOM FAT procedure.
+# the SOM FAT procedure.  If not a SOM FAT run it must be a carrier FAT run, so
+# print the carrier results instead.
 if [ $SOM_ONLY_TESTS == "1" ];
 then
   print_fat_results_som_specific_tests
+else
+  print_fat_results_carrier_specific_tests
 fi
 
 echo "******************************************************************"
@@ -1073,5 +1103,6 @@ echo " "
 
 # Don't forget to unmount the microSD card
 umount /mnt/sd
+rm -rf mnt/sd
 
 # END HERE: All done with the testing.

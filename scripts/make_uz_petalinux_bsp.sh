@@ -48,20 +48,21 @@
 #  Dependencies:        None
 #
 #  Revision:            Aug 25, 2017: 1.00 Initial version
+#                       Jan 30, 2018: 1.01 Added build for UltraZed-EV
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.2-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.2
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.3-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.3
 BUILD_BOOT_QSPI_OPTION=no
-BUILD_BOOT_EMMC_OPTION=no
+BUILD_BOOT_EMMC_OPTION=yes
 BUILD_BOOT_EMMC_OOB_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_OPTION=yes
-BUILD_BOOT_SD_OOB_OPTION=yes
+BUILD_BOOT_SD_OOB_OPTION=no
 BUILD_BOOT_SD_NO_BIT_OPTION=no
 FSBL_PROJECT_NAME=zynqmp_fsbl
 HDL_HARDWARE_NAME=uz_petalinux_hw
@@ -74,6 +75,8 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
+
+PLNX_BUILD_SUCCESS=-1
 
 source_tools_settings ()
 {
@@ -290,7 +293,7 @@ petalinux_project_set_boot_config_emmc ()
   echo "Patching project config for eMMC boot support..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.emmc_boot.patch
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.uz_emmc_boot.patch
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
   # Add support for QSPI + eMMC boot to U-Boot environment configuration.
@@ -415,6 +418,10 @@ create_petalinux_bsp ()
   # Import the hardware description into the PetaLinux project.
   petalinux-config --oldconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
+  # DEBUG
+  #echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}.patch file"
+  #read -p "Press ENTER to continue" 
+  
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
   # 
@@ -467,10 +474,8 @@ create_petalinux_bsp ()
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
 
-  # Do an initial bogus build, because it usually fails the first time
-  # Some sort of problem with building the PMU firmware.  
+  # Do an initial project clean 
   petalinux-build -x mrproper
-  petalinux-build
 
   # If the QSPI boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI.
@@ -479,12 +484,20 @@ create_petalinux_bsp ()
     # Modify the project configuration for QSPI boot.
     petalinux_project_set_boot_config_qspi
 
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x mrproper
+    PLNX_BUILD_SUCCESS=-1
 
-    # Build PetaLinux project.
-    petalinux-build 
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
+
+      # Build PetaLinux project.
+      petalinux-build 
+      
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # Create boot image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
@@ -510,12 +523,23 @@ create_petalinux_bsp ()
     # Modify the project configuration for EMMC boot.
     petalinux_project_set_boot_config_emmc
 
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x mrproper
+    #DEBUG
+    #read -p "Check platform-top.h for emmc boot settings.  Press ENTER to continue."
+    
+    PLNX_BUILD_SUCCESS=-1
 
-    # Build PetaLinux project.
-    petalinux-build 
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
+
+      # Build PetaLinux project.
+      petalinux-build 
+      
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # Create boot image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
@@ -542,12 +566,20 @@ create_petalinux_bsp ()
     # Modify the project configuration for EMMC boot.
     petalinux_project_set_boot_config_emmc_no_bit
 
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x mrproper
+    PLNX_BUILD_SUCCESS=-1
 
-    # Build PetaLinux project.
-    petalinux-build 
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
+
+      # Build PetaLinux project.
+      petalinux-build 
+      
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # Create boot imagewhich does not contain the bistream image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
@@ -589,12 +621,20 @@ create_petalinux_bsp ()
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd_no_bit
 
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x mrproper
+    PLNX_BUILD_SUCCESS=-1
 
-    # Build PetaLinux project.
-    petalinux-build 
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
+
+      # Build PetaLinux project.
+      petalinux-build 
+      
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # Create boot image which does not contain the bistream image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
@@ -636,14 +676,20 @@ create_petalinux_bsp ()
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd
 
-    # Make sure that intermediary files get cleaned up.
-    # petalinux-build -x distclean
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x mrproper
+    PLNX_BUILD_SUCCESS=-1
 
-    # Build PetaLinux project.
-    petalinux-build 
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
+
+      # Build PetaLinux project.
+      petalinux-build 
+      
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
     # build BOOT.BIN for booting from SD without any bistream loaded from 
@@ -684,7 +730,7 @@ create_petalinux_bsp ()
   echo "source ./make.tcl -notrace" >> cleanup.tcl
 
   # Launch vivado in batch mode to clean output products from the hardware platform.
-  vivado -mode batch -source cleanup.tcl
+  #vivado -mode batch -source cleanup.tcl
 
   # Change to PetaLinux project folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
@@ -825,28 +871,28 @@ main_make_function ()
 
   # Launch vivado in batch mode to build hardware platforms for target
   # boards.
-  vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+#  vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
 
   #
   # Create the PetaLinux BSP for the UZ3EG_IOCC target.
   #
-  HDL_BOARD_NAME=UZ3EG_IOCC
-  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
-  create_petalinux_bsp
-
-  #
-  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
-  #
-  HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_2017_2
-  create_petalinux_bsp
-
-  #
-  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
-  #
-#  HDL_BOARD_NAME=UZ7EV_EVCC
-#  PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_2
+#  HDL_BOARD_NAME=UZ3EG_IOCC
+#  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
 #  create_petalinux_bsp
+
+  #
+  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  #
+#  HDL_BOARD_NAME=UZ3EG_PCIEC
+#  PETALINUX_PROJECT_NAME=uz3eg_pciec_2017_2
+#  create_petalinux_bsp
+
+  #
+  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  #
+  HDL_BOARD_NAME=UZ7EV_EVCC
+  PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
+  create_petalinux_bsp
 }
 
 # First source any tools scripts to setup the environment needed to call both

@@ -3613,9 +3613,9 @@ CONFIG_tcf-agent=y
 # v4l-utils 
 #
 # CONFIG_v4l-utils is not set
-# CONFIG_libv4l is not set
+CONFIG_libv4l=y
 # CONFIG_ir-keytable is not set
-# CONFIG_media-ctl is not set
+CONFIG_media-ctl=y
 # CONFIG_v4l-utils-dbg is not set
 # CONFIG_rc-keymaps is not set
 # CONFIG_v4l-utils-dev is not set
@@ -3912,7 +3912,7 @@ CONFIG_tcf-agent=y
 #
 # yavta 
 #
-# CONFIG_yavta is not set
+CONFIG_yavta=y
 # CONFIG_yavta-dbg is not set
 # CONFIG_yavta-dev is not set
 
@@ -4072,15 +4072,15 @@ CONFIG_bridge-utils=y
 #
 # libdrm 
 #
-# CONFIG_libdrm is not set
-# CONFIG_libdrm-tests is not set
+CONFIG_libdrm=y
+CONFIG_libdrm-tests=y
 # CONFIG_libdrm-drivers is not set
 # CONFIG_libdrm-amdgpu is not set
 # CONFIG_libdrm-nouveau is not set
 # CONFIG_libdrm-dev is not set
 # CONFIG_libdrm-freedreno is not set
 # CONFIG_libdrm-radeon is not set
-# CONFIG_libdrm-kms is not set
+CONFIG_libdrm-kms=y
 # CONFIG_libdrm-dbg is not set
 # CONFIG_libdrm-omap is not set
 
@@ -4426,10 +4426,13 @@ CONFIG_blinky=y
 CONFIG_blinky-init=y
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
+CONFIG_user-led-test=y
+CONFIG_user-switch-test=y
 
 #
 # user packages 
 #
+CONFIG_bonniePLUSPLUS=y
 CONFIG_iperf=y
 CONFIG_iperf3=y
 

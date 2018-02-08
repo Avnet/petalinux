@@ -49,7 +49,7 @@
 #  Revision:            Jan 19, 2018: 1.0 Initial version
 # 
 # ----------------------------------------------------------------------------
-#!/etc/sh
+#!/bin/sh
 
 # Sleep interval between tests.
 SLEEP_INTERVAL_MICRO=4000

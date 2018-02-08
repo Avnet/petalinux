@@ -49,6 +49,7 @@
 #  Dependencies:        None
 #
 #  Revision:            Aug 25, 2017: 1.00 Initial version
+#                       Jan 30, 2018: 1.01 Added clean for UltraZed-EV
 # 
 # ----------------------------------------------------------------------------
 
@@ -102,9 +103,9 @@ main_clean_function ()
   #
   # Remove project files created for PetaLinux BSP on the UZ7EV_EVCC target.
   #
-  #HDL_BOARD_NAME=UZ7EV_EVCC
-  #PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_2
-  #clean_petalinux_bsp
+  HDL_BOARD_NAME=UZ7EV_EVCC
+  PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
+  clean_petalinux_bsp
 }
 
 # Call the main_clean_function declared above to start cleaning up all 

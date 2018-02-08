@@ -11,7 +11,7 @@
  # CONFIG_SUBSYSTEM_SD_MANUAL_SELECT is not set
  
  #
-@@ -123,9 +123,10 @@
+@@ -124,9 +124,10 @@
  #
  # boot image settings
  #

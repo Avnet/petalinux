@@ -1,11 +1,15 @@
 # ----------------------------------------------------------------------------
-#       _____
-#      *     *
-#     *____   *____
-#    * *===*   *==*
-#   *___*===*___**  AVNET
-#        *======*
-#         *====*
+#
+#        ** **        **          **  ****      **  **********  **********
+#       **   **        **        **   ** **     **  **              **
+#      **     **        **      **    **  **    **  **              **
+#     **       **        **    **     **   **   **  *********       **
+#    **         **        **  **      **    **  **  **              **
+#   **           **        ****       **     ** **  **              **
+#  **  .........  **        **        **      ****  **********      **
+#     ...........
+#                                     Reach Further
+#
 # ----------------------------------------------------------------------------
 # 
 #  This design is the property of Avnet.  Publication of this
@@ -29,15 +33,15 @@
 # ----------------------------------------------------------------------------
 # 
 #  Create Date:         Jan 02, 2018
-#  Design Name:         UltraZed-EV + EV Carrier
-#  Module Name:         eeprom-test.sh
-#  Project Name:        UltraZed IIC EEPROM Test Script
+#  Design Name:         LED "Blinky" Application Daemon Launcher
+#  Module Name:         blinky-init(.sh)
+#  Project Name:        LED "Blinky" Application
 #  Target Devices:      Xilinx Zynq and Zynq UltraScale+ MPSoC
 #  Hardware Boards:     UltraZed-EV + EV Carrier
 # 
 #  Tool versions:       Xilinx Vivado 2017.3
 # 
-#  Description:         Test Script for UltraZed-EV IIC EEPROM
+#  Description:         Script to launch "Blinky" LED App as a daemon
 # 
 #  Dependencies:        
 #

@@ -1,12 +1,16 @@
-//----------------------------------------------------------------------------
-//      _____
-//     *     *
-//    *____   *____
-//   * *===*   *==*
-//  *___*===*___**  AVNET
-//       *======*
-//        *====*
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//
+//        ** **        **          **  ****      **  **********  **********
+//       **   **        **        **   ** **     **  **              **
+//      **     **        **      **    **  **    **  **              **
+//     **       **        **    **     **   **   **  *********       **
+//    **         **        **  **      **    **  **  **              **
+//   **           **        ****       **     ** **  **              **
+//  **  .........  **        **        **      ****  **********      **
+//     ...........
+//                                     Reach Further
+//
+// ----------------------------------------------------------------------------
 //
 //  This design is the property of Avnet.  Publication of this
 //  design is not authorized without written consent from Avnet.
@@ -15,7 +19,7 @@
 //     http://www.ultrazed.org/forum
 // 
 //  Product information is available at:
-//     http://www.ultrazed.org/product/ultrazed-EG
+//     http://www.ultrazed.org
 // 
 //  Disclaimer:
 //     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -258,7 +262,8 @@ int switch_values(void)
 	else if (!strcmp(gpio_setting, "0"))
 		sw8_value = 0;
 
-	printf(" \n");
+/*
+ * 	printf(" \n");
 	printf("Switch1 Value: %d\n", sw1_value);
 	printf("Switch2 Value: %d\n", sw2_value);
 	printf("Switch3 Value: %d\n", sw3_value);
@@ -268,10 +273,16 @@ int switch_values(void)
 	printf("Switch7 Value: %d\n", sw7_value);
 	printf("Switch8 Value: %d\n", sw8_value);
 	printf(" \n");
-
-	// This test always passes since it requires user interaction.
-	test_result = 0;
-
+*/
+	// Concatenate the individual switch readings into a hex value
+    test_result = (sw8_value<<1) | sw7_value;
+    test_result = (test_result<<1) | sw6_value;
+    test_result = (test_result<<1) | sw5_value;
+    test_result = (test_result<<1) | sw4_value;
+    test_result = (test_result<<1) | sw3_value;
+    test_result = (test_result<<1) | sw2_value;
+    test_result = (test_result<<1) | sw1_value;
+    
 	// Close the GPIO value property files.
 	fclose(fp_sw1);
 	fclose(fp_sw2);
@@ -562,7 +573,6 @@ int main()
 		if (!strcmp(gpio_setting, "out"))
 		{
 			printf("OUTPUT\n");
-
 		}
 		else
 		{
@@ -635,7 +645,6 @@ int main()
 		if (!strcmp(gpio_setting, "out"))
 		{
 			printf("OUTPUT\n");
-
 		}
 		else
 		{
@@ -644,55 +653,92 @@ int main()
 		fclose(fp);
 	}
 
-	// Perform LED pattern generation.
+	// Perform switch tests to verify all switches toggle
 	printf(" \n");
 	printf("Switch Test on UltraZed-EV EV Carrier\n");
 	printf("Make sure all switches are OFF (DOWN POSITION)\n");
+	printf("Pause here up to 15 seconds to turn the switches OFF (if necessary)\n");
 	printf(" \n");
 	
-	// Wait for USER to move switches to down position
-	usleep(15000000);
-	
-	// This test always passes since it requires user interaction.
-	test_result = 0;
+    int i;
+    int new_sw_value = 0;
+    int old_sw_value = 0;
+    int init_sw_value = 0;
+    
+    init_sw_value = switch_values();
+        
+    for(i=0;i<16;i++) {
+        new_sw_value = switch_values();
+        
+        if (new_sw_value != old_sw_value)
+        {
+            printf("DIP switch value is set to %x \n",new_sw_value);
+        }
 
-	while (test_result == 0)
+        if (new_sw_value == 0x00)
+        {
+            printf(" \n");
+            printf("All switches turned OFF\n");
+            break;
+        }
+        
+        if ((i == 15) && (init_sw_value == new_sw_value))
+        {
+            printf(" \n");
+            printf("No switches changed state\n");
+            printf(" \n");
+            printf("Switch Test complete (or time expired)...\n");
+            printf(" \n");
+            printf("\033[5mFAILED\033[0m\n");
+            test_result = -1;
+            exit(test_result);
+        }
+
+        old_sw_value = new_sw_value;
+		usleep(1000000);	
+    }
+
+    
+	printf(" \n");
+	printf("Toggle all switches ON (UP POSITION)!\n");
+	printf("Look for switch that is stuck, ie - no toggle on switch!\n");
+	printf("Pause here 15 seconds (or until all switches have toggled) to change the switches state\n");
+	printf(" \n");
+
+    for(i=0;i<16;i++) {
+        new_sw_value = switch_values();
+        
+        if (new_sw_value != old_sw_value)
+        {
+            printf("DIP switch value has changed to %x \n",new_sw_value);
+        }
+
+        if (new_sw_value == 0xff)
+        {
+            printf(" \n");
+            printf("All switches changed state\n");
+            break;
+        }
+        
+        old_sw_value = new_sw_value;
+		usleep(1000000);	
+    }
+    
+	printf(" \n");
+	printf("Switch Test complete (or time expired)...\n");
+	printf(" \n");
+	
+	if (new_sw_value == 0xff)
 	{
-		test_result = switch_values();		
-		
-		printf(" \n");
-		printf("Toggle all switches ON (UP POSITION)!\n");
-		printf("Look for switch that is stuck, ie - no toggle on switch!\n");
-		printf(" \n");
-
-		usleep(15000000);
-		
-		test_result = switch_values();		
-		
-		usleep(11000);	
-		
-		test_result = 1;
-	}
-
-	printf(" \n");
-	printf("Switch Test complete...\n");
-	printf(" \n");
-	
-	// This test always passes since it requires user interaction.
-	test_result = 0;
-	
-	if (test_result == 0)
-	{
-		printf(" \n");
-		printf("PASSED\n");
-		printf(" \n");
+		printf("\033[32mPASSED\033[0m\n");
+        test_result = 0;
+    	printf(" \n");
 	}
 	else
 	{
-		printf(" \n");
-		printf("FAILED\n");
+		printf("\033[5mFAILED\033[0m\n");
+        test_result = -1;
 		printf(" \n");
 	}
-
     exit(test_result);
 }

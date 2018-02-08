@@ -54,7 +54,7 @@
 #                                         and updated Avnet logo in header
 # 
 # ----------------------------------------------------------------------------
-#!/etc/sh
+#!/bin/sh
 
 # Sleep interval between tests.
 SLEEP_INTERVAL_MICRO=4000

@@ -1,6 +1,6 @@
 --- config	2017-08-24 23:59:26.041014000 -0700
 +++ config	2017-08-25 06:36:55.470838250 -0700
-@@ -82,7 +82,7 @@
+@@ -83,7 +83,7 @@
  # partition 0
  #
  CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART0_NAME="boot"
@@ -9,7 +9,7 @@
  
  #
  # partition 1
-@@ -94,7 +94,7 @@
+@@ -95,7 +95,7 @@
  # partition 2
  #
  CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART2_NAME="kernel"
@@ -18,12 +18,12 @@
  
  #
  # partition 3
-@@ -207,7 +207,7 @@
+@@ -216,7 +216,7 @@
  #
  # Firmware Version Configuration
  #
--CONFIG_SUBSYSTEM_HOSTNAME="uz7ev_evcc_2017_2"
-+CONFIG_SUBSYSTEM_HOSTNAME="uz7ev-evcc-2017-2"
- CONFIG_SUBSYSTEM_PRODUCT="uz7ev_evcc_2017_2"
+-CONFIG_SUBSYSTEM_HOSTNAME="uz7ev_evcc_2017_3"
++CONFIG_SUBSYSTEM_HOSTNAME="uz7ev-evcc-2017-3"
+ CONFIG_SUBSYSTEM_PRODUCT="uz7ev_evcc_2017_3"
  CONFIG_SUBSYSTEM_FW_VERSION="1.00"
  

@@ -1,12 +1,16 @@
-//----------------------------------------------------------------------------
-//      _____
-//     *     *
-//    *____   *____
-//   * *===*   *==*
-//  *___*===*___**  AVNET
-//       *======*
-//        *====*
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//
+//        ** **        **          **  ****      **  **********  **********
+//       **   **        **        **   ** **     **  **              **
+//      **     **        **      **    **  **    **  **              **
+//     **       **        **    **     **   **   **  *********       **
+//    **         **        **  **      **    **  **  **              **
+//   **           **        ****       **     ** **  **              **
+//  **  .........  **        **        **      ****  **********      **
+//     ...........
+//                                     Reach Further
+//
+// ----------------------------------------------------------------------------
 //
 //  This design is the property of Avnet.  Publication of this
 //  design is not authorized without written consent from Avnet.
@@ -659,7 +663,10 @@ int main()
     int i;
     int new_sw_value = 0;
     int old_sw_value = 0;
+    int init_sw_value = 0;
     
+    init_sw_value = switch_values();
+        
     for(i=0;i<16;i++) {
         new_sw_value = switch_values();
         
@@ -675,10 +682,23 @@ int main()
             break;
         }
         
+        if ((i == 15) && (init_sw_value == new_sw_value))
+        {
+            printf(" \n");
+            printf("No switches changed state\n");
+            printf(" \n");
+            printf("Switch Test complete (or time expired)...\n");
+            printf(" \n");
+            printf("\033[5mFAILED\033[0m\n");
+            test_result = -1;
+            exit(test_result);
+        }
+
         old_sw_value = new_sw_value;
 		usleep(1000000);	
     }
 
+    
 	printf(" \n");
 	printf("Toggle all switches ON (UP POSITION)!\n");
 	printf("Look for switch that is stuck, ie - no toggle on switch!\n");

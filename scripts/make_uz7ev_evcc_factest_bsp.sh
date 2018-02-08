@@ -68,6 +68,8 @@ PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
 
+PLNX_BUILD_SUCCESS=-1
+
 
 source_tools_settings ()
 {
@@ -92,12 +94,12 @@ petalinux_project_configure_devicetree ()
   #
   # If available, overwrite the board specific top level devicetree source 
   # with the revision controlled source files.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} ]
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_PROJECT_NAME} ]
     then
     echo " "
     echo "Overwriting system-user level devicetree source include file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_PROJECT_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
   else
     echo " "
@@ -230,7 +232,7 @@ petalinux_project_set_boot_config_sd ()
   echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.uz_sd_boot ./platform-top.h
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.uz_sd_factest_boot ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -286,7 +288,9 @@ create_petalinux_bsp ()
   # Import the hardware description into the PetaLinux project.
   petalinux-config --oldconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
-  read -p "Press enter to continue"
+  # DEBUG
+  echo "Time to compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}.patch file"
+  #read -p "Press ENTER to continue" 
   
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -328,8 +332,6 @@ create_petalinux_bsp ()
     echo " "
   fi
 
-  read -p "Press enter to continue"
-  
   # Configure the root file system.
   petalinux_project_configure_rootfs
 
@@ -339,10 +341,8 @@ create_petalinux_bsp ()
   # Configure the kernel.
   petalinux_project_configure_kernel
 
-  # Do an initial bogus build, because it usually fails the first time
-  # Some sort of problem with building the PMU firmware.  
+  # Do an initial project clean  
   petalinux-build -x mrproper
-  petalinux-build
 
   # If the SD boot option is set, then perform the steps needed to  
   # build BOOT.BIN for booting from SD with the bistream loaded from 
@@ -352,12 +352,20 @@ create_petalinux_bsp ()
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd
 
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x mrproper
+    PLNX_BUILD_SUCCESS=-1
 
-    # Build PetaLinux project.
-    petalinux-build 
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
+
+      # Build PetaLinux project.
+      petalinux-build 
+      
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
     # build BOOT.BIN for booting from SD without any bistream loaded from 
@@ -386,12 +394,12 @@ create_petalinux_bsp ()
 fi
   
   ## Change to HDL scripts folder.
-  #cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
+  cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
 
   ## Clean the hardware project output products using the HDL TCL scripts.
-  #echo "set argv [list board=${HDL_BOARD_NAME} project=${HDL_PROJECT_NAME} clean=yes jtag=yes version_override=yes]" > cleanup.tcl
-  #echo "set argc [llength \$argv]" >> cleanup.tcl
-  #echo "source ./make.tcl -notrace" >> cleanup.tcl
+  echo "set argv [list board=${HDL_BOARD_NAME} project=${HDL_PROJECT_NAME} clean=yes jtag=yes version_override=yes]" > cleanup.tcl
+  echo "set argc [llength \$argv]" >> cleanup.tcl
+  echo "source ./make.tcl -notrace" >> cleanup.tcl
 
   ## Launch vivado in batch mode to clean output products from the hardware platform.
   #vivado -mode batch -source cleanup.tcl

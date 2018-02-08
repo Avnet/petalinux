@@ -1,12 +1,16 @@
-//----------------------------------------------------------------------------
-//      _____
-//     *     *
-//    *____   *____
-//   * *===*   *==*
-//  *___*===*___**  AVNET
-//       *======*
-//        *====*
-//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+//
+//        ** **        **          **  ****      **  **********  **********
+//       **   **        **        **   ** **     **  **              **
+//      **     **        **      **    **  **    **  **              **
+//     **       **        **    **     **   **   **  *********       **
+//    **         **        **  **      **    **  **  **              **
+//   **           **        ****       **     ** **  **              **
+//  **  .........  **        **        **      ****  **********      **
+//     ...........
+//                                     Reach Further
+//
+// ----------------------------------------------------------------------------
 //
 // This design is the property of Avnet.  Publication of this
 // design is not authorized without written consent from Avnet.
@@ -1370,13 +1374,13 @@ int main()
 	printf(" \n");
 	printf("LED and PB switch test on UltraZed-EV EV Carrier\n");
 	printf("Press SW2, SW3, or SW4 to change the display pattern on the LEDs.\n");
-	printf("Pause here for 20 seconds to view the LEDs turn ON/OFF and press the PB switches.\n");
+	printf("Pause here for 15 seconds to view the LEDs turn ON/OFF and press the PB switches.\n");
 	printf("All three PB switches must be pressed and all LEDs must turn on or the test will fail.\n");
 	printf(" \n");
 	
     int i;
     
-    for(i=0;i<210;i++) 
+    for(i=0;i<160;i++) 
     {
 		leds_on = set_next_count_pattern();
         
