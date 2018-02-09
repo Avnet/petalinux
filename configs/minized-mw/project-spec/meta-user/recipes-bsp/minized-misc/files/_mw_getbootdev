@@ -1,0 +1,8 @@
+#!/bin/sh
+
+source /etc/bootvars.conf
+
+_SD_PART=$(df -h ${_SD_ROOT} | grep /dev | sed -E "s|(/dev/\w+).*|\1|")
+_SD_DEV=$(echo ${_SD_PART} | sed -E "s|(.*)[0-9]+|\1|" | sed -E "s|(.*)p|\1|")
+
+

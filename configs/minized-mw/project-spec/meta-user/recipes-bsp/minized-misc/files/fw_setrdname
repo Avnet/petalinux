@@ -1,0 +1,11 @@
+#!/bin/sh
+# Set uboot to store the RD name used when booting
+# Syntax fw_setrdname
+
+source /etc/bootvars.conf
+
+fw_setenv $_UBOOT_VAR_RDNAME $1
+
+rc=$?
+exit $rc
+

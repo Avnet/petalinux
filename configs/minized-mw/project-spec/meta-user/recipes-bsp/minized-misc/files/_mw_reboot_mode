@@ -1,0 +1,39 @@
+#!/bin/sh
+
+source /etc/bootvars.conf
+
+BOOTMODE=$1
+
+case $BOOTMODE in
+    recovery|RECOVERY)
+        # Set the system to reboot into recovery mode
+        NEW_RAMDISK=${_SYS_RECOVERY_RAMDISK}
+        ;;
+
+    normal|NORMAL)
+        # Set the system to reboot into normal mode
+        NEW_RAMDISK=${_SYS_NORMAL_RAMDISK}
+        ;;
+    *)
+        echo $"Usage: $0 {NORMAL|RECOVERY}"
+        exit 1
+esac
+
+RAMDISK_PATH=${_SD_ROOT}/${NEW_RAMDISK}
+
+if [ ! -e $RAMDISK_PATH -a "$NEW_RAMDISK" != "NONE" ]; then
+    echo "Could not find ramdisk file $RAMDISK_PATH"
+    exit 1
+fi
+
+# Set the ramdisk boot
+fw_setenv ${_UBOOT_VAR_RAMDISK} $NEW_RAMDISK
+
+# Clear any custom bitstream/devicetree settings to ensure a normal boot
+_mw_setboot_default
+
+# Backup the network settings
+_mw_backup_network
+
+# Sync
+sync

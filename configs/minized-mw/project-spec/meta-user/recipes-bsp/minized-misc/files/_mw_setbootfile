@@ -1,0 +1,70 @@
+#!/bin/sh
+# Set a boot file to a new value
+# Syntax _mw_setbootfile <uboot variable> <file path> <file type> [<RD Dir>]
+
+source /etc/bootvars.conf
+
+UBOOTVAR=$1
+FILEPATH=$2
+FILETYPE=$3
+
+if [ "$#" == "4" ]; then
+    #override the target RD dir
+    _UBOOT_RD_TGT_DIR=$4
+fi
+
+# Determine if anything was passed in
+if [ "$FILEPATH" = "" ]; then
+    # No arguement, do nothing
+    echo "# Leaving $FILETYPE unchanged"
+    exit 0
+fi
+
+SRCDIR=$(dirname $FILEPATH)
+FILENAME=$(basename $FILEPATH)
+
+# Resolve whether a path was provided
+if [ "$SRCDIR" == "." ]; then
+    # No path provided, use UBOOT Root
+    FILEPATH=${_SD_ROOT}/${FILENAME}
+    SRCDIR=${_UBOOT_ROOT}
+else
+    # Resolve the absolute path
+    SRCDIR=$(cd $SRCDIR; pwd)
+fi
+
+# Make sure the specified file exists
+if [ ! -e ${FILEPATH} ]; then
+	echo "ERROR: $FILETYPE ${FILEPATH} not found"
+	exit 2 #ENOENT
+fi
+
+# Determine the target path
+if [ "$_UBOOT_RD_TGT_DIR" != "" ]; then
+    TGTDIR=${_UBOOT_ROOT}/${_UBOOT_RD_TGT_DIR}
+    TGTNAME=${_UBOOT_RD_TGT_DIR}/${FILENAME}
+else
+    TGTDIR=$_UBOOT_ROOT
+    TGTNAME=$FILENAME
+fi
+
+# Copy the files to the target folder
+# Peform the copy if either
+# 1) Source dir is not the root of the SD
+# 2) The target RD dir is not empty
+if [ "$SRCDIR" != "$_UBOOT_ROOT" ] || [ "$_UBOOT_RD_TGT_DIR" != "" ]; then
+    echo "# Copying $FILETYPE $FILENAME to $TGTDIR"
+    mkdir -p $TGTDIR
+    cp -f $FILEPATH ${TGTDIR}/${FILENAME}
+fi
+
+fw_setenv $UBOOTVAR $TGTNAME
+rc=$?
+
+sync
+
+if [ "$rc" == "0" ]; then
+    echo "# Set $FILETYPE to $TGTNAME"
+fi
+
+exit $rc

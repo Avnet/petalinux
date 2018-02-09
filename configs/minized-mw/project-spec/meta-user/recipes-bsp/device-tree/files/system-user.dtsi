@@ -1,0 +1,55 @@
+/include/ "system-conf.dtsi"
+/ {
+
+	aliases {
+		serial0 = &uart1;
+		serial1 = &uart0;
+	};
+
+        /* WiFi Module:  WL_REG_ON GPIO Control */
+        wlreg_on: wlreg-on {
+                compatible = "regulator-fixed";
+                regulator-name = "wlreg_on";
+                enable-active-high;
+                gpio = <&gpio0 56 0>;
+                regulator-min-microvolt = <3300000>;
+                regulator-max-microvolt = <3300000>;
+                startup-delay-us = <100>;
+        };
+};
+
+/* SD Interface for Wi-Fi Module */
+&sdhci0 {
+       	status = "okay";
+       	bus-width= <4>;
+       	xlnx,has-cd = <0x0>;
+       	xlnx,has-power = <0x0>;
+       	xlnx,has-wp = <0x0>;
+       	non-removeable;
+       	broken-cd;
+       	vmmc-supply = <&wlreg_on>;  /* Uncomment for brcmfmac */
+
+       	brcmf: brcmf@1 {
+               	status = "okay";
+               	reg = <1>;
+               	compatible = "brcm,bcm43430-fmac";
+       	};
+};
+	
+/{
+	usb_phy0: usb_phy@0 {
+		compatible = "ulpi-phy";
+		#phy-cells = <0>;
+		reg = <0xe0002000 0x1000>;
+		view-port = <0x0170>;
+		drv-vbus;
+	};
+};
+
+&usb0 {
+	dr_mode = "host";
+	usb-phy = <&usb_phy0>;
+} ;
+
+/* Master devicetree include for MathWorks AXI-lite peripheral */
+#include "axilite.dtsi"

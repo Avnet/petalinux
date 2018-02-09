@@ -1,0 +1,2 @@
+# map mwipcore0 to mwipcore for legacy models
+KERNEL=="mwipcore0", SYMLINK+="mwipcore"

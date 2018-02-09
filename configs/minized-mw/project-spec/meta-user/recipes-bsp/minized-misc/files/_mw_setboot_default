@@ -1,0 +1,12 @@
+#!/bin/sh
+source /etc/bootvars.conf
+
+# syntax: mw_setboot <bitstream> <devicetree> <init folder> <RD name> [fw_set_xxx args]
+mw_setboot ${_SYS_DEFAULT_BITSTREAM_FILE} ${_SYS_DEFAULT_DEVICETREE_FILE} "" "" ""
+
+# Wipe the RD init directory
+rm -rf $_SYS_RD_INIT_DIR
+
+rc=$?
+exit $rc
+

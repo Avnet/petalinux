@@ -1,0 +1,8 @@
+#include "zynq-mw-common.dtsi"
+
+#include "zynq-mw-axilite-common.dtsi"
+
+&mwipcore0 {
+	reg = <0x40000000 0xffff>;
+};
+

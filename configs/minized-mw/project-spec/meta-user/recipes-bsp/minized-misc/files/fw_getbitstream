@@ -1,0 +1,10 @@
+#!/bin/sh
+# Set uboot to print the bistream used when booting
+# Syntax fw_getbitsteam
+
+source /etc/bootvars.conf
+
+fw_printenv -n $_UBOOT_VAR_BITSTREAM
+rc=$?
+exit $rc
+
