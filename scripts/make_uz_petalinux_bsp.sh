@@ -843,6 +843,34 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_SCRIPTS_FOLDER}
 }
 
+
+build_hw_platform ()
+{
+  # Change to HDL projects folder.
+  cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
+
+  # Check to see if the Vivado hardware project has not been built.  
+  # If it hasn't then build it now.  
+  # If it has then fall through and build the PetaLinux BSP
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  then
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/
+    echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME} found."
+    echo "Will build the hardware platform now."
+    read -t 5 -p "Pause here for 5 seconds"
+    
+    # Change to HDL scripts folder.
+    cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
+    # Launch vivado in batch mode to build hardware platforms for the selected target boards.
+    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+  else
+    echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}."
+    echo "Will build the PetaLinux BSP now."
+    read -t 5 -p "Pause here for 5 seconds"
+  
+  fi
+}
+
 # This function is responsible for first creating all of the hardware
 # platforms needed for generating PetaLinux BSPs and once the hardware
 # platforms are ready, they can be specificed in HDL_BOARD_NAME variable 
@@ -863,35 +891,28 @@ create_petalinux_bsp ()
 main_make_function ()
 {
   #
-  # Create the hardware platforms for the supported targets.
-  #
-
-  # Change to HDL scripts folder.
-  cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
-
-  # Launch vivado in batch mode to build hardware platforms for target
-  # boards.
-#  vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
-
-  #
-  # Create the PetaLinux BSP for the UZ3EG_IOCC target.
+  # Create the hardware platforms for the supported targets (if necessary) 
+  # and build the PetaLinux BSP for the UZ3EG_IOCC target.
   #
 #  HDL_BOARD_NAME=UZ3EG_IOCC
 #  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
 #  create_petalinux_bsp
 
   #
-  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  # Create the hardware platforms for the supported targets (if necessary) 
+  # and build the PetaLinux BSP for the UZ3EG_PCIEC target.
   #
 #  HDL_BOARD_NAME=UZ3EG_PCIEC
 #  PETALINUX_PROJECT_NAME=uz3eg_pciec_2017_2
 #  create_petalinux_bsp
 
   #
-  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  # Create the hardware platforms for the supported targets (if necessary) 
+  # and build the PetaLinux BSP for the UZ7EV_EVCC target.
   #
   HDL_BOARD_NAME=UZ7EV_EVCC
   PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
+  build_hw_platform
   create_petalinux_bsp
 }
 
