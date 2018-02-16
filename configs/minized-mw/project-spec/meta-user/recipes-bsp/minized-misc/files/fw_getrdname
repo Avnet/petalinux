@@ -1,0 +1,11 @@
+#!/bin/sh
+# Set uboot to print the RD name used when booting
+# Syntax fw_getrdname
+
+source /etc/bootvars.conf
+
+RDNAME=$(fw_printenv -n $_UBOOT_VAR_RDNAME 2>/dev/null)
+rc=$?
+echo $RDNAME
+exit $rc
+

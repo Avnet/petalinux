@@ -1,0 +1,10 @@
+#!/bin/sh
+# Set uboot to print the devicetree used when booting
+# Syntax fw_getdevicetree
+
+source /etc/bootvars.conf
+
+fw_printenv -n $_UBOOT_VAR_DEVICETREE
+rc=$?
+exit $rc
+

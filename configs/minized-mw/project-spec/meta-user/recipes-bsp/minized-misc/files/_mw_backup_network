@@ -1,0 +1,52 @@
+#!/bin/sh
+#
+# Copy the network scripts from the boot device
+#
+
+source /etc/bootvars.conf
+
+if [ "$1" == "" ]; then
+    BACKUP_DIR=${_SD_ROOT}
+else
+    BACKUP_DIR=$1
+fi
+
+if [ "$2" == "" ]; then
+    SRC="system"
+else
+    SRC=$2
+fi
+
+
+mkdir -p $BACKUP_DIR
+
+SD_KEYDIR=${BACKUP_DIR}/sshkeys
+ETC_KEYDIR=/etc/ssh
+mkdir -p $SD_KEYDIR
+
+echo "Backing up network configuration..."  
+
+for i in $(seq 1 $_NETWORK_FILES_NELEM); do
+	file=$(get_elem $i $_NETWORK_SRC_FILES)
+	sysfile=$(get_elem $i $_NETWORK_DST_FILES)
+
+	if [ "$SRC" == "system" ]; then		
+		srcpath=$sysfile
+	else
+		srcpath=${SRC}/${file}
+	fi
+
+	if [ -f $srcpath ]; then
+		cp -f $srcpath ${BACKUP_DIR}/${file}
+	fi
+done
+
+if [ "$SRC" == "system" ]; then
+    cp $ETC_KEYDIR/ssh_host_*key* $SD_KEYDIR/
+else
+    cp ${SRC}/sshkeys/ssh_host_*key* $SD_KEYDIR/
+fi
+
+sync
+
+

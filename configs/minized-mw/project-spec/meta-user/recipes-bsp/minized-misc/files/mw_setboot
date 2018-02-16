@@ -1,0 +1,66 @@
+#!/bin/sh
+# Update the chosen bitstream and devicetree for a given reference design
+# syntax: mw_setboot <bitstream> <devicetree> <init folder> <RD name> [fw_set_xxx args]
+#
+# Both <bitstream> and <devicetree> may be either an absolute path or a
+# file located at the root of the SD card
+#
+# Files not already located at the root of the SD card will be copied there
+
+source /etc/bootvars.conf
+
+BITSTREAM=$1
+DEVICETREE=$2
+RDINITDIR=$3
+RDNAME=$4
+shift 4
+
+if [ -e ${_UBOOT_ROOT}/${_UBOOT_SCR} ]; then
+    echo "WARNING: Uboot script $_UBOOT_SCR detected, this may override boot settings"
+fi
+
+# Wipe the RD init directory
+rm -rf $_SYS_RD_INIT_DIR
+mkdir -p $_SYS_RD_INIT_DIR
+# Store the RD name
+echo -n "$RDNAME" > ${_SYS_RD_INIT_DIR}/${_SYS_RD_NAME_FILE}
+# Copy the files to the RD init dir
+if [ "$RDINITDIR" != "" ]; then
+    if [ ! -d $RDINITDIR ]; then
+        echo "ERROR: Specified reference design init folder does not exist"
+        exit 2
+    fi
+    # Copy the files
+    cp -R $RDINITDIR/* $_SYS_RD_INIT_DIR
+    echo "# Copied $RDINITDIR to $_SYS_RD_INIT_DIR"
+    if [ -f ${_SYS_RD_INIT_DIR}/init.sh ]; then
+        # ensure the script can be executed
+        chmod +x ${_SYS_RD_INIT_DIR}/init.sh
+    fi
+fi
+
+fw_setbitstream ${BITSTREAM} "$@"
+rc=$?
+if [ "$rc" != "0" ]; then
+    echo "ERROR: Failed to set the target bitstream"
+    exit $rc
+fi
+
+fw_setdevicetree ${DEVICETREE} "$@"
+rc=$?
+if [ "$rc" != "0" ]; then
+    echo "ERROR: Failed to set the target devicetree"
+    exit $rc
+fi
+
+fw_setrdname "${RDNAME}" "$@"
+rc=$?
+if [ "$rc" != "0" ]; then
+    echo "ERROR: Failed to set the target reference design name"
+    exit $rc
+fi
+
+echo "# Set up boot for Reference Design: '$RDNAME'"
+
+exit 0
+

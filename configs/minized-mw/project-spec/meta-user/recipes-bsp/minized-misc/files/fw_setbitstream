@@ -1,0 +1,14 @@
+#!/bin/sh
+# Set uboot to use a new bitstream when booting
+# Syntax fw_setbitsteam <new bitstream>
+
+source /etc/bootvars.conf
+
+NEWBIT=$1
+shift
+
+_mw_setbootfile $_UBOOT_VAR_BITSTREAM $NEWBIT Bitstream "$@"
+rc=$?
+
+exit $rc
+
