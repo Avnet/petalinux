@@ -730,7 +730,7 @@ create_petalinux_bsp ()
   echo "source ./make.tcl -notrace" >> cleanup.tcl
 
   # Launch vivado in batch mode to clean output products from the hardware platform.
-  #vivado -mode batch -source cleanup.tcl
+  vivado -mode batch -source cleanup.tcl
 
   # Change to PetaLinux project folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
@@ -894,9 +894,10 @@ main_make_function ()
   # Create the hardware platforms for the supported targets (if necessary) 
   # and build the PetaLinux BSP for the UZ3EG_IOCC target.
   #
-#  HDL_BOARD_NAME=UZ3EG_IOCC
-#  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
-#  create_petalinux_bsp
+  HDL_BOARD_NAME=UZ3EG_IOCC
+  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
+  build_hw_platform
+  create_petalinux_bsp
 
   #
   # Create the hardware platforms for the supported targets (if necessary) 
@@ -904,16 +905,17 @@ main_make_function ()
   #
 #  HDL_BOARD_NAME=UZ3EG_PCIEC
 #  PETALINUX_PROJECT_NAME=uz3eg_pciec_2017_2
+#  build_hw_platform
 #  create_petalinux_bsp
 
   #
   # Create the hardware platforms for the supported targets (if necessary) 
   # and build the PetaLinux BSP for the UZ7EV_EVCC target.
   #
-  HDL_BOARD_NAME=UZ7EV_EVCC
-  PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
-  build_hw_platform
-  create_petalinux_bsp
+#  HDL_BOARD_NAME=UZ7EV_EVCC
+#  PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
+#  build_hw_platform
+#  create_petalinux_bsp
 }
 
 # First source any tools scripts to setup the environment needed to call both
