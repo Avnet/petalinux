@@ -58,7 +58,7 @@
 APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.3-final
 APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.3
 BUILD_BOOT_QSPI_OPTION=no
-BUILD_BOOT_EMMC_OPTION=yes
+BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_OOB_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_OPTION=yes
@@ -717,10 +717,6 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_SD.elf
   fi
   
-  # Restore project configurations and wipe out any changes made for special 
-  # boot options.
-  petalinux_project_restore_boot_config
-
   # Change to HDL scripts folder.
   cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
 
@@ -730,7 +726,7 @@ create_petalinux_bsp ()
   echo "source ./make.tcl -notrace" >> cleanup.tcl
 
   # Launch vivado in batch mode to clean output products from the hardware platform.
-  #vivado -mode batch -source cleanup.tcl
+  vivado -mode batch -source cleanup.tcl
 
   # Change to PetaLinux project folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
@@ -912,6 +908,7 @@ main_make_function ()
   #
   HDL_BOARD_NAME=UZ7EV_EVCC
   PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
+#DEBUG Uncomment this line to have this script also build the Vivado project
   build_hw_platform
   create_petalinux_bsp
 }
