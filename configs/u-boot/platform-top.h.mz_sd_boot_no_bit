@@ -15,10 +15,11 @@
 	"loadbootenv=load mmc $sdbootdev:$partid ${loadbootenv_addr} ${bootenv}\0" \ 
 	"sd_uEnvtxt_existence_test=test -e mmc $sdbootdev:$partid /uEnv.txt\0" \ 
 	"uenvboot=" \ 
-	"if run sd_uEnvtxt_existence_test; then" \ 
-		"run loadbootenv" \ 
-		"echo Loaded environment from ${bootenv};" \ 
-		"run importbootenv; \0" \ 
+        "if run sd_uEnvtxt_existence_test; then " \ 
+            "run loadbootenv; " \  
+            "echo Loaded environment from ${bootenv}; " \ 
+            "run importbootenv; " \
+        "fi\0" \
 	"sdboot=echo boot Petalinux; run uenvboot ; mmcinfo && fatload mmc 0 ${netstart} ${kernel_img} && bootm \0" \ 
 	"autoload=no\0" \ 
 	"clobstart=0x10000000\0" \ 

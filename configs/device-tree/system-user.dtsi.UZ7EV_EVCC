@@ -46,15 +46,19 @@
 	#address-cells = <1>;
 	#size-cells = <0>;
 	status = "okay";
-	is-dual = <1>; /* set for dual-parallel QSPI config */
+	is-dual = <1>; /* Set for dual-parallel QSPI config */
+	num-cs = <2>;
+	xlnx,fb-clk = <0x1>;
 	flash0: flash@0 {
-		compatible = "m25p80"; /* 32MB */
+        /* The Flash described below doesn't match our board ("micron,n25qu256a"), but is needed */
+        /* so the Flash MTD partitions are correctly identified in /proc/mtd */
+		compatible = "micron,m25p80"; /* 32MB */
 		#address-cells = <1>;
 		#size-cells = <1>;
 		reg = <0x0>;
 		spi-tx-bus-width = <1>;
 		spi-rx-bus-width = <4>; /* FIXME also DUAL configuration possible */
-		spi-max-frequency = <108000000>; /* Based on DC1 spec */
+		spi-max-frequency = <108000000>; /* Set to 108000000 Based on DC1 spec */
 	};
 };
 

@@ -19,24 +19,34 @@
 	SERIAL_MULTI \ 
 	CONSOLE_ARG \ 
 	PSSERIAL0 \ 
+    "progemmc=" \
+        "if fatload mmc 1:1 0x20000000 image.ub; then " \
+            "echo Copying Linux image.ub to eMMC ...; " \
+            "echo Loading image.ub from SD card into memory ...; " \
+            "fatload mmc 1:1 0x20000000 image.ub; " \
+            "echo Copying image.ub from memory to eMMC partition ...; " \
+            "fatwrite mmc 0:1 0x20000000 image.ub $filesize; " \
+            "echo Copying Linux image.ub to eMMC Complete ...;" \
+        "fi\0" \
 	"nc=setenv stdout nc;setenv stdin nc;\0" \ 
 	"ethaddr=00:0a:35:00:1e:53\0" \
 	"importbootenv=echo \"Importing environment from SD ...\"; " \ 
 		"env import -t ${loadbootenv_addr} $filesize\0" \ 
-	"loadbootenv=load mmc $sdbootdev:$partid ${loadbootenv_addr} ${bootenv}\0" \ 
+	"loadbootenv=load mmc $sdbootdev:$partid ${loadbootenv_addr} ${bootenv}\0" \  
 	"sd_uEnvtxt_existence_test=test -e mmc $sdbootdev:$partid /uEnv.txt\0" \ 
 	"uenvboot=" \ 
-	"if run sd_uEnvtxt_existence_test; then" \ 
-		"run loadbootenv" \ 
-		"echo Loaded environment from ${bootenv};" \ 
-		"run importbootenv; \0" \ 
+        "if run sd_uEnvtxt_existence_test; then " \ 
+            "run loadbootenv; " \  
+            "echo Loaded environment from ${bootenv}; " \ 
+            "run importbootenv; " \
+        "fi\0" \
 	"sdboot=echo boot Petalinux; run uenvboot ; mmcinfo && fatload mmc 1 ${netstart} ${kernel_img} && bootm \0" \ 
 	"autoload=no\0" \ 
 	"clobstart=0x10000000\0" \ 
 	"netstart=0x10000000\0" \ 
 	"dtbnetstart=0x11800000\0" \ 
 	"loadaddr=0x10000000\0" \ 
-	"bootsize=0x640000\0" \
+	"bootsize=0x1360000\0" \
 	"bootstart=0x0\0" \
 	"boot_img=BOOT.BIN\0" \ 
 	"load_boot=tftpboot ${clobstart} ${boot_img}\0" \ 
@@ -45,7 +55,7 @@
 	"install_boot=sf probe 0 && sf erase ${bootstart} ${bootsize} && " \
 		"sf write ${clobstart} ${bootstart} ${filesize}\0" \
 	"bootenvsize=0x40000\0" \ 
-	"bootenvstart=0x640000\0" \ 
+	"bootenvstart=0x1360000\0" \ 
 	"eraseenv=sf probe 0 && sf erase ${bootenvstart} ${bootenvsize}\0" \ 
 	"jffs2_img=rootfs.jffs2\0" \ 
 	"load_jffs2=tftpboot ${clobstart} ${jffs2_img}\0" \ 
@@ -66,5 +76,5 @@
 	"test_crc=if imi ${clobstart}; then run test_img; else echo ${img} Bad CRC - ${img} is NOT UPDATED; fi\0" \ 
 	"test_img=setenv var \"if test ${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \ 
 	"netboot=tftpboot ${netstart} ${kernel_img} && bootm\0" \ 
-	"default_bootcmd=run cp_kernel2ram && bootm ${netstart}\0" \ 
+  	"default_bootcmd=run progemmc; run uenvboot; run cp_kernel2ram && bootm ${netstart}\0"  \ 
 ""

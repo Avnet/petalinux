@@ -10,6 +10,15 @@
 	SERIAL_MULTI \ 
 	CONSOLE_ARG \ 
 	PSSERIAL0 \ 
+    "progemmc=" \
+        "if fatload mmc 0:1 0x20000000 image.ub; then " \
+            "echo Copying Linux image.ub to eMMC ...; " \
+            "echo Loading image.ub from SD card into memory ...; " \
+            "fatload mmc 0:1 0x20000000 image.ub; " \
+            "echo Copying image.ub from memory to eMMC partition ...; " \
+            "fatwrite mmc 1:1 0x20000000 image.ub $filesize; " \
+            "echo Copying Linux image.ub to eMMC Complete ...;" \
+        "fi\0" \
 	"nc=setenv stdout nc;setenv stdin nc;\0" \ 
 	"ethaddr=00:0a:35:00:1e:53\0" \
 	"importbootenv=echo \"Importing environment from SD ...\"; " \ 
@@ -17,10 +26,11 @@
 	"loadbootenv=load mmc $sdbootdev:$partid ${loadbootenv_addr} ${bootenv}\0" \ 
 	"sd_uEnvtxt_existence_test=test -e mmc $sdbootdev:$partid /uEnv.txt\0" \ 
 	"uenvboot=" \ 
-	"if run sd_uEnvtxt_existence_test; then" \ 
-		"run loadbootenv" \ 
-		"echo Loaded environment from ${bootenv};" \ 
-		"run importbootenv; \0" \ 
+        "if run sd_uEnvtxt_existence_test; then " \ 
+            "run loadbootenv; " \  
+            "echo Loaded environment from ${bootenv}; " \ 
+            "run importbootenv; " \
+        "fi\0" \
 	"sdboot=echo boot Petalinux; run uenvboot ; mmcinfo && fatload mmc 0 ${netstart} ${kernel_img} && bootm \0" \ 
 	"autoload=no\0" \ 
 	"clobstart=0x10000000\0" \ 
@@ -57,5 +67,5 @@
 	"test_crc=if imi ${clobstart}; then run test_img; else echo ${img} Bad CRC - ${img} is NOT UPDATED; fi\0" \ 
 	"test_img=setenv var \"if test ${filesize} -gt ${psize}\\; then run fault\\; else run ${installcmd}\\; fi\"; run var; setenv var\0" \ 
 	"netboot=tftpboot ${netstart} ${kernel_img} && bootm\0" \ 
-	"default_bootcmd=run cp_kernel2ram && bootm ${netstart}\0" \ 
+	"default_bootcmd=run progemmc; run uenvboot; run cp_kernel2ram && bootm ${netstart}\0" \ 
 ""

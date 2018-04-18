@@ -50,12 +50,14 @@
 #
 #  Revision:            Aug 25, 2017: 1.00 Initial version
 #                       Jan 30, 2018: 1.01 Added clean for UltraZed-EV
+#                       Mar 21, 2018: 1.02 Updated for Petalinux 2017.4
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
+PLNX_VER=2017_4
 HDL_HARDWARE_NAME=uz_petalinux_hw
 HDL_PROJECT_NAME=uz_petalinux
 HDL_PROJECTS_FOLDER=../../hdl/Projects
@@ -65,11 +67,14 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 
-clean_petalinux_bsp ()
+clean_hw_project ()
 { 
   # Remove the hardware platform project.
   rm -rf ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}
+}
 
+clean_petalinux_bsp ()
+{ 
   # Remove the PetaLinux project.
   rm -rf ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
@@ -90,21 +95,24 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the UZ3EG_IOCC target.
   #
   HDL_BOARD_NAME=UZ3EG_IOCC
-  PETALINUX_PROJECT_NAME=uz3eg_iocc_2017_2
+  PETALINUX_PROJECT_NAME=uz3eg_iocc_${PLNX_VER}
+  #clean_hw_project
   clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the UZ3EG_PCIEC target.
   #
   HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_2017_2
+  PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
+  #clean_hw_project
   clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the UZ7EV_EVCC target.
   #
   HDL_BOARD_NAME=UZ7EV_EVCC
-  PETALINUX_PROJECT_NAME=uz7ev_evcc_2017_3
+  PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
+  #clean_hw_project
   clean_petalinux_bsp
 }
 

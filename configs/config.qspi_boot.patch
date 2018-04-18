@@ -1,6 +1,6 @@
 --- config	2016-03-11 17:55:06.163870828 -0700
 +++ config	2016-03-11 17:50:00.730978554 -0700
-@@ -121,9 +121,10 @@
+@@ -118,9 +118,10 @@
  #
  # boot image settings
  #
@@ -13,7 +13,7 @@
  CONFIG_SUBSYSTEM_IMAGES_ADVANCED_AUTOCONFIG_BOOT_IMAGE_NAME="BOOT.BIN"
  
  #
-@@ -136,10 +137,11 @@
+@@ -134,10 +134,11 @@
  #
  # kernel image settings
  #
