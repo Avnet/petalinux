@@ -739,7 +739,7 @@ create_petalinux_bsp ()
 
   # Launch vivado in batch mode to clean output products from the hardware platform.
   # DEBUG !!!Uncomment the next line before public release!!!
-  #vivado -mode batch -source cleanup.tcl
+  vivado -mode batch -source cleanup.tcl
 
   # Change to PetaLinux project folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
