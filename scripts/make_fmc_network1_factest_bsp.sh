@@ -216,12 +216,12 @@ petalinux_project_configure_rootfs ()
   #
   # If available, overwrite the board specific rootfs configuration file with
   # the revision controlled config file.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.${HDL_PROJECT_NAME} ]
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.fmc_network1_factest ]
     then
     echo " "
     echo "Overwriting rootfs configuration file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.${HDL_PROJECT_NAME} \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.fmc_network1_factest \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/rootfs_config
   else
     echo " "
@@ -230,13 +230,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_pciec_ccd/recipes-apps ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.fmc_network1_factest/recipes-apps ]
     then
     # Copy the applications to the meta-user apps recipe folder.
     echo " "
     echo "Adding applications ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_pciec_ccd/recipes-apps/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.fmc_network1_factest/recipes-apps/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-apps/.
   else
     echo " "
@@ -245,13 +245,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_pciec_ccd/recipes-core ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.fmc_network1_factest/recipes-core ]
     then
     # Copy the applications to the meta-user core recipe folder.
     echo " "
     echo "Adding core files ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.uz3eg_pciec_ccd/recipes-core/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.fmc_network1_factest/recipes-core/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-core/.
   else
     echo " "
@@ -346,13 +346,13 @@ create_petalinux_bsp ()
   # project configuration attributes this way.
   #
   # If neither of those are present, use the generic one by default.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}_CCD.patch ] 
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.fmc_network1_factest.patch ] 
     then
     echo " "
     echo "Patching PetaLinux project config for project ..."
     echo " "
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
-    patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}_CCD.patch
+    patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.fmc_network1_factest.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_PROJECT_NAME}.patch ] 
     then
@@ -508,10 +508,11 @@ main_make_function ()
   vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
 
   #
-  # Create the PetaLinux BSP for the UZ3EG_PCIEC target.
+  # Create the PetaLinux BSP for the FMC-NETWORK1 factory test BSP on the 
+  # UZ3EG_PCIEC target.
   #
   HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_ccd_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=fmc_network1_factest_${PLNX_VER}
   create_petalinux_bsp
 
 }

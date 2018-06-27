@@ -27,28 +27,26 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2018 Avnet, Inc.
 #                              All rights reserved.
 # 
 # ----------------------------------------------------------------------------
 # 
-#  Create Date:         Aug 25, 2017
-#  Design Name:         Avnet UltraZed-EG SOM 
-#                       Cybersecurity Concept Design (CCD) BSP Generator
-#  Module Name:         clean_uz3eg_pciec_ccd.tcl
+#  Create Date:         Jun 25, 2018
+#  Design Name:         Avnet FMC-NETWORK1 Factory Acceptance Test
+#  Module Name:         clean_fmc_network1_factest_bsp.tcl
 #  Project Name:        Avnet UltraZed-EG SOM
-#                       Cybersecurity Concept Design (CCD) BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     Avnet UltraZed-EG SOM and the PCIEC (UZ3EG_PCIEC)
+#  Hardware Boards:     Avnet UltraZed-EG SOM + PCIEC Carrier + FMC-NETWORK1
 # 
-#  Tool versions:       Xilinx Vivado 2017.2
+#  Tool versions:       Xilinx Vivado 2017.4
 # 
-#  Description:         Clean Script for UZ3EG CCD BSP and related 
+#  Description:         Clean Script for FMC-NETWORK1 Factory Test BSP and
 #                       HW Platform
 # 
 #  Dependencies:        None
 #
-#  Revision:            Jan 24, 2018: 1.00 Initial version
+#  Revision:            Jun 25, 2018: 1.00 Initial version
 # 
 # ----------------------------------------------------------------------------
 
@@ -87,11 +85,11 @@ main_clean_function ()
   # the targets.
 
   #
-  # Remove project files created for CCD PetaLinux BSP on the UZ3EG_PCIEC 
-  # target.
+  # Remove project files created for FMC-NETWORK1 factory test BSP on the 
+  # UZ3EG_PCIEC target.
   #
   HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_ccd_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=fmc_network1_factest_${PLNX_VER}
   clean_petalinux_bsp
 }
 

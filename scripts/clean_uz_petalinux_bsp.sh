@@ -96,23 +96,23 @@ main_clean_function ()
   #
   HDL_BOARD_NAME=UZ3EG_IOCC
   PETALINUX_PROJECT_NAME=uz3eg_iocc_${PLNX_VER}
-  #clean_hw_project
+  clean_hw_project
   clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the UZ3EG_PCIEC target.
   #
-  HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
+  #HDL_BOARD_NAME=UZ3EG_PCIEC
+  #PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
   #clean_hw_project
-  clean_petalinux_bsp
+  #clean_petalinux_bsp
 
   #
   # Remove project files created for PetaLinux BSP on the UZ7EV_EVCC target.
   #
   HDL_BOARD_NAME=UZ7EV_EVCC
   PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
-  #clean_hw_project
+  clean_hw_project
   clean_petalinux_bsp
 }
 

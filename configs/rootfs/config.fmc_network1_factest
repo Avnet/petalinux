@@ -4422,9 +4422,13 @@ CONFIG_bridge-utils=y
 #
 # apps 
 #
+CONFIG_eeprom-test=y
 CONFIG_eltt2=y
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
+CONFIG_fmc-network1-factest=y
+CONFIG_fmc-network1-factest-init=y
+CONFIG_fmc-network1-factest-launcher=y
 
 #
 # user packages 

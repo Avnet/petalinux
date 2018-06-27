@@ -902,41 +902,41 @@ main_make_function ()
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7010_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz7010_fmc2_sd_oob_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
-  build_hw_platform
-  create_petalinux_bsp
+  #HDL_BOARD_NAME=PZ7010_FMC2
+  #PETALINUX_PROJECT_NAME=pz7010_fmc2_sd_oob_${PLNX_VER}
+  #PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
+  #build_hw_platform
+  #create_petalinux_bsp
 
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7015_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz7015_fmc2_sd_oob_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
-  build_hw_platform
-  create_petalinux_bsp
+  #HDL_BOARD_NAME=PZ7015_FMC2
+  #PETALINUX_PROJECT_NAME=pz7015_fmc2_sd_oob_${PLNX_VER}
+  #PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
+  #build_hw_platform
+  #create_petalinux_bsp
 
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7020_FMC2 target.
   #
-  #~ HDL_BOARD_NAME=PZ7020_FMC2
-  #~ PETALINUX_PROJECT_NAME=pz7020_fmc2_sd_oob_${PLNX_VER}
-  #~ PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
-  #~ build_hw_platform
-  #~ create_petalinux_bsp
+  #HDL_BOARD_NAME=PZ7020_FMC2
+  #PETALINUX_PROJECT_NAME=pz7020_fmc2_sd_oob_${PLNX_VER}
+  #PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
+  #build_hw_platform
+  #create_petalinux_bsp
 
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7030_FMC2 target.
   #
-  #~ HDL_BOARD_NAME=PZ7030_FMC2
-  #~ PETALINUX_PROJECT_NAME=pz7030_fmc2_sd_oob_${PLNX_VER}
-  #~ PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
-  #~ build_hw_platform
-  #~ create_petalinux_bsp
+  HDL_BOARD_NAME=PZ7030_FMC2
+  PETALINUX_PROJECT_NAME=pz7030_fmc2_sd_oob_${PLNX_VER}
+  PETALINUX_ROOTFS_NAME=pz_fmc2_sd_oob
+  build_hw_platform
+  create_petalinux_bsp
 
 }
 

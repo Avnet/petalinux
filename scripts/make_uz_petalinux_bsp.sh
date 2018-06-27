@@ -59,8 +59,8 @@
 APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.4-final
 APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.4
 PLNX_VER=2017_4
-BUILD_BOOT_QSPI_OPTION=yes
-BUILD_BOOT_EMMC_OPTION=yes
+BUILD_BOOT_QSPI_OPTION=no
+BUILD_BOOT_EMMC_OPTION=no
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 BUILD_BOOT_SD_OPTION=yes
 BUILD_BOOT_SD_OOB_OPTION=no
@@ -902,11 +902,11 @@ main_make_function ()
   # Create the hardware platforms for the supported targets (if necessary) 
   # and build the PetaLinux BSP for the UZ3EG_IOCC target.
   #
-  HDL_BOARD_NAME=UZ3EG_IOCC
-  PETALINUX_PROJECT_NAME=uz3eg_iocc_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=uz3eg_iocc
-  build_hw_platform
-  create_petalinux_bsp
+  #HDL_BOARD_NAME=UZ3EG_IOCC
+  #PETALINUX_PROJECT_NAME=uz3eg_iocc_${PLNX_VER}
+  #PETALINUX_ROOTFS_NAME=uz3eg_iocc
+  #build_hw_platform
+  #create_petalinux_bsp
 
   #
   # Create the hardware platforms for the supported targets (if necessary) 

@@ -92,7 +92,7 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the PZ7010_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz7010_fmc2_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=pz7010_fmc2_sd_oob_${PLNX_VER}
   #clean_hw_project
   clean_petalinux_bsp
 
@@ -100,7 +100,7 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the PZ7015_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz7015_fmc2_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=pz7015_fmc2_sd_oob_${PLNX_VER}
   #clean_hw_project
   clean_petalinux_bsp
 
@@ -108,7 +108,7 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the PZ7020_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz7020_fmc2_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=pz7020_fmc2_sd_oob_${PLNX_VER}
   #clean_hw_project
   clean_petalinux_bsp
 
@@ -116,7 +116,7 @@ main_clean_function ()
   # Remove project files created for PetaLinux BSP on the PZ7030_FMC2 target.
   #
   HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz7030_fmc2_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=pz7030_fmc2_sd_oob_${PLNX_VER}
   #clean_hw_project
   clean_petalinux_bsp
 }
