@@ -4385,7 +4385,6 @@ CONFIG_python-webserver-init=y
 # user packages 
 #
 CONFIG_bonniePLUSPLUS=y
-CONFIG_iperf=y
 CONFIG_iperf3=y
 
 #

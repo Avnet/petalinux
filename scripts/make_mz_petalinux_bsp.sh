@@ -47,18 +47,18 @@
 #
 #  Revision:            Mar 26, 2016: 1.00 Initial version
 #                       Jun 16, 2016: 1.01 Updated for 2015.4 PetaLinux tools
-#              		    Jul 20, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
-#              		    Oct 10, 2017: 1.02 Updated for 2017.2 PetaLinux tools 
-#              		    Mar 21, 2018: 1.03 Updated for 2017.4 PetaLinux tools 
+#                        Jul 20, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
+#                        Oct 10, 2017: 1.02 Updated for 2017.2 PetaLinux tools 
+#                        Mar 21, 2018: 1.03 Updated for 2017.4 PetaLinux tools 
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2017.2-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2017.2
-PLNX_VER=2017_4
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2018.2-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2018.2
+PLNX_VER=2018_2
 BUILD_BOOT_QSPI_OPTION=yes
 
 
@@ -191,13 +191,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${PETALINUX_ROOTFS_NAME} ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${PETALINUX_ROOTFS_NAME} ]
     then
     # Copy the meta-user rootfs folder to the PetaLinux project.
     echo " "
     echo "Adding custom rootfs ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${PETALINUX_ROOTFS_NAME}/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${PETALINUX_ROOTFS_NAME}/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/.
     # If the meta-user folder does not exist, then look for a bbappend file
     # Not every PetaLinux scripted build will have a custom rootfs with user applications, etc. and will instead 
@@ -265,7 +265,7 @@ petalinux_project_set_boot_config_qspi ()
   echo "Patching project config for QSPI boot support..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs
-  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.qspi_boot.patch
+  patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.qspi_boot.patch
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
   
   # Apply the meta-user level BSP platform-top.h file to establish a baseline
@@ -409,7 +409,7 @@ create_petalinux_bsp ()
   petalinux-config --oldconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
   # DEBUG
-  #echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}.patch file"
+  #echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
   #read -p "Press ENTER to continue" 
 
   # Overwrite the PetaLinux project config with some sort of revision 
@@ -423,27 +423,27 @@ create_petalinux_bsp ()
   # project configuration attributes this way.
   #
   # If neither of those are present, use the generic one by default.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}.patch ] 
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch ] 
     then
     echo " "
     echo "Patching PetaLinux project config ..."
     echo " "
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
-    patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}.patch
+    patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME} ] 
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
     echo " "
     echo "Overwriting PetaLinux project config ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME} \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME} ]
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ]
     then
     echo " "
     echo "WARNING: Using generic PetaLinux project config ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.generic \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.generic \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config    
   else
     echo " "
@@ -739,7 +739,7 @@ create_petalinux_bsp ()
 
   # Launch vivado in batch mode to clean output products from the hardware platform.
   # DEBUG !!!Uncomment the next line before public release!!!
-  vivado -mode batch -source cleanup.tcl
+  #vivado -mode batch -source cleanup.tcl
 
   # Change to PetaLinux project folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/

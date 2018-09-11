@@ -184,13 +184,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-apps ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${HDL_PROJECT_NAME}/recipes-apps ]
     then
     # Copy the applications to the meta-user apps recipe folder.
     echo " "
     echo "Adding applications ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-apps/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${HDL_PROJECT_NAME}/recipes-apps/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-apps/.
   else
     echo " "
@@ -199,13 +199,13 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
-  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-core ]
+  if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${HDL_PROJECT_NAME}/recipes-core ]
     then
     # Copy the applications to the meta-user core recipe folder.
     echo " "
     echo "Adding core files ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user.${HDL_PROJECT_NAME}/recipes-core/* \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${HDL_PROJECT_NAME}/recipes-core/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-core/.
   else
     echo " "
@@ -289,7 +289,7 @@ create_petalinux_bsp ()
   petalinux-config --oldconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
   # DEBUG
-  echo "Time to compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME}.patch file"
+  echo "Time to compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
   #read -p "Press ENTER to continue" 
   
   # Overwrite the PetaLinux project config with some sort of revision 
@@ -303,27 +303,27 @@ create_petalinux_bsp ()
   # project configuration attributes this way.
   #
   # If neither of those are present, use the generic one by default.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_PROJECT_NAME}.patch ] 
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_PROJECT_NAME}.patch ] 
     then
     echo " "
     echo "Patching PetaLinux project config ..."
     echo " "
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
-    patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_PROJECT_NAME}.patch
+    patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_PROJECT_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME} ] 
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
     echo " "
     echo "Overwriting PetaLinux project config ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME} \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.${HDL_BOARD_NAME} ]
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ]
     then
     echo " "
     echo "WARNING: Using generic PetaLinux project config ..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/config.generic \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.generic \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config    
   else
     echo " "

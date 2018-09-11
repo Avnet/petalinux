@@ -4224,7 +4224,6 @@ CONFIG_blinky-init=y
 #
 # user packages 
 #
-CONFIG_iperf=y
 CONFIG_iperf3=y
 CONFIG_bonniePLUSPLUS=y
 

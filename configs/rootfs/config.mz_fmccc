@@ -4217,7 +4217,6 @@ CONFIG_bridge-utils=y
 #
 # user packages 
 #
-CONFIG_iperf=y
 CONFIG_iperf3=y
 
 #
