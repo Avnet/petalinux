@@ -22,8 +22,8 @@
  #
  # Firmware Version Configuration
  #
--CONFIG_SUBSYSTEM_HOSTNAME="uz3eg_pciec_ccd_2017_4"
-+CONFIG_SUBSYSTEM_HOSTNAME="uz3eg-pciec-ccd-2017-4"
- CONFIG_SUBSYSTEM_PRODUCT="uz3eg_pciec_ccd_2017_4"
+-CONFIG_SUBSYSTEM_HOSTNAME="fmc_network1_factest_2017_4"
++CONFIG_SUBSYSTEM_HOSTNAME="fmc-network1-factest-2017-4"
+ CONFIG_SUBSYSTEM_PRODUCT="fmc_network1_factest_2017_4"
  CONFIG_SUBSYSTEM_FW_VERSION="1.00"
  
