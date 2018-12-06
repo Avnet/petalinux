@@ -33,15 +33,15 @@
 # ----------------------------------------------------------------------------
 # 
 #  Create Date:         Aug 01, 2018
-#  Design Name:         Avnet Ultra96_v1 PetaLinux BSP Generator
-#  Module Name:         clean_ultra96_v1_petalinux_bsp.tcl
-#  Project Name:        Avnet Ultra96_v1 PetaLinux BSP Generator
+#  Design Name:         Avnet Ultra96v2 PetaLinux BSP Generator
+#  Module Name:         clean_ultra96v2_petalinux_bsp.tcl
+#  Project Name:        Avnet Ultra96v2 PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     Ultra96_v1 Eval Board
+#  Hardware Boards:     Ultra96v2 Eval Board
 # 
 #  Tool versions:       Xilinx Vivado 2018.2
 # 
-#  Description:         Build Script for Ultra96_v1 PetaLinux BSP HW Platform
+#  Description:         Build Script for Ultra96v2 PetaLinux BSP HW Platform
 # 
 #  Dependencies:        None
 #
@@ -62,8 +62,8 @@ BUILD_BOOT_SD_OPTION=yes
 BUILD_BOOT_SD_OOB_OPTION=no
 BUILD_BOOT_SD_NO_BIT_OPTION=no
 FSBL_PROJECT_NAME=zynqmp_fsbl
-HDL_HARDWARE_NAME=ultra96v1_petalinux_hw
-HDL_PROJECT_NAME=ultra96v1_petalinux
+HDL_HARDWARE_NAME=ultra96v2_valtest_hw
+HDL_PROJECT_NAME=ultra96v2_valtest
 HDL_PROJECTS_FOLDER=../../hdl/Projects
 HDL_SCRIPTS_FOLDER=../../hdl/Scripts
 PETALINUX_APPS_FOLDER=../../petalinux/apps
@@ -326,7 +326,7 @@ petalinux_project_set_boot_config_sd_no_bit ()
   echo "Applying patch to add SD bitstream load support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96_v1_sd_boot_no_bit ./platform-top.h
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96v2_sd_boot_no_bit ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -347,7 +347,7 @@ petalinux_project_set_boot_config_sd ()
   echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96_v1_sd_boot ./platform-top.h
+  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96v2_sd_boot ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -679,14 +679,14 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd
 
     # DEBUG
-    #echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
-    #read -p "Press enter to continue"
+    echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
+    read -p "Press enter to continue"
 
-    PLNX_BUILD_SUCCESS=-1
+    #PLNX_BUILD_SUCCESS=-1
 
-    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
-    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
-    do
+    #echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    #while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    #do
       # Make sure that intermediary files get cleaned up.  This will also force
       # the rootfs to get rebuilt and generate a new image.ub file.
       petalinux-build -x distclean
@@ -694,8 +694,8 @@ create_petalinux_bsp ()
       # Build PetaLinux project.
       petalinux-build 
       
-      PLNX_BUILD_SUCCESS=$?
-    done
+      #PLNX_BUILD_SUCCESS=$?
+    #done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
     # build BOOT.BIN for booting from SD without any bistream loaded from 
@@ -897,9 +897,9 @@ main_make_function ()
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the ULTRA96 target.
   #
-  HDL_BOARD_NAME=ULTRA96V1
-  PETALINUX_PROJECT_NAME=ultra96v1_minimal_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=ultra96v1_minimal
+  HDL_BOARD_NAME=ULTRA96V2
+  PETALINUX_PROJECT_NAME=ultra96v2_valtest_${PLNX_VER}
+  PETALINUX_ROOTFS_NAME=ultra96v2_valtest
   build_hw_platform
   create_petalinux_bsp
 }
