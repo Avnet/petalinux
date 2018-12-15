@@ -682,11 +682,11 @@ create_petalinux_bsp ()
     echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
     read -p "Press enter to continue"
 
-    #PLNX_BUILD_SUCCESS=-1
+    PLNX_BUILD_SUCCESS=-1
 
-    #echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
-    #while [ $PLNX_BUILD_SUCCESS -ne 0 ];
-    #do
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
       # Make sure that intermediary files get cleaned up.  This will also force
       # the rootfs to get rebuilt and generate a new image.ub file.
       petalinux-build -x distclean
@@ -694,8 +694,8 @@ create_petalinux_bsp ()
       # Build PetaLinux project.
       petalinux-build 
       
-      #PLNX_BUILD_SUCCESS=$?
-    #done
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
     # build BOOT.BIN for booting from SD without any bistream loaded from 

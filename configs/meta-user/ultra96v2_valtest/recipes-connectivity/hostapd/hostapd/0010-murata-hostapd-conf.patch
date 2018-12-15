@@ -1,0 +1,11 @@
+diff -ur hostapd-2.6-original/hostapd/hostapd.conf hostapd-2.6-modified/hostapd/hostapd.conf
+--- hostapd-2.6-original/hostapd/hostapd.conf	2016-10-02 13:51:11.000000000 -0500
++++ hostapd-2.6-modified/hostapd/hostapd.conf	2017-12-05 15:02:29.842056615 -0600
+@@ -25,6 +25,7 @@
+ # Use driver=none if building hostapd as a standalone RADIUS server that does
+ # not control any wireless/wired driver.
+ # driver=hostap
++driver=nl80211
+ 
+ # Driver interface parameters (mainly for development testing use)
+ # driver_params=<params>
