@@ -1,6 +1,21 @@
 /include/ "system-conf.dtsi"
 / {
+
+   /* WILC3000 module: release RESETN on kernel boot */  
+   sdhci1_pwrseq: sdhci1_pwrseq {
+      compatible = "mmc-pwrseq-simple";
+      /* reset-gpios = <&gpio 7 1>;  // MIO[7] for RESETN, Active low, JT5 strapped to pins 2-3 */
+      reset-gpios = <&gpio 78 1>;  // device pin A3 for RESETN, Active low, JT5 strapped to pins 1-2
+      post-power-on-delay-ms = <10>;
+   };
+
 };
 
 
-
+&sdhci1 {
+   status = "okay";
+   bus-width= <4>;
+   max-frequency = <50000000>;
+   broken-cd;
+   mmc-pwrseq = <&sdhci1_pwrseq>;
+};
