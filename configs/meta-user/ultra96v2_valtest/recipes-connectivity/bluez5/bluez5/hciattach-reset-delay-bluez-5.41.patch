@@ -1,0 +1,13 @@
+diff --git a/tools/hciattach_bcm43xx.c b/tools/hciattach_bcm43xx.c
+index 81f38cb..fc7e52f 100644
+--- a/tools/hciattach_bcm43xx.c
++++ b/tools/hciattach_bcm43xx.c
+@@ -380,6 +380,8 @@ int bcm43xx_init(int fd, int def_speed, int speed, struct termios *ti,
+ 			return -1;
+ 		}
+ 
++		sleep(1);
++
+ 		if (bcm43xx_reset(fd))
+ 			return -1;
+ 	}

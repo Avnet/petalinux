@@ -1,0 +1,20 @@
+GPIO_NUM_RESET = 398 when WiFi radio RST_N is connected to MIO[7] (1.8V - JT5 strapped to pins 2-3)
+GPIO_NUM_RESET = 469 when WiFi radio RST_N is connected to EMIO[0] (1.2V - JT5 strapped to pins 1-2)
+There are 78 MIO GPIOs (0-77) so the first EMIO is #78.  78-7=71, 398+71=469
+diff --git a/wilc1000/wilc_wlan.h b/wilc1000/wilc_wlan.h
+index b7cb1b7..5b5186a 100644
+--- a/wilc_wlan.h
++++ b/wilc_wlan.h
+@@ -144,9 +144,9 @@
+ #define LINUX_TX_SIZE		(64 * 1024)
+ 
+ #define MODALIAS		"WILC_SPI"
+-#define GPIO_NUM		0x5B
+-#define GPIO_NUM_CHIP_EN	94
+-#define GPIO_NUM_RESET		60
++#define GPIO_NUM		399
++#define GPIO_NUM_CHIP_EN	397
++#define GPIO_NUM_RESET		469
+ 
+ 
+ #define NQUEUES			4
