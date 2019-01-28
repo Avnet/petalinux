@@ -8,10 +8,10 @@ echo BT_POWER_UP > /dev/wilc_bt
 echo BT_DOWNLOAD_FW > /dev/wilc_bt
 echo BT_FW_CHIP_WAKEUP > /dev/wilc_bt
 
-stty -F /dev/ttyS1 115200
-stty -F /dev/ttyS1 crtscts
+stty -F /dev/ttyPS1 115200
+stty -F /dev/ttyPS1 crtscts
 # Initialize the device:
-hciattach /dev/ttyS1 -t 10 any 115200 noflow nosleep
+hciattach /dev/ttyPS1 -t 10 any 115200 noflow nosleep
 sleep 2s
 
 #Configure the right BT device:
@@ -20,7 +20,8 @@ hciconfig hci0 up
 #begin new
 sleep 1s
 hciconfig hci0 reset
-hciconfig hci0 class 0x200404
+#Bluetooth COD (class) is TBD.  This is a 6 digit hex number
+#hciconfig hci0 class 0x<TBD>
 #for no password:
 hciconfig hci0 sspmode 1
 hciconfig hci0 piscan

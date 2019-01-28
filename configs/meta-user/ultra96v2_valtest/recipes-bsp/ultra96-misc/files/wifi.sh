@@ -1,11 +1,8 @@
 #Add the wi-fi driver module to the kernel:
-#This is not required for brcmfmac
 
-#Mount eMMC/SD card on Pmod
-#mount /dev/mmcblk0p1 /mnt
-#Further, overwrite wpa_supplicant.conf if it exists on eMMC/SD card:
-#cp -rf /run/media/mmcblk0p1/wpa_supplicant.conf /etc
-cp -rf /home/root/wpa_supplicant.conf /etc
+#Copy the supplied wpa_supplicant.conf file to /etc
+#!!!NEED TO EDIT WITH SSID PASSWORD FIRST!!!
+cp -f /home/root/wpa_supplicant.conf /etc
 
 # Load ATWILC3000 driver
 modprobe wilc
@@ -20,7 +17,7 @@ wpa_supplicant -Dnl80211 -iwlan0 -c/etc/wpa_supplicant.conf -B
 #To add DHCP:
 udhcpc -i wlan0
 
-#To run iperf:  (2.0.5 without the "b")
+#To run iperf3:
 #server mode:
 #comment this to simplify production testing:
 #iperf -s

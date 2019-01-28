@@ -447,11 +447,11 @@ create_petalinux_bsp ()
     echo " "
   fi
 
-  # Configure the root file system.
-  petalinux_project_configure_rootfs
-
   # Configure the device-tree.
   petalinux_project_configure_devicetree
+
+  # Configure the root file system.
+  petalinux_project_configure_rootfs
 
   # Configure the kernel.
   petalinux_project_configure_kernel
