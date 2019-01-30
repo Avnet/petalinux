@@ -447,11 +447,11 @@ create_petalinux_bsp ()
     echo " "
   fi
 
-  # Configure the root file system.
-  petalinux_project_configure_rootfs
-
   # Configure the device-tree.
   petalinux_project_configure_devicetree
+
+  # Configure the root file system.
+  petalinux_project_configure_rootfs
 
   # Configure the kernel.
   petalinux_project_configure_kernel
@@ -682,11 +682,11 @@ create_petalinux_bsp ()
     echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
     read -p "Press enter to continue"
 
-    #PLNX_BUILD_SUCCESS=-1
+    PLNX_BUILD_SUCCESS=-1
 
-    #echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
-    #while [ $PLNX_BUILD_SUCCESS -ne 0 ];
-    #do
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
       # Make sure that intermediary files get cleaned up.  This will also force
       # the rootfs to get rebuilt and generate a new image.ub file.
       petalinux-build -x distclean
@@ -694,8 +694,8 @@ create_petalinux_bsp ()
       # Build PetaLinux project.
       petalinux-build 
       
-      #PLNX_BUILD_SUCCESS=$?
-    #done
+      PLNX_BUILD_SUCCESS=$?
+    done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
     # build BOOT.BIN for booting from SD without any bistream loaded from 
@@ -728,7 +728,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
 
   # Clean the hardware project output products using the HDL TCL scripts.
-  echo "set argv [list board=${HDL_BOARD_NAME} project=${HDL_PROJECT_NAME} clean=yes jtag=yes version_override=yes]" > cleanup.tcl
+  echo "set argv [list board=${HDL_BOARD_NAME}_${PLNX_VER} project=${HDL_PROJECT_NAME} clean=yes jtag=yes version_override=yes]" > cleanup.tcl
   echo "set argc [llength \$argv]" >> cleanup.tcl
   echo "source ./make.tcl -notrace" >> cleanup.tcl
 
@@ -861,6 +861,7 @@ build_hw_platform ()
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
     read -t 5 -p "Pause here for 5 seconds"
+    echo " "
     
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
@@ -870,6 +871,7 @@ build_hw_platform ()
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
     echo "Will build the PetaLinux BSP now."
     read -t 5 -p "Pause here for 5 seconds"
+    echo " "
   
   fi
 }
