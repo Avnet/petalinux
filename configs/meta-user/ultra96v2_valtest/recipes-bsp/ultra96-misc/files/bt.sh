@@ -1,6 +1,3 @@
-#The max # of GPIOs this release of Linux is configured to support is 1024.  The ZYNQ PS GPIO block has 118 IOs (54 on MIO, 64 on EMIO).  
-#1024-118 = 906, hence “gpiochip906”.  In our design, we have BT_REG_ON tied to EMIO[0], which is the first GPIO after all of the MIO, or 906 + 54 = 960.
-
 #Turn echo of commands on:
 set -v
 
@@ -21,7 +18,9 @@ hciconfig hci0 up
 sleep 1s
 hciconfig hci0 reset
 #Bluetooth COD (class) is TBD.  This is a 6 digit hex number
+#EXAMPLE 0x200404
 #hciconfig hci0 class 0x<TBD>
+
 #for no password:
 hciconfig hci0 sspmode 1
 hciconfig hci0 piscan
@@ -32,8 +31,8 @@ hciconfig -a
 sleep 1s
 #Scan for BT devices:
 hcitool scan
+#Turn echo off
 set +v
-#Above turns echo off
 
 #Scan for BLE devices:
 #hcitool lescan

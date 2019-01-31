@@ -4,6 +4,7 @@ There are 78 MIO GPIOs (0-77) so the first EMIO is #78.
 For PetaLinux 2017.4 the Zynq MPSoC GPIO base is 322
 The WiFi EN is connected to MIO[8], so GPIO_NUM_CHIP_EN = 322+8 = 340
 The WiFi RSTN is mapped to EMIO[0], so GPIO_NUM_RESET = 322+78 = 400
+There are 78 MIO GPIOs (0-77) so the first EMIO is #78.  78-7=71, 398+71=469
 diff --git a/wilc1000/wilc_wlan.h b/wilc1000/wilc_wlan.h
 index b7cb1b7..5b5186a 100644
 --- a/wilc_wlan.h

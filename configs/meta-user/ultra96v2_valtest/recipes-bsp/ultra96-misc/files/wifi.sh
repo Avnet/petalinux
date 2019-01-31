@@ -1,5 +1,3 @@
-#Add the wi-fi driver module to the kernel:
-
 #Copy the supplied wpa_supplicant.conf file to /etc
 #!!!NEED TO EDIT WITH SSID PASSWORD FIRST!!!
 cp -f /home/root/wpa_supplicant.conf /etc
@@ -20,6 +18,6 @@ udhcpc -i wlan0
 #To run iperf3:
 #server mode:
 #comment this to simplify production testing:
-#iperf -s
+#iperf3 -s
 
 
