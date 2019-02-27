@@ -1,11 +1,12 @@
 SRC_URI_append = " \
         file://0001-zynqmp_pmufw-Add-support-for-Ultra96-power-button_v2board.patch \
+        file://0001-sw_apps-zynqmp_pmufw-Leave-MIO34-tristated-and-conne.patch \
         "
   
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 #Add debug for PMUFW
-XSCTH_BUILD_DEBUG = "1"
+#XSCTH_BUILD_DEBUG = "1"
 
 #YAML_COMPILER_FLAGS_append_ultra96-zynqmp = " -DBOARD_SHUTDOWN_PIN=2 -DBOARD_SHUTDOWN_PIN_STATE=0 -DENABLE_MOD_ULTRA96 -DENABLE_SCHEDULER -DDEBUG_MODE -DXPFW_DEBUG_DETAILED"
 YAML_COMPILER_FLAGS_append_ultra96-zynqmp = " -DBOARD_SHUTDOWN_PIN=2 -DBOARD_SHUTDOWN_PIN_STATE=0 -DENABLE_MOD_ULTRA96 -DENABLE_SCHEDULER"  
