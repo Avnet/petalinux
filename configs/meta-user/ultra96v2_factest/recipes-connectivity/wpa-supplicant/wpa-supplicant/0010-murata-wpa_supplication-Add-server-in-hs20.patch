@@ -1,0 +1,4575 @@
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/clean.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/clean.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/clean.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/clean.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,13 @@
++#!/bin/sh
++
++for i in server-client server server-revoked user ocsp; do
++    rm -f $i.csr $i.key $i.pem
++done
++
++rm -f openssl.cnf.tmp
++if [ -d demoCA ]; then
++    rm -r demoCA
++fi
++rm -f ca.pem logo.asn1 logo.der server.der ocsp-server-cache.der
++rm -f my-openssl.cnf my-openssl-root.cnf
++#rm -r rootCA
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/est-csrattrs.cnf bwpa_supplicant-2.6-patched-final/hs20/server/ca/est-csrattrs.cnf
+--- awpa_supplicant-2.6-original/hs20/server/ca/est-csrattrs.cnf	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/est-csrattrs.cnf	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,17 @@
++asn1 = SEQUENCE:attrs
++
++[attrs]
++#oid1 = OID:challengePassword
++attr1 = SEQUENCE:extreq
++oid2 = OID:sha256WithRSAEncryption
++
++[extreq]
++oid = OID:extensionRequest
++vals = SET:extreqvals
++
++[extreqvals]
++
++oid1 = OID:macAddress
++#oid2 = OID:imei
++#oid3 = OID:meid
++#oid4 = OID:DevId
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/est-csrattrs.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/est-csrattrs.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/est-csrattrs.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/est-csrattrs.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,4 @@
++#!/bin/sh
++
++openssl asn1parse -genconf est-csrattrs.cnf -out est-csrattrs.der -oid hs20.oid
++base64 est-csrattrs.der > est-attrs.b64
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/hs20.oid bwpa_supplicant-2.6-patched-final/hs20/server/ca/hs20.oid
+--- awpa_supplicant-2.6-original/hs20/server/ca/hs20.oid	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/hs20.oid	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,7 @@
++1.3.6.1.1.1.1.22 macAddress
++1.2.840.113549.1.9.14 extensionRequest
++1.3.6.1.4.1.40808.1.1.1 id-wfa-hotspot-friendlyName
++1.3.6.1.4.1.40808.1.1.2 id-kp-HS2.0Auth
++1.3.6.1.4.1.40808.1.1.3 imei
++1.3.6.1.4.1.40808.1.1.4 meid
++1.3.6.1.4.1.40808.1.1.5 DevId
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/ocsp-req.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-req.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/ocsp-req.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-req.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++for i in *.pem; do
++    echo "===[ $i ]==================="
++    openssl ocsp -text -CAfile ca.pem -verify_other demoCA/cacert.pem -trust_other -issuer demoCA/cacert.pem -cert $i -url http://localhost:8888/
++
++#    openssl ocsp -text -CAfile rootCA/cacert.pem -issuer demoCA/cacert.pem -cert $i -url http://localhost:8888/
++
++#    openssl ocsp -text -CAfile rootCA/cacert.pem -verify_other demoCA/cacert.pem -trust_other -issuer demoCA/cacert.pem -cert $i -url http://localhost:8888/
++#    openssl ocsp -text -CAfile rootCA/cacert.pem -VAfile ca.pem -trust_other -issuer demoCA/cacert.pem -cert $i -url http://localhost:8888/
++done
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/ocsp-responder-ica.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-responder-ica.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/ocsp-responder-ica.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-responder-ica.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,3 @@
++#!/bin/sh
++
++openssl ocsp -index demoCA/index.txt -port 8888 -nmin 5 -rsigner demoCA/cacert.pem -rkey demoCA/private/cakey-plain.pem -CA demoCA/cacert.pem -resp_no_certs -text
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/ocsp-responder.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-responder.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/ocsp-responder.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-responder.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,3 @@
++#!/bin/sh
++
++openssl ocsp -index demoCA/index.txt -port 8888 -nmin 5 -rsigner ocsp.pem -rkey ocsp.key -CA demoCA/cacert.pem -text
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/ocsp-update-cache.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-update-cache.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/ocsp-update-cache.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/ocsp-update-cache.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,10 @@
++#!/bin/sh
++
++openssl ocsp \
++	-no_nonce \
++	-CAfile ca.pem \
++	-verify_other demoCA/cacert.pem \
++	-issuer demoCA/cacert.pem \
++	-cert server.pem \
++	-url http://localhost:8888/ \
++	-respout ocsp-server-cache.der
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/openssl.cnf bwpa_supplicant-2.6-patched-final/hs20/server/ca/openssl.cnf
+--- awpa_supplicant-2.6-original/hs20/server/ca/openssl.cnf	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/openssl.cnf	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,200 @@
++# OpenSSL configuration file for Hotspot 2.0 PKI (Intermediate CA)
++
++HOME			= .
++RANDFILE		= $ENV::HOME/.rnd
++oid_section		= new_oids
++
++[ new_oids ]
++
++#logotypeoid=1.3.6.1.5.5.7.1.12
++
++####################################################################
++[ ca ]
++default_ca	= CA_default		# The default ca section
++
++####################################################################
++[ CA_default ]
++
++dir		= ./demoCA		# Where everything is kept
++certs		= $dir/certs		# Where the issued certs are kept
++crl_dir		= $dir/crl		# Where the issued crl are kept
++database	= $dir/index.txt	# database index file.
++#unique_subject	= no			# Set to 'no' to allow creation of
++					# several certificates with same subject
++new_certs_dir	= $dir/newcerts		# default place for new certs.
++
++certificate	= $dir/cacert.pem 	# The CA certificate
++serial		= $dir/serial 		# The current serial number
++crlnumber	= $dir/crlnumber	# the current crl number
++					# must be commented out to leave a V1 CRL
++crl		= $dir/crl.pem 		# The current CRL
++private_key	= $dir/private/cakey.pem# The private key
++RANDFILE	= $dir/private/.rand	# private random number file
++
++x509_extensions	= ext_client		# The extentions to add to the cert
++
++name_opt 	= ca_default		# Subject Name options
++cert_opt 	= ca_default		# Certificate field options
++
++# Extension copying option: use with caution.
++copy_extensions = copy
++
++default_days	= 365			# how long to certify for
++default_crl_days= 30			# how long before next CRL
++default_md	= default		# use public key default MD
++preserve	= no			# keep passed DN ordering
++
++policy		= policy_match
++
++# For the CA policy
++[ policy_match ]
++countryName		= supplied
++stateOrProvinceName	= optional
++organizationName	= supplied
++organizationalUnitName	= optional
++commonName		= supplied
++emailAddress		= optional
++
++[ policy_osu_server ]
++countryName		= match
++stateOrProvinceName	= optional
++organizationName	= match
++organizationalUnitName	= supplied
++commonName		= supplied
++emailAddress		= optional
++
++[ policy_anything ]
++countryName		= optional
++stateOrProvinceName	= optional
++localityName		= optional
++organizationName	= optional
++organizationalUnitName	= optional
++commonName		= supplied
++emailAddress		= optional
++
++####################################################################
++[ req ]
++default_bits		= 2048
++default_keyfile 	= privkey.pem
++distinguished_name	= req_distinguished_name
++attributes		= req_attributes
++x509_extensions	= v3_ca	# The extentions to add to the self signed cert
++
++input_password = @PASSWORD@
++output_password = @PASSWORD@
++
++string_mask = utf8only
++
++[ req_distinguished_name ]
++countryName			= Country Name (2 letter code)
++countryName_default		= FI
++countryName_min			= 2
++countryName_max			= 2
++
++localityName			= Locality Name (eg, city)
++localityName_default		= Tuusula
++
++0.organizationName		= Organization Name (eg, company)
++0.organizationName_default	= @DOMAIN@
++
++##organizationalUnitName		= Organizational Unit Name (eg, section)
++#organizationalUnitName_default	=
++#@OU@
++
++commonName			= Common Name (e.g. server FQDN or YOUR name)
++#@CN@
++commonName_max			= 64
++
++emailAddress			= Email Address
++emailAddress_max		= 64
++
++[ req_attributes ]
++
++[ v3_ca ]
++
++# Hotspot 2.0 PKI requirements
++subjectKeyIdentifier=hash
++authorityKeyIdentifier=keyid:always,issuer
++basicConstraints = critical, CA:true, pathlen:0
++keyUsage = critical, cRLSign, keyCertSign
++authorityInfoAccess = OCSP;URI:@OCSP_URI@
++# For SP intermediate CA
++#subjectAltName=critical,otherName:1.3.6.1.4.1.40808.1.1.1;UTF8String:engExample OSU
++#nameConstraints=permitted;DNS:.@DOMAIN@
++#1.3.6.1.5.5.7.1.12=ASN1:SEQUENCE:LogotypeExtn
++
++[ v3_osu_server ]
++
++basicConstraints = critical, CA:true, pathlen:0
++keyUsage = critical, keyEncipherment
++#@ALTNAME@
++
++#logotypeoid=ASN1:SEQUENCE:LogotypeExtn
++1.3.6.1.5.5.7.1.12=ASN1:SEQUENCE:LogotypeExtn
++[LogotypeExtn]
++communityLogos=EXP:0,SEQUENCE:LogotypeInfo
++[LogotypeInfo]
++# note: implicit tag converted to explicit for CHOICE
++direct=EXP:0,SEQUENCE:LogotypeData
++[LogotypeData]
++image=SEQUENCE:LogotypeImage
++[LogotypeImage]
++imageDetails=SEQUENCE:LogotypeDetails
++imageInfo=SEQUENCE:LogotypeImageInfo
++[LogotypeDetails]
++mediaType=IA5STRING:image/png
++logotypeHash=SEQUENCE:HashAlgAndValues
++logotypeURI=SEQUENCE:URI
++[HashAlgAndValues]
++value1=SEQUENCE:HashAlgAndValueSHA256
++#value2=SEQUENCE:HashAlgAndValueSHA1
++[HashAlgAndValueSHA256]
++hashAlg=SEQUENCE:sha256_alg
++hashValue=FORMAT:HEX,OCTETSTRING:@LOGO_HASH256@
++[HashAlgAndValueSHA1]
++hashAlg=SEQUENCE:sha1_alg
++hashValue=FORMAT:HEX,OCTETSTRING:@LOGO_HASH1@
++[sha256_alg]
++algorithm=OID:sha256
++[sha1_alg]
++algorithm=OID:sha1
++[URI]
++uri=IA5STRING:@LOGO_URI@
++[LogotypeImageInfo]
++# default value color(1), component optional
++#type=IMP:0,INTEGER:1
++fileSize=INTEGER:7549
++xSize=INTEGER:128
++ySize=INTEGER:80
++language=IMP:4,IA5STRING:zxx
++
++[ crl_ext ]
++
++# issuerAltName=issuer:copy
++authorityKeyIdentifier=keyid:always
++
++[ v3_OCSP ]
++
++basicConstraints = CA:FALSE
++keyUsage = nonRepudiation, digitalSignature, keyEncipherment
++extendedKeyUsage = OCSPSigning
++
++[ ext_client ]
++
++basicConstraints=CA:FALSE
++subjectKeyIdentifier=hash
++authorityKeyIdentifier=keyid,issuer
++authorityInfoAccess = OCSP;URI:@OCSP_URI@
++#@ALTNAME@
++extendedKeyUsage = clientAuth
++
++[ ext_server ]
++
++# Hotspot 2.0 PKI requirements
++basicConstraints=critical, CA:FALSE
++subjectKeyIdentifier=hash
++authorityKeyIdentifier=keyid,issuer
++authorityInfoAccess = OCSP;URI:@OCSP_URI@
++#@ALTNAME@
++extendedKeyUsage = critical, serverAuth
++keyUsage = critical, keyEncipherment
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/openssl-root.cnf bwpa_supplicant-2.6-patched-final/hs20/server/ca/openssl-root.cnf
+--- awpa_supplicant-2.6-original/hs20/server/ca/openssl-root.cnf	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/openssl-root.cnf	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,125 @@
++# OpenSSL configuration file for Hotspot 2.0 PKI (Root CA)
++
++HOME			= .
++RANDFILE		= $ENV::HOME/.rnd
++oid_section		= new_oids
++
++[ new_oids ]
++
++#logotypeoid=1.3.6.1.5.5.7.1.12
++
++####################################################################
++[ ca ]
++default_ca	= CA_default		# The default ca section
++
++####################################################################
++[ CA_default ]
++
++dir		= ./rootCA		# Where everything is kept
++certs		= $dir/certs		# Where the issued certs are kept
++crl_dir		= $dir/crl		# Where the issued crl are kept
++database	= $dir/index.txt	# database index file.
++#unique_subject	= no			# Set to 'no' to allow creation of
++					# several certificates with same subject
++new_certs_dir	= $dir/newcerts		# default place for new certs.
++
++certificate	= $dir/cacert.pem 	# The CA certificate
++serial		= $dir/serial 		# The current serial number
++crlnumber	= $dir/crlnumber	# the current crl number
++					# must be commented out to leave a V1 CRL
++crl		= $dir/crl.pem 		# The current CRL
++private_key	= $dir/private/cakey.pem# The private key
++RANDFILE	= $dir/private/.rand	# private random number file
++
++x509_extensions	= usr_cert		# The extentions to add to the cert
++
++name_opt 	= ca_default		# Subject Name options
++cert_opt 	= ca_default		# Certificate field options
++
++default_days	= 365			# how long to certify for
++default_crl_days= 30			# how long before next CRL
++default_md	= default		# use public key default MD
++preserve	= no			# keep passed DN ordering
++
++policy		= policy_match
++
++# For the CA policy
++[ policy_match ]
++countryName		= match
++stateOrProvinceName	= optional
++organizationName	= match
++organizationalUnitName	= optional
++commonName		= supplied
++emailAddress		= optional
++
++[ policy_anything ]
++countryName		= optional
++stateOrProvinceName	= optional
++localityName		= optional
++organizationName	= optional
++organizationalUnitName	= optional
++commonName		= supplied
++emailAddress		= optional
++
++####################################################################
++[ req ]
++default_bits		= 2048
++default_keyfile 	= privkey.pem
++distinguished_name	= req_distinguished_name
++attributes		= req_attributes
++x509_extensions	= v3_ca	# The extentions to add to the self signed cert
++
++input_password = @PASSWORD@
++output_password = @PASSWORD@
++
++string_mask = utf8only
++
++[ req_distinguished_name ]
++countryName			= Country Name (2 letter code)
++countryName_default		= US
++countryName_min			= 2
++countryName_max			= 2
++
++localityName			= Locality Name (eg, city)
++localityName_default		= Tuusula
++
++0.organizationName		= Organization Name (eg, company)
++0.organizationName_default	= WFA Hotspot 2.0
++
++##organizationalUnitName		= Organizational Unit Name (eg, section)
++#organizationalUnitName_default	=
++#@OU@
++
++commonName			= Common Name (e.g. server FQDN or YOUR name)
++#@CN@
++commonName_max			= 64
++
++emailAddress			= Email Address
++emailAddress_max		= 64
++
++[ req_attributes ]
++
++[ v3_req ]
++
++# Extensions to add to a certificate request
++basicConstraints = CA:FALSE
++keyUsage = nonRepudiation, digitalSignature, keyEncipherment
++subjectAltName=DNS:example.com,DNS:another.example.com
++
++[ v3_ca ]
++
++# Hotspot 2.0 PKI requirements
++subjectKeyIdentifier=hash
++basicConstraints = critical,CA:true
++keyUsage = critical, cRLSign, keyCertSign
++
++[ crl_ext ]
++
++# issuerAltName=issuer:copy
++authorityKeyIdentifier=keyid:always
++
++[ v3_OCSP ]
++
++basicConstraints = CA:FALSE
++keyUsage = nonRepudiation, digitalSignature, keyEncipherment
++extendedKeyUsage = OCSPSigning
+diff -urN awpa_supplicant-2.6-original/hs20/server/ca/setup.sh bwpa_supplicant-2.6-patched-final/hs20/server/ca/setup.sh
+--- awpa_supplicant-2.6-original/hs20/server/ca/setup.sh	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/ca/setup.sh	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,209 @@
++#!/bin/sh
++
++if [ -z "$OPENSSL" ]; then
++    OPENSSL=openssl
++fi
++export OPENSSL_CONF=$PWD/openssl.cnf
++PASS=whatever
++if [ -z "$DOMAIN" ]; then
++    DOMAIN=w1.fi
++fi
++COMPANY=w1.fi
++OPER_ENG="engw1.fi TESTING USE"
++OPER_FI="finw1.fi TESTIKÄYTTÖ"
++CNR="Hotspot 2.0 Trust Root CA - 99"
++CNO="ocsp.$DOMAIN"
++CNV="osu-revoked.$DOMAIN"
++CNOC="osu-client.$DOMAIN"
++OSU_SERVER_HOSTNAME="osu.$DOMAIN"
++DEBUG=0
++OCSP_URI="http://$CNO:8888/"
++LOGO_URI="http://osu.w1.fi/w1fi_logo.png"
++LOGO_HASH256="4532f7ec36424381617c03c6ce87b55a51d6e7177ffafda243cebf280a68954d"
++LOGO_HASH1="5e1d5085676eede6b02da14d31c523ec20ffba0b"
++
++# Command line overrides
++USAGE=$( cat <<EOF
++Usage:\n
++# -c:  Company name, used to generate Subject name CN for Intermediate CA\n
++# -C:  Subject name CN of the Root CA ($CNR)\n
++# -D:  Enable debugging (set -x, etc)\n
++# -g:  Logo sha1 hash ($LOGO_HASH1)\n
++# -G:  Logo sha256 hash ($LOGO_HASH256)\n
++# -h:  Show this help message\n
++# -l:  Logo URI ($LOGO_URI)\n
++# -m:  Domain ($DOMAIN)\n
++# -o:  Subject name CN for OSU-Client Server ($CNOC)\n
++# -O:  Subject name CN for OCSP Server ($CNO)\n
++# -p:  passphrase for private keys ($PASS)\n
++# -r:  Operator-english ($OPER_ENG)\n
++# -R:  Operator-finish ($OPER_FI)\n
++# -S:  OSU Server name ($OSU_SERVER_HOSTNAME)\n
++# -u:  OCSP-URI ($OCSP_URI)\n
++# -V:  Subject name CN for OSU-Revoked Server ($CNV)\n
++EOF
++)
++
++while getopts "c:C:Dg:G:l:m:o:O:p:r:R:S:u:V:h" flag
++  do
++  case $flag in
++      c) COMPANY=$OPTARG;;
++      C) CNR=$OPTARG;;
++      D) DEBUG=1;;
++      g) LOGO_HASH1=$OPTARG;;
++      G) LOGO_HASH256=$OPTARG;;
++      h) echo -e $USAGE; exit 0;;
++      l) LOGO_URI=$OPTARG;;
++      m) DOMAIN=$OPTARG;;
++      o) CNOC=$OPTARG;;
++      O) CNO=$OPTARG;;
++      p) PASS=$OPTARG;;
++      r) OPER_ENG=$OPTARG;;
++      R) OPER_FI=$OPTARG;;
++      S) OSU_SERVER_HOSTNAME=$OPTARG;;
++      u) OCSP_URI=$OPTARG;;
++      V) CNV=$OPTARG;;
++      *) echo "Unknown flag: $flag"; echo -e $USAGE; exit 1;;
++  esac
++done
++
++fail()
++{
++    echo "$*"
++    exit 1
++}
++
++echo
++echo "---[ Root CA ]----------------------------------------------------------"
++echo
++
++if [ $DEBUG = 1 ]
++then
++    set -x
++fi
++
++# Set the passphrase and some other common config accordingly.
++cat openssl-root.cnf | sed "s/@PASSWORD@/$PASS/" \
++ > my-openssl-root.cnf
++
++cat openssl.cnf | sed "s/@PASSWORD@/$PASS/" |
++sed "s,@OCSP_URI@,$OCSP_URI," |
++sed "s,@LOGO_URI@,$LOGO_URI," |
++sed "s,@LOGO_HASH1@,$LOGO_HASH1," |
++sed "s,@LOGO_HASH256@,$LOGO_HASH256," |
++sed "s/@DOMAIN@/$DOMAIN/" \
++ > my-openssl.cnf
++
++
++cat my-openssl-root.cnf | sed "s/#@CN@/commonName_default = $CNR/" > openssl.cnf.tmp
++mkdir -p rootCA/certs rootCA/crl rootCA/newcerts rootCA/private
++touch rootCA/index.txt
++if [ -e rootCA/private/cakey.pem ]; then
++    echo " * Use existing Root CA"
++else
++    echo " * Generate Root CA private key"
++    $OPENSSL req -config openssl.cnf.tmp -batch -new -newkey rsa:4096 -keyout rootCA/private/cakey.pem -out rootCA/careq.pem || fail "Failed to generate Root CA private key"
++    echo " * Sign Root CA certificate"
++    $OPENSSL ca -config openssl.cnf.tmp -md sha256 -create_serial -out rootCA/cacert.pem -days 10957 -batch -keyfile rootCA/private/cakey.pem -passin pass:$PASS -selfsign -extensions v3_ca -outdir rootCA/newcerts -infiles rootCA/careq.pem || fail "Failed to sign Root CA certificate"
++    $OPENSSL x509 -in rootCA/cacert.pem -out rootCA/cacert.der -outform DER || fail "Failed to create rootCA DER"
++    sha256sum rootCA/cacert.der > rootCA/cacert.fingerprint || fail "Failed to create rootCA fingerprint"
++fi
++if [ ! -e rootCA/crlnumber ]; then
++    echo 00 > rootCA/crlnumber
++fi
++
++echo
++echo "---[ Intermediate CA ]--------------------------------------------------"
++echo
++
++cat my-openssl.cnf | sed "s/#@CN@/commonName_default = $COMPANY Hotspot 2.0 Intermediate CA/" > openssl.cnf.tmp
++mkdir -p demoCA/certs demoCA/crl demoCA/newcerts demoCA/private
++touch demoCA/index.txt
++if [ -e demoCA/private/cakey.pem ]; then
++    echo " * Use existing Intermediate CA"
++else
++    echo " * Generate Intermediate CA private key"
++    $OPENSSL req -config openssl.cnf.tmp -batch -new -newkey rsa:2048 -keyout demoCA/private/cakey.pem -out demoCA/careq.pem || fail "Failed to generate Intermediate CA private key"
++    echo " * Sign Intermediate CA certificate"
++    $OPENSSL ca -config openssl.cnf.tmp -md sha256 -create_serial -out demoCA/cacert.pem -days 3652 -batch -keyfile rootCA/private/cakey.pem -cert rootCA/cacert.pem -passin pass:$PASS -extensions v3_ca -infiles demoCA/careq.pem || fail "Failed to sign Intermediate CA certificate"
++    # horrible from security view point, but for testing purposes since OCSP responder does not seem to support -passin
++    openssl rsa -in demoCA/private/cakey.pem -out demoCA/private/cakey-plain.pem -passin pass:$PASS
++    $OPENSSL x509 -in demoCA/cacert.pem -out demoCA/cacert.der -outform DER || fail "Failed to create demoCA DER."
++    sha256sum demoCA/cacert.der > demoCA/cacert.fingerprint || fail "Failed to create demoCA fingerprint"
++fi
++if [ ! -e demoCA/crlnumber ]; then
++    echo 00 > demoCA/crlnumber
++fi
++
++echo
++echo "OCSP responder"
++echo
++
++cat my-openssl.cnf | sed "s/#@CN@/commonName_default = $CNO/" > openssl.cnf.tmp
++$OPENSSL req -config $PWD/openssl.cnf.tmp -batch -new -newkey rsa:2048 -nodes -out ocsp.csr -keyout ocsp.key -extensions v3_OCSP
++$OPENSSL ca -config $PWD/openssl.cnf.tmp -batch -md sha256 -keyfile demoCA/private/cakey.pem -passin pass:$PASS -in ocsp.csr -out ocsp.pem -days 730 -extensions v3_OCSP || fail "Could not generate ocsp.pem"
++
++echo
++echo "---[ Server - to be revoked ] ------------------------------------------"
++echo
++
++cat my-openssl.cnf | sed "s/#@CN@/commonName_default = $CNV/" > openssl.cnf.tmp
++$OPENSSL req -config $PWD/openssl.cnf.tmp -batch -new -newkey rsa:2048 -nodes -out server-revoked.csr -keyout server-revoked.key
++$OPENSSL ca -config $PWD/openssl.cnf.tmp -batch -md sha256 -in server-revoked.csr -out server-revoked.pem -key $PASS -days 730 -extensions ext_server
++$OPENSSL ca -revoke server-revoked.pem -key $PASS
++
++echo
++echo "---[ Server - with client ext key use ] ---------------------------------"
++echo "---[ Only used for negative-testing for OSU-client implementation ] -----"
++echo
++
++cat my-openssl.cnf | sed "s/#@CN@/commonName_default = $CNOC/" > openssl.cnf.tmp
++$OPENSSL req -config $PWD/openssl.cnf.tmp -batch -new -newkey rsa:2048 -nodes -out server-client.csr -keyout server-client.key || fail "Could not create server-client.key"
++$OPENSSL ca -config $PWD/openssl.cnf.tmp -batch -md sha256 -in server-client.csr -out server-client.pem -key $PASS -days 730 -extensions ext_client || fail "Could not create server-client.pem"
++
++echo
++echo "---[ User ]-------------------------------------------------------------"
++echo
++
++cat my-openssl.cnf | sed "s/#@CN@/commonName_default = User/" > openssl.cnf.tmp
++$OPENSSL req -config $PWD/openssl.cnf.tmp -batch -new -newkey rsa:2048 -nodes -out user.csr -keyout user.key || fail "Could not create user.key"
++$OPENSSL ca -config $PWD/openssl.cnf.tmp -batch -md sha256 -in user.csr -out user.pem -key $PASS -days 730 -extensions ext_client || fail "Could not create user.pem"
++
++echo
++echo "---[ Server ]-----------------------------------------------------------"
++echo
++
++ALT="DNS:$OSU_SERVER_HOSTNAME"
++ALT="$ALT,otherName:1.3.6.1.4.1.40808.1.1.1;UTF8String:$OPER_ENG"
++ALT="$ALT,otherName:1.3.6.1.4.1.40808.1.1.1;UTF8String:$OPER_FI"
++
++cat my-openssl.cnf |
++	sed "s/#@CN@/commonName_default = $OSU_SERVER_HOSTNAME/" |
++	sed "s/^##organizationalUnitName/organizationalUnitName/" |
++	sed "s/#@OU@/organizationalUnitName_default = Hotspot 2.0 Online Sign Up Server/" |
++	sed "s/#@ALTNAME@/subjectAltName=critical,$ALT/" \
++	> openssl.cnf.tmp
++echo $OPENSSL req -config $PWD/openssl.cnf.tmp -batch -sha256 -new -newkey rsa:2048 -nodes -out server.csr -keyout server.key -reqexts v3_osu_server
++$OPENSSL req -config $PWD/openssl.cnf.tmp -batch -sha256 -new -newkey rsa:2048 -nodes -out server.csr -keyout server.key -reqexts v3_osu_server || fail "Failed to generate server request"
++$OPENSSL ca -config $PWD/openssl.cnf.tmp -batch -md sha256 -in server.csr -out server.pem -key $PASS -days 730 -extensions ext_server -policy policy_osu_server || fail "Failed to sign server certificate"
++
++#dump logotype details for debugging
++$OPENSSL x509 -in server.pem -out server.der -outform DER
++openssl asn1parse -in server.der -inform DER | grep HEX | tail -1 | sed 's/.*://' | xxd -r -p > logo.der
++openssl asn1parse -in logo.der -inform DER > logo.asn1
++
++
++echo
++echo "---[ CRL ]---------------------------------------------------------------"
++echo
++
++$OPENSSL ca -config $PWD/my-openssl.cnf -gencrl -md sha256 -out demoCA/crl/crl.pem -passin pass:$PASS
++
++echo
++echo "---[ Verify ]------------------------------------------------------------"
++echo
++
++$OPENSSL verify -CAfile rootCA/cacert.pem demoCA/cacert.pem
++$OPENSSL verify -CAfile rootCA/cacert.pem -untrusted demoCA/cacert.pem *.pem
++
++cat rootCA/cacert.pem demoCA/cacert.pem > ca.pem
+Binary files awpa_supplicant-2.6-original/hs20/server/ca/w1fi_logo.png and bwpa_supplicant-2.6-patched-final/hs20/server/ca/w1fi_logo.png differ
+diff -urN awpa_supplicant-2.6-original/hs20/server/hs20-osu-server.txt bwpa_supplicant-2.6-patched-final/hs20/server/hs20-osu-server.txt
+--- awpa_supplicant-2.6-original/hs20/server/hs20-osu-server.txt	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/hs20-osu-server.txt	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,257 @@
++Hotspot 2.0 OSU server
++======================
++
++The information in this document is based on the assumption that Ubuntu
++12.04 server (64-bit) distribution is used and the web server is
++Apache2. Neither of these are requirements for the installation, but if
++other combinations are used, the package names and configuration
++parameters may need to be adjusted.
++
++NOTE: This implementation and the example configuration here is meant
++only for testing purposes in a lab environment. This design is not
++secure to be installed in a publicly available Internet server without
++considerable amount of modification and review for security issues.
++
++NOTE: While this describes use on Ubuntu 12.04, the version of Apache2
++included in that distribution is not new enough to support all OSU
++server validation steps. In other words, it may be most adapt the steps
++described here to Ubuntu 13.10.
++
++
++Build dependencies
++------------------
++
++Ubuntu 12.04 server
++- default installation
++- upgraded to latest package versions
++  sudo apt-get update
++  sudo apt-get upgrade
++
++Packages needed for running the service:
++  sudo apt-get install sqlite3
++  sudo apt-get install apache2
++  sudo apt-get install php5-sqlite libapache2-mod-php5
++
++Additional packages needed for building the components:
++  sudo apt-get install build-essential
++  sudo apt-get install libsqlite3-dev
++  sudo apt-get install libssl-dev
++  sudo apt-get install libxml2-dev
++
++
++Installation location
++---------------------
++
++Select a location for the installation root directory. The example here
++assumes /home/user/hs20-server to be used, but this can be changed by
++editing couple of files as indicated below.
++
++sudo mkdir -p /home/user/hs20-server
++sudo chown $USER /home/user/hs20-server
++mkdir -p /home/user/hs20-server/spp
++mkdir -p /home/user/hs20-server/AS
++
++
++Build
++-----
++
++# hostapd as RADIUS server
++cd hostapd
++
++#example build configuration
++cat > .config <<EOF
++CONFIG_DRIVER_NONE=y
++CONFIG_PKCS12=y
++CONFIG_RADIUS_SERVER=y
++CONFIG_EAP=y
++CONFIG_EAP_TLS=y
++CONFIG_EAP_MSCHAPV2=y
++CONFIG_EAP_PEAP=y
++CONFIG_EAP_GTC=y
++CONFIG_EAP_TTLS=y
++CONFIG_EAP_SIM=y
++CONFIG_EAP_AKA=y
++CONFIG_EAP_AKA_PRIME=y
++CONFIG_SQLITE=y
++CONFIG_HS20=y
++EOF
++
++make hostapd hlr_auc_gw
++cp hostapd hlr_auc_gw /home/user/hs20-server/AS
++
++# build hs20_spp_server
++cd ../hs20/server
++make clean
++make
++cp hs20_spp_server /home/user/hs20-server/spp
++# prepare database (web server user/group needs to have write access)
++mkdir -p /home/user/hs20-server/AS/DB
++sudo chgrp www-data /home/user/hs20-server/AS/DB
++sudo chmod g+w /home/user/hs20-server/AS/DB
++sqlite3 /home/user/hs20-server/AS/DB/eap_user.db < sql.txt
++sudo chgrp www-data /home/user/hs20-server/AS/DB/eap_user.db
++sudo chmod g+w /home/user/hs20-server/AS/DB/eap_user.db
++# add example configuration (note: need to update URLs to match the system)
++sqlite3 /home/user/hs20-server/AS/DB/eap_user.db < sql-example.txt
++
++# copy PHP scripts
++# Modify config.php if different installation directory is used.
++# Modify PHP scripts to get the desired behavior for user interaction (or use
++# the examples as-is for initial testing).
++cp -r www /home/user/hs20-server
++
++# Build local keys and certs
++cd ca
++# Display help options.
++./setup.sh -h
++
++# Remove old keys, fill in appropriate values, and generate your keys.
++# For instance:
++./clean.sh
++rm -fr rootCA"
++old_hostname=myserver.local
++./setup.sh -C "Hotspot 2.0 Trust Root CA - CT" -d $old_hostname \
++   -I "Hotspot 2.0 Intermediate CA - CT" -o $old_hostname-osu-client \
++   -O $old_hostname-oscp -p lanforge -S $old_hostname \
++   -V $old_hostname-osu-revoked \
++   -m local -u http://$old_hostname:8888/
++
++# Configure subscription policies
++mkdir -p /home/user/hs20-server/spp/policy
++cat > /home/user/hs20-server/spp/policy/default.xml <<EOF
++<Policy>
++	<PolicyUpdate>
++		<UpdateInterval>30</UpdateInterval>
++		<UpdateMethod>ClientInitiated</UpdateMethod>
++		<Restriction>Unrestricted</Restriction>
++		<URI>https://policy-server.osu.example.com/hs20/spp.php</URI>
++	</PolicyUpdate>
++</Policy>
++EOF
++
++
++# Install Hotspot 2.0 SPP and OMA DM XML schema/DTD files
++
++# XML schema for SPP
++# Copy the latest XML schema into /home/user/hs20-server/spp/spp.xsd
++
++# OMA DM Device Description Framework DTD
++# Copy into /home/user/hs20-server/spp/dm_ddf-v1_2.dtd
++# http://www.openmobilealliance.org/tech/DTD/dm_ddf-v1_2.dtd
++
++
++# Configure RADIUS authentication service
++# Note: Change the URL to match the setup
++# Note: Install AAA server key/certificate and root CA in Key directory
++
++cat > /home/user/hs20-server/AS/as-sql.conf <<EOF
++driver=none
++radius_server_clients=as.radius_clients
++eap_server=1
++eap_user_file=sqlite:DB/eap_user.db
++ca_cert=Key/ca.pem
++server_cert=Key/server.pem
++private_key=Key/server.key
++private_key_passwd=passphrase
++eap_sim_db=unix:/tmp/hlr_auc_gw.sock db=eap_sim.db
++subscr_remediation_url=https://subscription-server.osu.example.com/hs20/spp.php
++EOF
++
++# Set RADIUS passphrase for the APs
++# Note: Modify to match the setup
++cat > /home/user/hs20-server/AS/as.radius_clients <<EOF
++0.0.0.0/0	radius
++EOF
++
++
++Start RADIUS authentication server
++----------------------------------
++
++cd /home/user/hs20-server/AS
++./hostapd -B as-sql.conf
++
++
++OSEN RADIUS server configuration notes
++
++The OSEN RADIUS server config file should have the 'ocsp_stapling_response'
++configuration in it. For example:
++
++# hostapd-radius config for the radius used by the OSEN AP
++interface=eth0#0
++driver=none
++logger_syslog=-1
++logger_syslog_level=2
++logger_stdout=-1
++logger_stdout_level=2
++ctrl_interface=/var/run/hostapd
++ctrl_interface_group=0
++eap_server=1
++eap_user_file=/home/user/hs20-server/AS/hostapd-osen.eap_user
++server_id=ben-ota-2-osen
++radius_server_auth_port=1811
++radius_server_clients=/home/user/hs20-server/AS/hostap.radius_clients
++
++ca_cert=/home/user/hs20-server/ca/ca.pem
++server_cert=/home/user/hs20-server/ca/server.pem
++private_key=/home/user/hs20-server/ca/server.key
++private_key_passwd=whatever
++
++ocsp_stapling_response=/home/user/hs20-server/ca/ocsp-server-cache.der
++
++The /home/user/hs20-server/AS/hostapd-osen.eap_user file should look
++similar to this, and should coorelate with the osu_nai entry in
++the non-OSEN VAP config file.  For instance:
++
++# cat hostapd-osen.eap_user
++# For OSEN authentication (Hotspot 2.0 Release 2)
++"osen@w1.fi"      WFA-UNAUTH-TLS
++
++
++# Run OCSP server:
++cd /home/user/hs20-server/ca
++./ocsp-responder.sh&
++
++# Update cache (This should be run periodically)
++./ocsp-update-cache.sh
++
++
++Configure web server
++--------------------
++
++Edit /etc/apache2/sites-available/default-ssl
++
++Add following block just before "SSL Engine Switch" line":
++
++        Alias /hs20/ "/home/user/hs20-server/www/"
++        <Directory "/home/user/hs20-server/www/">
++                Options Indexes MultiViews FollowSymLinks
++                AllowOverride None
++                Order allow,deny
++                Allow from all
++        </Directory>
++
++Update SSL configuration to use the OSU server certificate/key.
++They keys and certs are called 'server.key' and 'server.pem' from
++ca/setup.sh.
++
++Enable default-ssl site and restart Apache2:
++  sudo a2ensite default-ssl
++  sudo a2enmod ssl
++  sudo service apache2 restart
++
++
++Management UI
++-------------
++
++The sample PHP scripts include a management UI for testing
++purposes. That is available at https://<server>/hs20/users.php
++
++
++AP configuration
++----------------
++
++APs can now be configured to use the OSU server as the RADIUS
++authentication server. In addition, the OSU Provider List ANQP element
++should be configured to use the SPP (SOAP+XML) option and with the
++following Server URL:
++https://<server>/hs20/spp.php/signup?realm=example.com
+diff -urN awpa_supplicant-2.6-original/hs20/server/hs20_spp_server.c bwpa_supplicant-2.6-patched-final/hs20/server/hs20_spp_server.c
+--- awpa_supplicant-2.6-original/hs20/server/hs20_spp_server.c	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/hs20_spp_server.c	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,187 @@
++/*
++ * Hotspot 2.0 SPP server - standalone version
++ * Copyright (c) 2012-2013, Qualcomm Atheros, Inc.
++ *
++ * This software may be distributed under the terms of the BSD license.
++ * See README for more details.
++ */
++
++#include "includes.h"
++#include <time.h>
++#include <sqlite3.h>
++
++#include "common.h"
++#include "xml-utils.h"
++#include "spp_server.h"
++
++
++static void write_timestamp(FILE *f)
++{
++	time_t t;
++	struct tm *tm;
++
++	time(&t);
++	tm = localtime(&t);
++
++	fprintf(f, "%04u-%02u-%02u %02u:%02u:%02u ",
++		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
++		tm->tm_hour, tm->tm_min, tm->tm_sec);
++}
++
++
++void debug_print(struct hs20_svc *ctx, int print, const char *fmt, ...)
++{
++	va_list ap;
++
++	if (ctx->debug_log == NULL)
++		return;
++
++	write_timestamp(ctx->debug_log);
++	va_start(ap, fmt);
++	vfprintf(ctx->debug_log, fmt, ap);
++	va_end(ap);
++
++	fprintf(ctx->debug_log, "\n");
++}
++
++
++void debug_dump_node(struct hs20_svc *ctx, const char *title, xml_node_t *node)
++{
++	char *str;
++
++	if (ctx->debug_log == NULL)
++		return;
++	str = xml_node_to_str(ctx->xml, node);
++	if (str == NULL)
++		return;
++
++	write_timestamp(ctx->debug_log);
++	fprintf(ctx->debug_log, "%s: '%s'\n", title, str);
++	os_free(str);
++}
++
++
++static int process(struct hs20_svc *ctx)
++{
++	int dmacc = 0;
++	xml_node_t *soap, *spp, *resp;
++	char *user, *realm, *post, *str;
++
++	ctx->addr = getenv("HS20ADDR");
++	if (ctx->addr)
++		debug_print(ctx, 1, "Connection from %s", ctx->addr);
++
++	user = getenv("HS20USER");
++	if (user && strlen(user) == 0)
++		user = NULL;
++	realm = getenv("HS20REALM");
++	if (realm == NULL) {
++		debug_print(ctx, 1, "HS20REALM not set");
++		return -1;
++	}
++	post = getenv("HS20POST");
++	if (post == NULL) {
++		debug_print(ctx, 1, "HS20POST not set");
++		return -1;
++	}
++
++	soap = xml_node_from_buf(ctx->xml, post);
++	if (soap == NULL) {
++		debug_print(ctx, 1, "Could not parse SOAP data");
++		return -1;
++	}
++	debug_dump_node(ctx, "Received SOAP message", soap);
++	spp = soap_get_body(ctx->xml, soap);
++	if (spp == NULL) {
++		debug_print(ctx, 1, "Could not get SPP message");
++		xml_node_free(ctx->xml, soap);
++		return -1;
++	}
++	debug_dump_node(ctx, "Received SPP message", spp);
++
++	resp = hs20_spp_server_process(ctx, spp, user, realm, dmacc);
++	xml_node_free(ctx->xml, soap);
++	if (resp == NULL && user == NULL) {
++		debug_print(ctx, 1, "Request HTTP authentication");
++		return 2; /* Request authentication */
++	}
++	if (resp == NULL) {
++		debug_print(ctx, 1, "No response");
++		return -1;
++	}
++
++	soap = soap_build_envelope(ctx->xml, resp);
++	if (soap == NULL) {
++		debug_print(ctx, 1, "SOAP envelope building failed");
++		return -1;
++	}
++	str = xml_node_to_str(ctx->xml, soap);
++	xml_node_free(ctx->xml, soap);
++	if (str == NULL) {
++		debug_print(ctx, 1, "Could not get node string");
++		return -1;
++	}
++	printf("%s", str);
++	free(str);
++
++	return 0;
++}
++
++
++static void usage(void)
++{
++	printf("usage:\n"
++	       "hs20_spp_server -r<root directory> [-f<debug log>]\n");
++}
++
++
++int main(int argc, char *argv[])
++{
++	struct hs20_svc ctx;
++	int ret;
++
++	os_memset(&ctx, 0, sizeof(ctx));
++	for (;;) {
++		int c = getopt(argc, argv, "f:r:");
++		if (c < 0)
++			break;
++		switch (c) {
++		case 'f':
++			if (ctx.debug_log)
++				break;
++			ctx.debug_log = fopen(optarg, "a");
++			if (ctx.debug_log == NULL) {
++				printf("Could not write to %s\n", optarg);
++				return -1;
++			}
++			break;
++		case 'r':
++			ctx.root_dir = optarg;
++			break;
++		default:
++			usage();
++			return -1;
++		}
++	}
++	if (ctx.root_dir == NULL) {
++		usage();
++		return -1;
++	}
++	ctx.xml = xml_node_init_ctx(&ctx, NULL);
++	if (ctx.xml == NULL)
++		return -1;
++	if (hs20_spp_server_init(&ctx) < 0) {
++		xml_node_deinit_ctx(ctx.xml);
++		return -1;
++	}
++
++	ret = process(&ctx);
++	debug_print(&ctx, 1, "process() --> %d", ret);
++
++	xml_node_deinit_ctx(ctx.xml);
++	hs20_spp_server_deinit(&ctx);
++	if (ctx.debug_log)
++		fclose(ctx.debug_log);
++
++	return ret;
++}
+diff -urN awpa_supplicant-2.6-original/hs20/server/Makefile bwpa_supplicant-2.6-patched-final/hs20/server/Makefile
+--- awpa_supplicant-2.6-original/hs20/server/Makefile	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/Makefile	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,46 @@
++all: hs20_spp_server
++
++ifndef CC
++CC=gcc
++endif
++
++ifndef LDO
++LDO=$(CC)
++endif
++
++ifndef CFLAGS
++CFLAGS = -MMD -O2 -Wall -g
++endif
++
++CFLAGS += -I../../src
++CFLAGS += -I../../src/utils
++CFLAGS += -I../../src/crypto
++
++LIBS += -lsqlite3
++
++# Using glibc < 2.17 requires -lrt for clock_gettime()
++LIBS += -lrt
++
++OBJS=spp_server.o
++OBJS += hs20_spp_server.o
++OBJS += ../../src/utils/xml-utils.o
++OBJS += ../../src/utils/base64.o
++OBJS += ../../src/utils/common.o
++OBJS += ../../src/utils/os_unix.o
++OBJS += ../../src/utils/wpa_debug.o
++OBJS += ../../src/crypto/md5-internal.o
++CFLAGS += $(shell xml2-config --cflags)
++LIBS += $(shell xml2-config --libs)
++OBJS += ../../src/utils/xml_libxml2.o
++
++hs20_spp_server: $(OBJS)
++	$(LDO) $(LDFLAGS) -o hs20_spp_server $(OBJS) $(LIBS)
++
++clean:
++	rm -f core *~ *.o *.d hs20_spp_server
++	rm -f ../../src/utils/*.o
++	rm -f ../../src/utils/*.d
++	rm -f ../../src/crypto/*.o
++	rm -f ../../src/crypto/*.d
++
++-include $(OBJS:%.o=%.d)
+diff -urN awpa_supplicant-2.6-original/hs20/server/spp_server.c bwpa_supplicant-2.6-patched-final/hs20/server/spp_server.c
+--- awpa_supplicant-2.6-original/hs20/server/spp_server.c	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/spp_server.c	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,2292 @@
++/*
++ * Hotspot 2.0 SPP server
++ * Copyright (c) 2012-2013, Qualcomm Atheros, Inc.
++ *
++ * This software may be distributed under the terms of the BSD license.
++ * See README for more details.
++ */
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <ctype.h>
++#include <time.h>
++#include <errno.h>
++#include <sqlite3.h>
++
++#include "common.h"
++#include "base64.h"
++#include "md5_i.h"
++#include "xml-utils.h"
++#include "spp_server.h"
++
++
++#define SPP_NS_URI "http://www.wi-fi.org/specifications/hotspot2dot0/v1.0/spp"
++
++#define URN_OMA_DM_DEVINFO "urn:oma:mo:oma-dm-devinfo:1.0"
++#define URN_OMA_DM_DEVDETAIL "urn:oma:mo:oma-dm-devdetail:1.0"
++#define URN_OMA_DM_DMACC "urn:oma:mo:oma-dm-dmacc:1.0"
++#define URN_HS20_PPS "urn:wfa:mo:hotspot2dot0-perprovidersubscription:1.0"
++
++
++/* TODO: timeout to expire sessions */
++
++enum hs20_session_operation {
++	NO_OPERATION,
++	UPDATE_PASSWORD,
++	CONTINUE_SUBSCRIPTION_REMEDIATION,
++	CONTINUE_POLICY_UPDATE,
++	USER_REMEDIATION,
++	SUBSCRIPTION_REGISTRATION,
++	POLICY_REMEDIATION,
++	POLICY_UPDATE,
++	FREE_REMEDIATION,
++};
++
++
++static char * db_get_session_val(struct hs20_svc *ctx, const char *user,
++				 const char *realm, const char *session_id,
++				 const char *field);
++static char * db_get_osu_config_val(struct hs20_svc *ctx, const char *realm,
++				    const char *field);
++static xml_node_t * build_policy(struct hs20_svc *ctx, const char *user,
++				 const char *realm, int use_dmacc);
++
++
++static int db_add_session(struct hs20_svc *ctx,
++			  const char *user, const char *realm,
++			  const char *sessionid, const char *pw,
++			  const char *redirect_uri,
++			  enum hs20_session_operation operation)
++{
++	char *sql;
++	int ret = 0;
++
++	sql = sqlite3_mprintf("INSERT INTO sessions(timestamp,id,user,realm,"
++			      "operation,password,redirect_uri) "
++			      "VALUES "
++			      "(strftime('%%Y-%%m-%%d %%H:%%M:%%f','now'),"
++			      "%Q,%Q,%Q,%d,%Q,%Q)",
++			      sessionid, user ? user : "", realm ? realm : "",
++			      operation, pw ? pw : "",
++			      redirect_uri ? redirect_uri : "");
++	if (sql == NULL)
++		return -1;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to add session entry into sqlite "
++			    "database: %s", sqlite3_errmsg(ctx->db));
++		ret = -1;
++	}
++	sqlite3_free(sql);
++	return ret;
++}
++
++
++static void db_update_session_password(struct hs20_svc *ctx, const char *user,
++				       const char *realm, const char *sessionid,
++				       const char *pw)
++{
++	char *sql;
++
++	sql = sqlite3_mprintf("UPDATE sessions SET password=%Q WHERE id=%Q AND "
++			      "user=%Q AND realm=%Q",
++			      pw, sessionid, user, realm);
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to update session password: %s",
++			    sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void db_update_session_machine_managed(struct hs20_svc *ctx,
++					      const char *user,
++					      const char *realm,
++					      const char *sessionid,
++					      const int pw_mm)
++{
++	char *sql;
++
++	sql = sqlite3_mprintf("UPDATE sessions SET machine_managed=%Q WHERE id=%Q AND user=%Q AND realm=%Q",
++			      pw_mm ? "1" : "0", sessionid, user, realm);
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1,
++			    "Failed to update session machine_managed: %s",
++			    sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void db_add_session_pps(struct hs20_svc *ctx, const char *user,
++			       const char *realm, const char *sessionid,
++			       xml_node_t *node)
++{
++	char *str;
++	char *sql;
++
++	str = xml_node_to_str(ctx->xml, node);
++	if (str == NULL)
++		return;
++	sql = sqlite3_mprintf("UPDATE sessions SET pps=%Q WHERE id=%Q AND "
++			      "user=%Q AND realm=%Q",
++			      str, sessionid, user, realm);
++	free(str);
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to add session pps: %s",
++			    sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void db_add_session_devinfo(struct hs20_svc *ctx, const char *sessionid,
++				   xml_node_t *node)
++{
++	char *str;
++	char *sql;
++
++	str = xml_node_to_str(ctx->xml, node);
++	if (str == NULL)
++		return;
++	sql = sqlite3_mprintf("UPDATE sessions SET devinfo=%Q WHERE id=%Q",
++			      str, sessionid);
++	free(str);
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to add session devinfo: %s",
++			    sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void db_add_session_devdetail(struct hs20_svc *ctx,
++				     const char *sessionid,
++				     xml_node_t *node)
++{
++	char *str;
++	char *sql;
++
++	str = xml_node_to_str(ctx->xml, node);
++	if (str == NULL)
++		return;
++	sql = sqlite3_mprintf("UPDATE sessions SET devdetail=%Q WHERE id=%Q",
++			      str, sessionid);
++	free(str);
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to add session devdetail: %s",
++			    sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void db_remove_session(struct hs20_svc *ctx,
++			      const char *user, const char *realm,
++			      const char *sessionid)
++{
++	char *sql;
++
++	if (user == NULL || realm == NULL) {
++		sql = sqlite3_mprintf("DELETE FROM sessions WHERE "
++				      "id=%Q", sessionid);
++	} else {
++		sql = sqlite3_mprintf("DELETE FROM sessions WHERE "
++				      "user=%Q AND realm=%Q AND id=%Q",
++				      user, realm, sessionid);
++	}
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to delete session entry from "
++			    "sqlite database: %s", sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void hs20_eventlog(struct hs20_svc *ctx,
++			  const char *user, const char *realm,
++			  const char *sessionid, const char *notes,
++			  const char *dump)
++{
++	char *sql;
++	char *user_buf = NULL, *realm_buf = NULL;
++
++	debug_print(ctx, 1, "eventlog: %s", notes);
++
++	if (user == NULL) {
++		user_buf = db_get_session_val(ctx, NULL, NULL, sessionid,
++					      "user");
++		user = user_buf;
++		realm_buf = db_get_session_val(ctx, NULL, NULL, sessionid,
++					       "realm");
++		realm = realm_buf;
++	}
++
++	sql = sqlite3_mprintf("INSERT INTO eventlog"
++			      "(user,realm,sessionid,timestamp,notes,dump,addr)"
++			      " VALUES (%Q,%Q,%Q,"
++			      "strftime('%%Y-%%m-%%d %%H:%%M:%%f','now'),"
++			      "%Q,%Q,%Q)",
++			      user, realm, sessionid, notes,
++			      dump ? dump : "", ctx->addr ? ctx->addr : "");
++	free(user_buf);
++	free(realm_buf);
++	if (sql == NULL)
++		return;
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to add eventlog entry into sqlite "
++			    "database: %s", sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void hs20_eventlog_node(struct hs20_svc *ctx,
++			       const char *user, const char *realm,
++			       const char *sessionid, const char *notes,
++			       xml_node_t *node)
++{
++	char *str;
++
++	if (node)
++		str = xml_node_to_str(ctx->xml, node);
++	else
++		str = NULL;
++	hs20_eventlog(ctx, user, realm, sessionid, notes, str);
++	free(str);
++}
++
++
++static void db_update_mo_str(struct hs20_svc *ctx, const char *user,
++			     const char *realm, const char *name,
++			     const char *str)
++{
++	char *sql;
++	if (user == NULL || realm == NULL || name == NULL)
++		return;
++	sql = sqlite3_mprintf("UPDATE users SET %s=%Q "
++		 "WHERE identity=%Q AND realm=%Q AND phase2=1",
++			      name, str, user, realm);
++	if (sql == NULL)
++		return;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to update user MO entry in sqlite "
++			    "database: %s", sqlite3_errmsg(ctx->db));
++	}
++	sqlite3_free(sql);
++}
++
++
++static void db_update_mo(struct hs20_svc *ctx, const char *user,
++			 const char *realm, const char *name, xml_node_t *mo)
++{
++	char *str;
++
++	str = xml_node_to_str(ctx->xml, mo);
++	if (str == NULL)
++		return;
++
++	db_update_mo_str(ctx, user, realm, name, str);
++	free(str);
++}
++
++
++static void add_text_node(struct hs20_svc *ctx, xml_node_t *parent,
++			  const char *name, const char *value)
++{
++	xml_node_create_text(ctx->xml, parent, NULL, name, value ? value : "");
++}
++
++
++static void add_text_node_conf(struct hs20_svc *ctx, const char *realm,
++			       xml_node_t *parent, const char *name,
++			       const char *field)
++{
++	char *val;
++	val = db_get_osu_config_val(ctx, realm, field);
++	xml_node_create_text(ctx->xml, parent, NULL, name, val ? val : "");
++	os_free(val);
++}
++
++
++static int new_password(char *buf, int buflen)
++{
++	int i;
++
++	if (buflen < 1)
++		return -1;
++	buf[buflen - 1] = '\0';
++	if (os_get_random((unsigned char *) buf, buflen - 1) < 0)
++		return -1;
++
++	for (i = 0; i < buflen - 1; i++) {
++		unsigned char val = buf[i];
++		val %= 2 * 26 + 10;
++		if (val < 26)
++			buf[i] = 'a' + val;
++		else if (val < 2 * 26)
++			buf[i] = 'A' + val - 26;
++		else
++			buf[i] = '0' + val - 2 * 26;
++	}
++
++	return 0;
++}
++
++
++struct get_db_field_data {
++	const char *field;
++	char *value;
++};
++
++
++static int get_db_field(void *ctx, int argc, char *argv[], char *col[])
++{
++	struct get_db_field_data *data = ctx;
++	int i;
++
++	for (i = 0; i < argc; i++) {
++		if (os_strcmp(col[i], data->field) == 0 && argv[i]) {
++			os_free(data->value);
++			data->value = os_strdup(argv[i]);
++			break;
++		}
++	}
++
++	return 0;
++}
++
++
++static char * db_get_val(struct hs20_svc *ctx, const char *user,
++			 const char *realm, const char *field, int dmacc)
++{
++	char *cmd;
++	struct get_db_field_data data;
++
++	cmd = sqlite3_mprintf("SELECT %s FROM users WHERE "
++			      "%s=%Q AND realm=%Q AND phase2=1",
++			      field, dmacc ? "osu_user" : "identity",
++			      user, realm);
++	if (cmd == NULL)
++		return NULL;
++	memset(&data, 0, sizeof(data));
++	data.field = field;
++	if (sqlite3_exec(ctx->db, cmd, get_db_field, &data, NULL) != SQLITE_OK)
++	{
++		debug_print(ctx, 1, "Could not find user '%s'", user);
++		sqlite3_free(cmd);
++		return NULL;
++	}
++	sqlite3_free(cmd);
++
++	debug_print(ctx, 1, "DB: user='%s' realm='%s' field='%s' dmacc=%d --> "
++		    "value='%s'", user, realm, field, dmacc, data.value);
++
++	return data.value;
++}
++
++
++static int db_update_val(struct hs20_svc *ctx, const char *user,
++			 const char *realm, const char *field,
++			 const char *val, int dmacc)
++{
++	char *cmd;
++	int ret;
++
++	cmd = sqlite3_mprintf("UPDATE users SET %s=%Q WHERE "
++			      "%s=%Q AND realm=%Q AND phase2=1",
++			      field, val, dmacc ? "osu_user" : "identity", user,
++			      realm);
++	if (cmd == NULL)
++		return -1;
++	debug_print(ctx, 1, "DB: %s", cmd);
++	if (sqlite3_exec(ctx->db, cmd, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1,
++			    "Failed to update user in sqlite database: %s",
++			    sqlite3_errmsg(ctx->db));
++		ret = -1;
++	} else {
++		debug_print(ctx, 1,
++			    "DB: user='%s' realm='%s' field='%s' set to '%s'",
++			    user, realm, field, val);
++		ret = 0;
++	}
++	sqlite3_free(cmd);
++
++	return ret;
++}
++
++
++static char * db_get_session_val(struct hs20_svc *ctx, const char *user,
++				 const char *realm, const char *session_id,
++				 const char *field)
++{
++	char *cmd;
++	struct get_db_field_data data;
++
++	if (user == NULL || realm == NULL) {
++		cmd = sqlite3_mprintf("SELECT %s FROM sessions WHERE "
++				      "id=%Q", field, session_id);
++	} else {
++		cmd = sqlite3_mprintf("SELECT %s FROM sessions WHERE "
++				      "user=%Q AND realm=%Q AND id=%Q",
++				      field, user, realm, session_id);
++	}
++	if (cmd == NULL)
++		return NULL;
++	debug_print(ctx, 1, "DB: %s", cmd);
++	memset(&data, 0, sizeof(data));
++	data.field = field;
++	if (sqlite3_exec(ctx->db, cmd, get_db_field, &data, NULL) != SQLITE_OK)
++	{
++		debug_print(ctx, 1, "DB: Could not find session %s: %s",
++			    session_id, sqlite3_errmsg(ctx->db));
++		sqlite3_free(cmd);
++		return NULL;
++	}
++	sqlite3_free(cmd);
++
++	debug_print(ctx, 1, "DB: return '%s'", data.value);
++	return data.value;
++}
++
++
++static int update_password(struct hs20_svc *ctx, const char *user,
++			   const char *realm, const char *pw, int dmacc)
++{
++	char *cmd;
++
++	cmd = sqlite3_mprintf("UPDATE users SET password=%Q, "
++			      "remediation='' "
++			      "WHERE %s=%Q AND phase2=1",
++			      pw, dmacc ? "osu_user" : "identity",
++			      user);
++	if (cmd == NULL)
++		return -1;
++	debug_print(ctx, 1, "DB: %s", cmd);
++	if (sqlite3_exec(ctx->db, cmd, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to update database for user '%s'",
++			    user);
++	}
++	sqlite3_free(cmd);
++
++	return 0;
++}
++
++
++static int add_eap_ttls(struct hs20_svc *ctx, xml_node_t *parent)
++{
++	xml_node_t *node;
++
++	node = xml_node_create(ctx->xml, parent, NULL, "EAPMethod");
++	if (node == NULL)
++		return -1;
++
++	add_text_node(ctx, node, "EAPType", "21");
++	add_text_node(ctx, node, "InnerMethod", "MS-CHAP-V2");
++
++	return 0;
++}
++
++
++static xml_node_t * build_username_password(struct hs20_svc *ctx,
++					    xml_node_t *parent,
++					    const char *user, const char *pw)
++{
++	xml_node_t *node;
++	char *b64;
++
++	node = xml_node_create(ctx->xml, parent, NULL, "UsernamePassword");
++	if (node == NULL)
++		return NULL;
++
++	add_text_node(ctx, node, "Username", user);
++
++	b64 = (char *) base64_encode((unsigned char *) pw, strlen(pw), NULL);
++	if (b64 == NULL)
++		return NULL;
++	add_text_node(ctx, node, "Password", b64);
++	free(b64);
++
++	return node;
++}
++
++
++static int add_username_password(struct hs20_svc *ctx, xml_node_t *cred,
++				 const char *user, const char *pw)
++{
++	xml_node_t *node;
++
++	node = build_username_password(ctx, cred, user, pw);
++	if (node == NULL)
++		return -1;
++
++	add_text_node(ctx, node, "MachineManaged", "TRUE");
++	add_text_node(ctx, node, "SoftTokenApp", "");
++	add_eap_ttls(ctx, node);
++
++	return 0;
++}
++
++
++static void add_creation_date(struct hs20_svc *ctx, xml_node_t *cred)
++{
++	char str[30];
++	time_t now;
++	struct tm tm;
++
++	time(&now);
++	gmtime_r(&now, &tm);
++	snprintf(str, sizeof(str), "%04u-%02u-%02uT%02u:%02u:%02uZ",
++		 tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
++		 tm.tm_hour, tm.tm_min, tm.tm_sec);
++	xml_node_create_text(ctx->xml, cred, NULL, "CreationDate", str);
++}
++
++
++static xml_node_t * build_credential_pw(struct hs20_svc *ctx,
++					const char *user, const char *realm,
++					const char *pw)
++{
++	xml_node_t *cred;
++
++	cred = xml_node_create_root(ctx->xml, NULL, NULL, NULL, "Credential");
++	if (cred == NULL) {
++		debug_print(ctx, 1, "Failed to create Credential node");
++		return NULL;
++	}
++	add_creation_date(ctx, cred);
++	if (add_username_password(ctx, cred, user, pw) < 0) {
++		xml_node_free(ctx->xml, cred);
++		return NULL;
++	}
++	add_text_node(ctx, cred, "Realm", realm);
++
++	return cred;
++}
++
++
++static xml_node_t * build_credential(struct hs20_svc *ctx,
++				     const char *user, const char *realm,
++				     char *new_pw, size_t new_pw_len)
++{
++	if (new_password(new_pw, new_pw_len) < 0)
++		return NULL;
++	debug_print(ctx, 1, "Update password to '%s'", new_pw);
++	return build_credential_pw(ctx, user, realm, new_pw);
++}
++
++
++static xml_node_t * build_credential_cert(struct hs20_svc *ctx,
++					  const char *user, const char *realm,
++					  const char *cert_fingerprint)
++{
++	xml_node_t *cred, *cert;
++
++	cred = xml_node_create_root(ctx->xml, NULL, NULL, NULL, "Credential");
++	if (cred == NULL) {
++		debug_print(ctx, 1, "Failed to create Credential node");
++		return NULL;
++	}
++	add_creation_date(ctx, cred);
++	cert = xml_node_create(ctx->xml, cred, NULL, "DigitalCertificate");
++	add_text_node(ctx, cert, "CertificateType", "x509v3");
++	add_text_node(ctx, cert, "CertSHA256Fingerprint", cert_fingerprint);
++	add_text_node(ctx, cred, "Realm", realm);
++
++	return cred;
++}
++
++
++static xml_node_t * build_post_dev_data_response(struct hs20_svc *ctx,
++						 xml_namespace_t **ret_ns,
++						 const char *session_id,
++						 const char *status,
++						 const char *error_code)
++{
++	xml_node_t *spp_node = NULL;
++	xml_namespace_t *ns;
++
++	spp_node = xml_node_create_root(ctx->xml, SPP_NS_URI, "spp", &ns,
++					"sppPostDevDataResponse");
++	if (spp_node == NULL)
++		return NULL;
++	if (ret_ns)
++		*ret_ns = ns;
++
++	xml_node_add_attr(ctx->xml, spp_node, ns, "sppVersion", "1.0");
++	xml_node_add_attr(ctx->xml, spp_node, ns, "sessionID", session_id);
++	xml_node_add_attr(ctx->xml, spp_node, ns, "sppStatus", status);
++
++	if (error_code) {
++		xml_node_t *node;
++		node = xml_node_create(ctx->xml, spp_node, ns, "sppError");
++		if (node)
++			xml_node_add_attr(ctx->xml, node, NULL, "errorCode",
++					  error_code);
++	}
++
++	return spp_node;
++}
++
++
++static int add_update_node(struct hs20_svc *ctx, xml_node_t *spp_node,
++			   xml_namespace_t *ns, const char *uri,
++			   xml_node_t *upd_node)
++{
++	xml_node_t *node, *tnds;
++	char *str;
++
++	tnds = mo_to_tnds(ctx->xml, upd_node, 0, NULL, NULL);
++	if (!tnds)
++		return -1;
++
++	str = xml_node_to_str(ctx->xml, tnds);
++	xml_node_free(ctx->xml, tnds);
++	if (str == NULL)
++		return -1;
++	node = xml_node_create_text(ctx->xml, spp_node, ns, "updateNode", str);
++	free(str);
++
++	xml_node_add_attr(ctx->xml, node, ns, "managementTreeURI", uri);
++
++	return 0;
++}
++
++
++static xml_node_t * build_sub_rem_resp(struct hs20_svc *ctx,
++				       const char *user, const char *realm,
++				       const char *session_id,
++				       int machine_rem, int dmacc)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *cred;
++	char buf[400];
++	char new_pw[33];
++	char *real_user = NULL;
++	char *status;
++	char *cert;
++
++	if (dmacc) {
++		real_user = db_get_val(ctx, user, realm, "identity", dmacc);
++		if (real_user == NULL) {
++			debug_print(ctx, 1, "Could not find user identity for "
++				    "dmacc user '%s'", user);
++			return NULL;
++		}
++	}
++
++	cert = db_get_val(ctx, user, realm, "cert", dmacc);
++	if (cert && cert[0] == '\0')
++		cert = NULL;
++	if (cert) {
++		cred = build_credential_cert(ctx, real_user ? real_user : user,
++					     realm, cert);
++	} else {
++		cred = build_credential(ctx, real_user ? real_user : user,
++					realm, new_pw, sizeof(new_pw));
++	}
++	free(real_user);
++	if (!cred) {
++		debug_print(ctx, 1, "Could not build credential");
++		return NULL;
++	}
++
++	status = "Remediation complete, request sppUpdateResponse";
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, status,
++						NULL);
++	if (spp_node == NULL) {
++		debug_print(ctx, 1, "Could not build sppPostDevDataResponse");
++		return NULL;
++	}
++
++	snprintf(buf, sizeof(buf),
++		 "./Wi-Fi/%s/PerProviderSubscription/Credential1/Credential",
++		 realm);
++
++	if (add_update_node(ctx, spp_node, ns, buf, cred) < 0) {
++		debug_print(ctx, 1, "Could not add update node");
++		xml_node_free(ctx->xml, spp_node);
++		return NULL;
++	}
++
++	hs20_eventlog_node(ctx, user, realm, session_id,
++			   machine_rem ? "machine remediation" :
++			   "user remediation", cred);
++	xml_node_free(ctx->xml, cred);
++
++	if (cert) {
++		debug_print(ctx, 1, "Certificate credential - no need for DB "
++			    "password update on success notification");
++	} else {
++		debug_print(ctx, 1, "Request DB password update on success "
++			    "notification");
++		db_add_session(ctx, user, realm, session_id, new_pw, NULL,
++			       UPDATE_PASSWORD);
++	}
++
++	return spp_node;
++}
++
++
++static xml_node_t * machine_remediation(struct hs20_svc *ctx,
++					const char *user,
++					const char *realm,
++					const char *session_id, int dmacc)
++{
++	return build_sub_rem_resp(ctx, user, realm, session_id, 1, dmacc);
++}
++
++
++static xml_node_t * policy_remediation(struct hs20_svc *ctx,
++				       const char *user, const char *realm,
++				       const char *session_id, int dmacc)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *policy;
++	char buf[400];
++	const char *status;
++
++	hs20_eventlog(ctx, user, realm, session_id,
++		      "requires policy remediation", NULL);
++
++	db_add_session(ctx, user, realm, session_id, NULL, NULL,
++		       POLICY_REMEDIATION);
++
++	policy = build_policy(ctx, user, realm, dmacc);
++	if (!policy) {
++		return build_post_dev_data_response(
++			ctx, NULL, session_id,
++			"No update available at this time", NULL);
++	}
++
++	status = "Remediation complete, request sppUpdateResponse";
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, status,
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	snprintf(buf, sizeof(buf),
++		 "./Wi-Fi/%s/PerProviderSubscription/Credential1/Policy",
++		 realm);
++
++	if (add_update_node(ctx, spp_node, ns, buf, policy) < 0) {
++		xml_node_free(ctx->xml, spp_node);
++		xml_node_free(ctx->xml, policy);
++		return NULL;
++	}
++
++	hs20_eventlog_node(ctx, user, realm, session_id,
++			   "policy update (sub rem)", policy);
++	xml_node_free(ctx->xml, policy);
++
++	return spp_node;
++}
++
++
++static xml_node_t * browser_remediation(struct hs20_svc *ctx,
++					const char *session_id,
++					const char *redirect_uri,
++					const char *uri)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *exec_node;
++
++	if (redirect_uri == NULL) {
++		debug_print(ctx, 1, "Missing redirectURI attribute for user "
++			    "remediation");
++		return NULL;
++	}
++	debug_print(ctx, 1, "redirectURI %s", redirect_uri);
++
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, "OK",
++		NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	exec_node = xml_node_create(ctx->xml, spp_node, ns, "exec");
++	xml_node_create_text(ctx->xml, exec_node, ns, "launchBrowserToURI",
++			     uri);
++	return spp_node;
++}
++
++
++static xml_node_t * user_remediation(struct hs20_svc *ctx, const char *user,
++				     const char *realm, const char *session_id,
++				     const char *redirect_uri)
++{
++	char uri[300], *val;
++
++	hs20_eventlog(ctx, user, realm, session_id,
++		      "requires user remediation", NULL);
++	val = db_get_osu_config_val(ctx, realm, "remediation_url");
++	if (val == NULL)
++		return NULL;
++
++	db_add_session(ctx, user, realm, session_id, NULL, redirect_uri,
++		       USER_REMEDIATION);
++
++	snprintf(uri, sizeof(uri), "%s%s", val, session_id);
++	os_free(val);
++	return browser_remediation(ctx, session_id, redirect_uri, uri);
++}
++
++
++static xml_node_t * free_remediation(struct hs20_svc *ctx,
++				     const char *user, const char *realm,
++				     const char *session_id,
++				     const char *redirect_uri)
++{
++	char uri[300], *val;
++
++	hs20_eventlog(ctx, user, realm, session_id,
++		      "requires free/public account remediation", NULL);
++	val = db_get_osu_config_val(ctx, realm, "free_remediation_url");
++	if (val == NULL)
++		return NULL;
++
++	db_add_session(ctx, user, realm, session_id, NULL, redirect_uri,
++		       FREE_REMEDIATION);
++
++	snprintf(uri, sizeof(uri), "%s%s", val, session_id);
++	os_free(val);
++	return browser_remediation(ctx, session_id, redirect_uri, uri);
++}
++
++
++static xml_node_t * no_sub_rem(struct hs20_svc *ctx,
++			       const char *user, const char *realm,
++			       const char *session_id)
++{
++	const char *status;
++
++	hs20_eventlog(ctx, user, realm, session_id,
++		      "no subscription mediation available", NULL);
++
++	status = "No update available at this time";
++	return build_post_dev_data_response(ctx, NULL, session_id, status,
++					    NULL);
++}
++
++
++static xml_node_t * hs20_subscription_remediation(struct hs20_svc *ctx,
++						  const char *user,
++						  const char *realm,
++						  const char *session_id,
++						  int dmacc,
++						  const char *redirect_uri)
++{
++	char *type, *identity;
++	xml_node_t *ret;
++	char *free_account;
++
++	identity = db_get_val(ctx, user, realm, "identity", dmacc);
++	if (identity == NULL || strlen(identity) == 0) {
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "user not found in database for remediation",
++			      NULL);
++		os_free(identity);
++		return build_post_dev_data_response(ctx, NULL, session_id,
++						    "Error occurred",
++						    "Not found");
++	}
++	os_free(identity);
++
++	free_account = db_get_osu_config_val(ctx, realm, "free_account");
++	if (free_account && strcmp(free_account, user) == 0) {
++		free(free_account);
++		return no_sub_rem(ctx, user, realm, session_id);
++	}
++	free(free_account);
++
++	type = db_get_val(ctx, user, realm, "remediation", dmacc);
++	if (type && strcmp(type, "free") != 0) {
++		char *val;
++		int shared = 0;
++		val = db_get_val(ctx, user, realm, "shared", dmacc);
++		if (val)
++			shared = atoi(val);
++		free(val);
++		if (shared) {
++			free(type);
++			return no_sub_rem(ctx, user, realm, session_id);
++		}
++	}
++	if (type && strcmp(type, "user") == 0)
++		ret = user_remediation(ctx, user, realm, session_id,
++				       redirect_uri);
++	else if (type && strcmp(type, "free") == 0)
++		ret = free_remediation(ctx, user, realm, session_id,
++				       redirect_uri);
++	else if (type && strcmp(type, "policy") == 0)
++		ret = policy_remediation(ctx, user, realm, session_id, dmacc);
++	else
++		ret = machine_remediation(ctx, user, realm, session_id, dmacc);
++	free(type);
++
++	return ret;
++}
++
++
++static xml_node_t * build_policy(struct hs20_svc *ctx, const char *user,
++				 const char *realm, int use_dmacc)
++{
++	char *policy_id;
++	char fname[200];
++	xml_node_t *policy, *node;
++
++	policy_id = db_get_val(ctx, user, realm, "policy", use_dmacc);
++	if (policy_id == NULL || strlen(policy_id) == 0) {
++		free(policy_id);
++		policy_id = strdup("default");
++		if (policy_id == NULL)
++			return NULL;
++	}
++
++	snprintf(fname, sizeof(fname), "%s/spp/policy/%s.xml",
++		 ctx->root_dir, policy_id);
++	free(policy_id);
++	debug_print(ctx, 1, "Use policy file %s", fname);
++
++	policy = node_from_file(ctx->xml, fname);
++	if (policy == NULL)
++		return NULL;
++
++	node = get_node_uri(ctx->xml, policy, "Policy/PolicyUpdate/URI");
++	if (node) {
++		char *url;
++		url = db_get_osu_config_val(ctx, realm, "policy_url");
++		if (url == NULL) {
++			xml_node_free(ctx->xml, policy);
++			return NULL;
++		}
++		xml_node_set_text(ctx->xml, node, url);
++		free(url);
++	}
++
++	node = get_node_uri(ctx->xml, policy, "Policy/PolicyUpdate");
++	if (node && use_dmacc) {
++		char *pw;
++		pw = db_get_val(ctx, user, realm, "osu_password", use_dmacc);
++		if (pw == NULL ||
++		    build_username_password(ctx, node, user, pw) == NULL) {
++			debug_print(ctx, 1, "Failed to add Policy/PolicyUpdate/"
++				    "UsernamePassword");
++			free(pw);
++			xml_node_free(ctx->xml, policy);
++			return NULL;
++		}
++		free(pw);
++	}
++
++	return policy;
++}
++
++
++static xml_node_t * hs20_policy_update(struct hs20_svc *ctx,
++				       const char *user, const char *realm,
++				       const char *session_id, int dmacc)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node;
++	xml_node_t *policy;
++	char buf[400];
++	const char *status;
++	char *identity;
++
++	identity = db_get_val(ctx, user, realm, "identity", dmacc);
++	if (identity == NULL || strlen(identity) == 0) {
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "user not found in database for policy update",
++			      NULL);
++		os_free(identity);
++		return build_post_dev_data_response(ctx, NULL, session_id,
++						    "Error occurred",
++						    "Not found");
++	}
++	os_free(identity);
++
++	policy = build_policy(ctx, user, realm, dmacc);
++	if (!policy) {
++		return build_post_dev_data_response(
++			ctx, NULL, session_id,
++			"No update available at this time", NULL);
++	}
++
++	db_add_session(ctx, user, realm, session_id, NULL, NULL, POLICY_UPDATE);
++
++	status = "Update complete, request sppUpdateResponse";
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, status,
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	snprintf(buf, sizeof(buf),
++		 "./Wi-Fi/%s/PerProviderSubscription/Credential1/Policy",
++		 realm);
++
++	if (add_update_node(ctx, spp_node, ns, buf, policy) < 0) {
++		xml_node_free(ctx->xml, spp_node);
++		xml_node_free(ctx->xml, policy);
++		return NULL;
++	}
++
++	hs20_eventlog_node(ctx, user, realm, session_id, "policy update",
++			   policy);
++	xml_node_free(ctx->xml, policy);
++
++	return spp_node;
++}
++
++
++static xml_node_t * spp_get_mo(struct hs20_svc *ctx, xml_node_t *node,
++			       const char *urn, int *valid, char **ret_err)
++{
++	xml_node_t *child, *tnds, *mo;
++	const char *name;
++	char *mo_urn;
++	char *str;
++	char fname[200];
++
++	*valid = -1;
++	if (ret_err)
++		*ret_err = NULL;
++
++	xml_node_for_each_child(ctx->xml, child, node) {
++		xml_node_for_each_check(ctx->xml, child);
++		name = xml_node_get_localname(ctx->xml, child);
++		if (strcmp(name, "moContainer") != 0)
++			continue;
++		mo_urn = xml_node_get_attr_value_ns(ctx->xml, child, SPP_NS_URI,
++						    "moURN");
++		if (strcasecmp(urn, mo_urn) == 0) {
++			xml_node_get_attr_value_free(ctx->xml, mo_urn);
++			break;
++		}
++		xml_node_get_attr_value_free(ctx->xml, mo_urn);
++	}
++
++	if (child == NULL)
++		return NULL;
++
++	debug_print(ctx, 1, "moContainer text for %s", urn);
++	debug_dump_node(ctx, "moContainer", child);
++
++	str = xml_node_get_text(ctx->xml, child);
++	debug_print(ctx, 1, "moContainer payload: '%s'", str);
++	tnds = xml_node_from_buf(ctx->xml, str);
++	xml_node_get_text_free(ctx->xml, str);
++	if (tnds == NULL) {
++		debug_print(ctx, 1, "could not parse moContainer text");
++		return NULL;
++	}
++
++	snprintf(fname, sizeof(fname), "%s/spp/dm_ddf-v1_2.dtd", ctx->root_dir);
++	if (xml_validate_dtd(ctx->xml, tnds, fname, ret_err) == 0)
++		*valid = 1;
++	else if (ret_err && *ret_err &&
++		 os_strcmp(*ret_err, "No declaration for attribute xmlns of element MgmtTree\n") == 0) {
++		free(*ret_err);
++		debug_print(ctx, 1, "Ignore OMA-DM DDF DTD validation error for MgmtTree namespace declaration with xmlns attribute");
++		*ret_err = NULL;
++		*valid = 1;
++	} else
++		*valid = 0;
++
++	mo = tnds_to_mo(ctx->xml, tnds);
++	xml_node_free(ctx->xml, tnds);
++	if (mo == NULL) {
++		debug_print(ctx, 1, "invalid moContainer for %s", urn);
++	}
++
++	return mo;
++}
++
++
++static xml_node_t * spp_exec_upload_mo(struct hs20_svc *ctx,
++				       const char *session_id, const char *urn)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *node, *exec_node;
++
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, "OK",
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	exec_node = xml_node_create(ctx->xml, spp_node, ns, "exec");
++
++	node = xml_node_create(ctx->xml, exec_node, ns, "uploadMO");
++	xml_node_add_attr(ctx->xml, node, ns, "moURN", urn);
++
++	return spp_node;
++}
++
++
++static xml_node_t * hs20_subscription_registration(struct hs20_svc *ctx,
++						   const char *realm,
++						   const char *session_id,
++						   const char *redirect_uri)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *exec_node;
++	char uri[300], *val;
++
++	if (db_add_session(ctx, NULL, realm, session_id, NULL, redirect_uri,
++			   SUBSCRIPTION_REGISTRATION) < 0)
++		return NULL;
++	val = db_get_osu_config_val(ctx, realm, "signup_url");
++	if (val == NULL)
++		return NULL;
++
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, "OK",
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	exec_node = xml_node_create(ctx->xml, spp_node, ns, "exec");
++
++	snprintf(uri, sizeof(uri), "%s%s", val, session_id);
++	os_free(val);
++	xml_node_create_text(ctx->xml, exec_node, ns, "launchBrowserToURI",
++			     uri);
++	return spp_node;
++}
++
++
++static xml_node_t * hs20_user_input_remediation(struct hs20_svc *ctx,
++						const char *user,
++						const char *realm, int dmacc,
++						const char *session_id)
++{
++	return build_sub_rem_resp(ctx, user, realm, session_id, 0, dmacc);
++}
++
++
++static char * db_get_osu_config_val(struct hs20_svc *ctx, const char *realm,
++				    const char *field)
++{
++	char *cmd;
++	struct get_db_field_data data;
++
++	cmd = sqlite3_mprintf("SELECT value FROM osu_config WHERE realm=%Q AND "
++			      "field=%Q", realm, field);
++	if (cmd == NULL)
++		return NULL;
++	debug_print(ctx, 1, "DB: %s", cmd);
++	memset(&data, 0, sizeof(data));
++	data.field = "value";
++	if (sqlite3_exec(ctx->db, cmd, get_db_field, &data, NULL) != SQLITE_OK)
++	{
++		debug_print(ctx, 1, "DB: Could not find osu_config %s: %s",
++			    realm, sqlite3_errmsg(ctx->db));
++		sqlite3_free(cmd);
++		return NULL;
++	}
++	sqlite3_free(cmd);
++
++	debug_print(ctx, 1, "DB: return '%s'", data.value);
++	return data.value;
++}
++
++
++static xml_node_t * build_pps(struct hs20_svc *ctx,
++			      const char *user, const char *realm,
++			      const char *pw, const char *cert,
++			      int machine_managed)
++{
++	xml_node_t *pps, *c, *trust, *aaa, *aaa1, *upd, *homesp;
++	xml_node_t *cred, *eap, *userpw;
++
++	pps = xml_node_create_root(ctx->xml, NULL, NULL, NULL,
++				   "PerProviderSubscription");
++	if (pps == NULL)
++		return NULL;
++
++	add_text_node(ctx, pps, "UpdateIdentifier", "1");
++
++	c = xml_node_create(ctx->xml, pps, NULL, "Credential1");
++
++	add_text_node(ctx, c, "CredentialPriority", "1");
++
++	aaa = xml_node_create(ctx->xml, c, NULL, "AAAServerTrustRoot");
++	aaa1 = xml_node_create(ctx->xml, aaa, NULL, "AAA1");
++	add_text_node_conf(ctx, realm, aaa1, "CertURL",
++			   "aaa_trust_root_cert_url");
++	add_text_node_conf(ctx, realm, aaa1, "CertSHA256Fingerprint",
++			   "aaa_trust_root_cert_fingerprint");
++
++	upd = xml_node_create(ctx->xml, c, NULL, "SubscriptionUpdate");
++	add_text_node(ctx, upd, "UpdateInterval", "4294967295");
++	add_text_node(ctx, upd, "UpdateMethod", "ClientInitiated");
++	add_text_node(ctx, upd, "Restriction", "HomeSP");
++	add_text_node_conf(ctx, realm, upd, "URI", "spp_http_auth_url");
++	trust = xml_node_create(ctx->xml, upd, NULL, "TrustRoot");
++	add_text_node_conf(ctx, realm, trust, "CertURL", "trust_root_cert_url");
++	add_text_node_conf(ctx, realm, trust, "CertSHA256Fingerprint",
++			   "trust_root_cert_fingerprint");
++
++	homesp = xml_node_create(ctx->xml, c, NULL, "HomeSP");
++	add_text_node_conf(ctx, realm, homesp, "FriendlyName", "friendly_name");
++	add_text_node_conf(ctx, realm, homesp, "FQDN", "fqdn");
++
++	xml_node_create(ctx->xml, c, NULL, "SubscriptionParameters");
++
++	cred = xml_node_create(ctx->xml, c, NULL, "Credential");
++	add_creation_date(ctx, cred);
++	if (cert) {
++		xml_node_t *dc;
++		dc = xml_node_create(ctx->xml, cred, NULL,
++				     "DigitalCertificate");
++		add_text_node(ctx, dc, "CertificateType", "x509v3");
++		add_text_node(ctx, dc, "CertSHA256Fingerprint", cert);
++	} else {
++		userpw = build_username_password(ctx, cred, user, pw);
++		add_text_node(ctx, userpw, "MachineManaged",
++			      machine_managed ? "TRUE" : "FALSE");
++		eap = xml_node_create(ctx->xml, userpw, NULL, "EAPMethod");
++		add_text_node(ctx, eap, "EAPType", "21");
++		add_text_node(ctx, eap, "InnerMethod", "MS-CHAP-V2");
++	}
++	add_text_node(ctx, cred, "Realm", realm);
++
++	return pps;
++}
++
++
++static xml_node_t * spp_exec_get_certificate(struct hs20_svc *ctx,
++					     const char *session_id,
++					     const char *user,
++					     const char *realm)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *enroll, *exec_node;
++	char *val;
++	char password[11];
++	char *b64;
++
++	if (new_password(password, sizeof(password)) < 0)
++		return NULL;
++
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, "OK",
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	exec_node = xml_node_create(ctx->xml, spp_node, ns, "exec");
++
++	enroll = xml_node_create(ctx->xml, exec_node, ns, "getCertificate");
++	xml_node_add_attr(ctx->xml, enroll, NULL, "enrollmentProtocol", "EST");
++
++	val = db_get_osu_config_val(ctx, realm, "est_url");
++	xml_node_create_text(ctx->xml, enroll, ns, "enrollmentServerURI",
++			     val ? val : "");
++	os_free(val);
++	xml_node_create_text(ctx->xml, enroll, ns, "estUserID", user);
++
++	b64 = (char *) base64_encode((unsigned char *) password,
++				     strlen(password), NULL);
++	if (b64 == NULL) {
++		xml_node_free(ctx->xml, spp_node);
++		return NULL;
++	}
++	xml_node_create_text(ctx->xml, enroll, ns, "estPassword", b64);
++	free(b64);
++
++	db_update_session_password(ctx, user, realm, session_id, password);
++
++	return spp_node;
++}
++
++
++static xml_node_t * hs20_user_input_registration(struct hs20_svc *ctx,
++						 const char *session_id,
++						 int enrollment_done)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *node = NULL;
++	xml_node_t *pps, *tnds;
++	char buf[400];
++	char *str;
++	char *user, *realm, *pw, *type, *mm;
++	const char *status;
++	int cert = 0;
++	int machine_managed = 0;
++	char *fingerprint;
++
++	user = db_get_session_val(ctx, NULL, NULL, session_id, "user");
++	realm = db_get_session_val(ctx, NULL, NULL, session_id, "realm");
++	pw = db_get_session_val(ctx, NULL, NULL, session_id, "password");
++
++	if (!user || !realm || !pw) {
++		debug_print(ctx, 1, "Could not find session info from DB for "
++			    "the new subscription");
++		free(user);
++		free(realm);
++		free(pw);
++		return NULL;
++	}
++
++	mm = db_get_session_val(ctx, NULL, NULL, session_id, "machine_managed");
++	if (mm && atoi(mm))
++		machine_managed = 1;
++	free(mm);
++
++	type = db_get_session_val(ctx, NULL, NULL, session_id, "type");
++	if (type && strcmp(type, "cert") == 0)
++		cert = 1;
++	free(type);
++
++	if (cert && !enrollment_done) {
++		xml_node_t *ret;
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "request client certificate enrollment", NULL);
++		ret = spp_exec_get_certificate(ctx, session_id, user, realm);
++		free(user);
++		free(realm);
++		free(pw);
++		return ret;
++	}
++
++	if (!cert && strlen(pw) == 0) {
++		machine_managed = 1;
++		free(pw);
++		pw = malloc(11);
++		if (pw == NULL || new_password(pw, 11) < 0) {
++			free(user);
++			free(realm);
++			free(pw);
++			return NULL;
++		}
++	}
++
++	status = "Provisioning complete, request sppUpdateResponse";
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, status,
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	fingerprint = db_get_session_val(ctx, NULL, NULL, session_id, "cert");
++	pps = build_pps(ctx, user, realm, pw,
++			fingerprint ? fingerprint : NULL, machine_managed);
++	free(fingerprint);
++	if (!pps) {
++		xml_node_free(ctx->xml, spp_node);
++		free(user);
++		free(realm);
++		free(pw);
++		return NULL;
++	}
++
++	debug_print(ctx, 1, "Request DB subscription registration on success "
++		    "notification");
++	if (machine_managed) {
++		db_update_session_password(ctx, user, realm, session_id, pw);
++		db_update_session_machine_managed(ctx, user, realm, session_id,
++						  machine_managed);
++	}
++	db_add_session_pps(ctx, user, realm, session_id, pps);
++
++	hs20_eventlog_node(ctx, user, realm, session_id,
++			   "new subscription", pps);
++	free(user);
++	free(pw);
++
++	tnds = mo_to_tnds(ctx->xml, pps, 0, URN_HS20_PPS, NULL);
++	xml_node_free(ctx->xml, pps);
++	if (!tnds) {
++		xml_node_free(ctx->xml, spp_node);
++		free(realm);
++		return NULL;
++	}
++
++	str = xml_node_to_str(ctx->xml, tnds);
++	xml_node_free(ctx->xml, tnds);
++	if (str == NULL) {
++		xml_node_free(ctx->xml, spp_node);
++		free(realm);
++		return NULL;
++	}
++
++	node = xml_node_create_text(ctx->xml, spp_node, ns, "addMO", str);
++	free(str);
++	snprintf(buf, sizeof(buf), "./Wi-Fi/%s/PerProviderSubscription", realm);
++	free(realm);
++	xml_node_add_attr(ctx->xml, node, ns, "managementTreeURI", buf);
++	xml_node_add_attr(ctx->xml, node, ns, "moURN", URN_HS20_PPS);
++
++	return spp_node;
++}
++
++
++static xml_node_t * hs20_user_input_free_remediation(struct hs20_svc *ctx,
++						     const char *user,
++						     const char *realm,
++						     const char *session_id)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node;
++	xml_node_t *cred;
++	char buf[400];
++	char *status;
++	char *free_account, *pw;
++
++	free_account = db_get_osu_config_val(ctx, realm, "free_account");
++	if (free_account == NULL)
++		return NULL;
++	pw = db_get_val(ctx, free_account, realm, "password", 0);
++	if (pw == NULL) {
++		free(free_account);
++		return NULL;
++	}
++
++	cred = build_credential_pw(ctx, free_account, realm, pw);
++	free(free_account);
++	free(pw);
++	if (!cred) {
++		xml_node_free(ctx->xml, cred);
++		return NULL;
++	}
++
++	status = "Remediation complete, request sppUpdateResponse";
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, status,
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++
++	snprintf(buf, sizeof(buf),
++		 "./Wi-Fi/%s/PerProviderSubscription/Credential1/Credential",
++		 realm);
++
++	if (add_update_node(ctx, spp_node, ns, buf, cred) < 0) {
++		xml_node_free(ctx->xml, spp_node);
++		return NULL;
++	}
++
++	hs20_eventlog_node(ctx, user, realm, session_id,
++			   "free/public remediation", cred);
++	xml_node_free(ctx->xml, cred);
++
++	return spp_node;
++}
++
++
++static xml_node_t * hs20_user_input_complete(struct hs20_svc *ctx,
++					     const char *user,
++					     const char *realm, int dmacc,
++					     const char *session_id)
++{
++	char *val;
++	enum hs20_session_operation oper;
++
++	val = db_get_session_val(ctx, user, realm, session_id, "operation");
++	if (val == NULL) {
++		debug_print(ctx, 1, "No session %s found to continue",
++			    session_id);
++		return NULL;
++	}
++	oper = atoi(val);
++	free(val);
++
++	if (oper == USER_REMEDIATION) {
++		return hs20_user_input_remediation(ctx, user, realm, dmacc,
++						   session_id);
++	}
++
++	if (oper == FREE_REMEDIATION) {
++		return hs20_user_input_free_remediation(ctx, user, realm,
++							session_id);
++	}
++
++	if (oper == SUBSCRIPTION_REGISTRATION) {
++		return hs20_user_input_registration(ctx, session_id, 0);
++	}
++
++	debug_print(ctx, 1, "User session %s not in state for user input "
++		    "completion", session_id);
++	return NULL;
++}
++
++
++static xml_node_t * hs20_cert_enroll_completed(struct hs20_svc *ctx,
++					       const char *user,
++					       const char *realm, int dmacc,
++					       const char *session_id)
++{
++	char *val;
++	enum hs20_session_operation oper;
++
++	val = db_get_session_val(ctx, user, realm, session_id, "operation");
++	if (val == NULL) {
++		debug_print(ctx, 1, "No session %s found to continue",
++			    session_id);
++		return NULL;
++	}
++	oper = atoi(val);
++	free(val);
++
++	if (oper == SUBSCRIPTION_REGISTRATION)
++		return hs20_user_input_registration(ctx, session_id, 1);
++
++	debug_print(ctx, 1, "User session %s not in state for certificate "
++		    "enrollment completion", session_id);
++	return NULL;
++}
++
++
++static xml_node_t * hs20_cert_enroll_failed(struct hs20_svc *ctx,
++					    const char *user,
++					    const char *realm, int dmacc,
++					    const char *session_id)
++{
++	char *val;
++	enum hs20_session_operation oper;
++	xml_node_t *spp_node, *node;
++	char *status;
++	xml_namespace_t *ns;
++
++	val = db_get_session_val(ctx, user, realm, session_id, "operation");
++	if (val == NULL) {
++		debug_print(ctx, 1, "No session %s found to continue",
++			    session_id);
++		return NULL;
++	}
++	oper = atoi(val);
++	free(val);
++
++	if (oper != SUBSCRIPTION_REGISTRATION) {
++		debug_print(ctx, 1, "User session %s not in state for "
++			    "enrollment failure", session_id);
++		return NULL;
++	}
++
++	status = "Error occurred";
++	spp_node = build_post_dev_data_response(ctx, &ns, session_id, status,
++						NULL);
++	if (spp_node == NULL)
++		return NULL;
++	node = xml_node_create(ctx->xml, spp_node, ns, "sppError");
++	xml_node_add_attr(ctx->xml, node, NULL, "errorCode",
++			  "Credentials cannot be provisioned at this time");
++	db_remove_session(ctx, user, realm, session_id);
++
++	return spp_node;
++}
++
++
++static xml_node_t * hs20_spp_post_dev_data(struct hs20_svc *ctx,
++					   xml_node_t *node,
++					   const char *user,
++					   const char *realm,
++					   const char *session_id,
++					   int dmacc)
++{
++	const char *req_reason;
++	char *redirect_uri = NULL;
++	char *req_reason_buf = NULL;
++	char str[200];
++	xml_node_t *ret = NULL, *devinfo = NULL, *devdetail = NULL;
++	xml_node_t *mo;
++	char *version;
++	int valid;
++	char *supp, *pos;
++	char *err;
++
++	version = xml_node_get_attr_value_ns(ctx->xml, node, SPP_NS_URI,
++					     "sppVersion");
++	if (version == NULL || strstr(version, "1.0") == NULL) {
++		ret = build_post_dev_data_response(
++			ctx, NULL, session_id, "Error occurred",
++			"SPP version not supported");
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "Unsupported sppVersion", ret);
++		xml_node_get_attr_value_free(ctx->xml, version);
++		return ret;
++	}
++	xml_node_get_attr_value_free(ctx->xml, version);
++
++	mo = get_node(ctx->xml, node, "supportedMOList");
++	if (mo == NULL) {
++		ret = build_post_dev_data_response(
++			ctx, NULL, session_id, "Error occurred",
++			"Other");
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "No supportedMOList element", ret);
++		return ret;
++	}
++	supp = xml_node_get_text(ctx->xml, mo);
++	for (pos = supp; pos && *pos; pos++)
++		*pos = tolower(*pos);
++	if (supp == NULL ||
++	    strstr(supp, URN_OMA_DM_DEVINFO) == NULL ||
++	    strstr(supp, URN_OMA_DM_DEVDETAIL) == NULL ||
++	    strstr(supp, URN_HS20_PPS) == NULL) {
++		xml_node_get_text_free(ctx->xml, supp);
++		ret = build_post_dev_data_response(
++			ctx, NULL, session_id, "Error occurred",
++			"One or more mandatory MOs not supported");
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "Unsupported MOs", ret);
++		return ret;
++	}
++	xml_node_get_text_free(ctx->xml, supp);
++
++	req_reason_buf = xml_node_get_attr_value(ctx->xml, node,
++						 "requestReason");
++	if (req_reason_buf == NULL) {
++		debug_print(ctx, 1, "No requestReason attribute");
++		return NULL;
++	}
++	req_reason = req_reason_buf;
++
++	redirect_uri = xml_node_get_attr_value(ctx->xml, node, "redirectURI");
++
++	debug_print(ctx, 1, "requestReason: %s  sessionID: %s  redirectURI: %s",
++		    req_reason, session_id, redirect_uri);
++	snprintf(str, sizeof(str), "sppPostDevData: requestReason=%s",
++		 req_reason);
++	hs20_eventlog(ctx, user, realm, session_id, str, NULL);
++
++	devinfo = spp_get_mo(ctx, node, URN_OMA_DM_DEVINFO, &valid, &err);
++	if (devinfo == NULL) {
++		ret = build_post_dev_data_response(ctx, NULL, session_id,
++						   "Error occurred", "Other");
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "No DevInfo moContainer in sppPostDevData",
++				   ret);
++		os_free(err);
++		goto out;
++	}
++
++	hs20_eventlog_node(ctx, user, realm, session_id,
++			   "Received DevInfo MO", devinfo);
++	if (valid == 0) {
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "OMA-DM DDF DTD validation errors in DevInfo MO",
++			      err);
++		ret = build_post_dev_data_response(ctx, NULL, session_id,
++						   "Error occurred", "Other");
++		os_free(err);
++		goto out;
++	}
++	os_free(err);
++	if (user)
++		db_update_mo(ctx, user, realm, "devinfo", devinfo);
++
++	devdetail = spp_get_mo(ctx, node, URN_OMA_DM_DEVDETAIL, &valid, &err);
++	if (devdetail == NULL) {
++		ret = build_post_dev_data_response(ctx, NULL, session_id,
++						   "Error occurred", "Other");
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "No DevDetail moContainer in sppPostDevData",
++				   ret);
++		os_free(err);
++		goto out;
++	}
++
++	hs20_eventlog_node(ctx, user, realm, session_id,
++			   "Received DevDetail MO", devdetail);
++	if (valid == 0) {
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "OMA-DM DDF DTD validation errors "
++			      "in DevDetail MO", err);
++		ret = build_post_dev_data_response(ctx, NULL, session_id,
++						   "Error occurred", "Other");
++		os_free(err);
++		goto out;
++	}
++	os_free(err);
++	if (user)
++		db_update_mo(ctx, user, realm, "devdetail", devdetail);
++
++	if (user)
++		mo = spp_get_mo(ctx, node, URN_HS20_PPS, &valid, &err);
++	else {
++		mo = NULL;
++		err = NULL;
++	}
++	if (user && mo) {
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "Received PPS MO", mo);
++		if (valid == 0) {
++			hs20_eventlog(ctx, user, realm, session_id,
++				      "OMA-DM DDF DTD validation errors "
++				      "in PPS MO", err);
++			xml_node_get_attr_value_free(ctx->xml, redirect_uri);
++			os_free(err);
++			return build_post_dev_data_response(
++				ctx, NULL, session_id,
++				"Error occurred", "Other");
++		}
++		db_update_mo(ctx, user, realm, "pps", mo);
++		db_update_val(ctx, user, realm, "fetch_pps", "0", dmacc);
++		xml_node_free(ctx->xml, mo);
++	}
++	os_free(err);
++
++	if (user && !mo) {
++		char *fetch;
++		int fetch_pps;
++
++		fetch = db_get_val(ctx, user, realm, "fetch_pps", dmacc);
++		fetch_pps = fetch ? atoi(fetch) : 0;
++		free(fetch);
++
++		if (fetch_pps) {
++			enum hs20_session_operation oper;
++			if (strcasecmp(req_reason, "Subscription remediation")
++			    == 0)
++				oper = CONTINUE_SUBSCRIPTION_REMEDIATION;
++			else if (strcasecmp(req_reason, "Policy update") == 0)
++				oper = CONTINUE_POLICY_UPDATE;
++			else
++				oper = NO_OPERATION;
++			if (db_add_session(ctx, user, realm, session_id, NULL,
++					   NULL, oper) < 0)
++				goto out;
++
++			ret = spp_exec_upload_mo(ctx, session_id,
++						 URN_HS20_PPS);
++			hs20_eventlog_node(ctx, user, realm, session_id,
++					   "request PPS MO upload",
++					   ret);
++			goto out;
++		}
++	}
++
++	if (user && strcasecmp(req_reason, "MO upload") == 0) {
++		char *val = db_get_session_val(ctx, user, realm, session_id,
++					       "operation");
++		enum hs20_session_operation oper;
++		if (!val) {
++			debug_print(ctx, 1, "No session %s found to continue",
++				    session_id);
++			goto out;
++		}
++		oper = atoi(val);
++		free(val);
++		if (oper == CONTINUE_SUBSCRIPTION_REMEDIATION)
++			req_reason = "Subscription remediation";
++		else if (oper == CONTINUE_POLICY_UPDATE)
++			req_reason = "Policy update";
++		else {
++			debug_print(ctx, 1,
++				    "No pending operation in session %s",
++				    session_id);
++			goto out;
++		}
++	}
++
++	if (strcasecmp(req_reason, "Subscription registration") == 0) {
++		ret = hs20_subscription_registration(ctx, realm, session_id,
++						     redirect_uri);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "subscription registration response",
++				   ret);
++		goto out;
++	}
++	if (user && strcasecmp(req_reason, "Subscription remediation") == 0) {
++		ret = hs20_subscription_remediation(ctx, user, realm,
++						    session_id, dmacc,
++						    redirect_uri);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "subscription remediation response",
++				   ret);
++		goto out;
++	}
++	if (user && strcasecmp(req_reason, "Policy update") == 0) {
++		ret = hs20_policy_update(ctx, user, realm, session_id, dmacc);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "policy update response",
++				   ret);
++		goto out;
++	}
++
++	if (strcasecmp(req_reason, "User input completed") == 0) {
++		if (devinfo)
++			db_add_session_devinfo(ctx, session_id, devinfo);
++		if (devdetail)
++			db_add_session_devdetail(ctx, session_id, devdetail);
++		ret = hs20_user_input_complete(ctx, user, realm, dmacc,
++					       session_id);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "user input completed response", ret);
++		goto out;
++	}
++
++	if (strcasecmp(req_reason, "Certificate enrollment completed") == 0) {
++		ret = hs20_cert_enroll_completed(ctx, user, realm, dmacc,
++						 session_id);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "certificate enrollment response", ret);
++		goto out;
++	}
++
++	if (strcasecmp(req_reason, "Certificate enrollment failed") == 0) {
++		ret = hs20_cert_enroll_failed(ctx, user, realm, dmacc,
++					      session_id);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "certificate enrollment failed response",
++				   ret);
++		goto out;
++	}
++
++	debug_print(ctx, 1, "Unsupported requestReason '%s' user '%s'",
++		    req_reason, user);
++out:
++	xml_node_get_attr_value_free(ctx->xml, req_reason_buf);
++	xml_node_get_attr_value_free(ctx->xml, redirect_uri);
++	if (devinfo)
++		xml_node_free(ctx->xml, devinfo);
++	if (devdetail)
++		xml_node_free(ctx->xml, devdetail);
++	return ret;
++}
++
++
++static xml_node_t * build_spp_exchange_complete(struct hs20_svc *ctx,
++						const char *session_id,
++						const char *status,
++						const char *error_code)
++{
++	xml_namespace_t *ns;
++	xml_node_t *spp_node, *node;
++
++	spp_node = xml_node_create_root(ctx->xml, SPP_NS_URI, "spp", &ns,
++					"sppExchangeComplete");
++
++
++	xml_node_add_attr(ctx->xml, spp_node, ns, "sppVersion", "1.0");
++	xml_node_add_attr(ctx->xml, spp_node, ns, "sessionID", session_id);
++	xml_node_add_attr(ctx->xml, spp_node, ns, "sppStatus", status);
++
++	if (error_code) {
++		node = xml_node_create(ctx->xml, spp_node, ns, "sppError");
++		xml_node_add_attr(ctx->xml, node, NULL, "errorCode",
++				  error_code);
++	}
++
++	return spp_node;
++}
++
++
++static int add_subscription(struct hs20_svc *ctx, const char *session_id)
++{
++	char *user, *realm, *pw, *pw_mm, *pps, *str;
++	char *sql;
++	int ret = -1;
++	char *free_account;
++	int free_acc;
++	char *type;
++	int cert = 0;
++	char *cert_pem, *fingerprint;
++
++	user = db_get_session_val(ctx, NULL, NULL, session_id, "user");
++	realm = db_get_session_val(ctx, NULL, NULL, session_id, "realm");
++	pw = db_get_session_val(ctx, NULL, NULL, session_id, "password");
++	pw_mm = db_get_session_val(ctx, NULL, NULL, session_id,
++				   "machine_managed");
++	pps = db_get_session_val(ctx, NULL, NULL, session_id, "pps");
++	cert_pem = db_get_session_val(ctx, NULL, NULL, session_id, "cert_pem");
++	fingerprint = db_get_session_val(ctx, NULL, NULL, session_id, "cert");
++	type = db_get_session_val(ctx, NULL, NULL, session_id, "type");
++	if (type && strcmp(type, "cert") == 0)
++		cert = 1;
++	free(type);
++
++	if (!user || !realm || !pw) {
++		debug_print(ctx, 1, "Could not find session info from DB for "
++			    "the new subscription");
++		goto out;
++	}
++
++	free_account = db_get_osu_config_val(ctx, realm, "free_account");
++	free_acc = free_account && strcmp(free_account, user) == 0;
++	free(free_account);
++
++	debug_print(ctx, 1,
++		    "New subscription: user='%s' realm='%s' free_acc=%d",
++		    user, realm, free_acc);
++	debug_print(ctx, 1, "New subscription: pps='%s'", pps);
++
++	sql = sqlite3_mprintf("UPDATE eventlog SET user=%Q, realm=%Q WHERE "
++			      "sessionid=%Q AND (user='' OR user IS NULL)",
++			      user, realm, session_id);
++	if (sql) {
++		debug_print(ctx, 1, "DB: %s", sql);
++		if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++			debug_print(ctx, 1, "Failed to update eventlog in "
++				    "sqlite database: %s",
++				    sqlite3_errmsg(ctx->db));
++		}
++		sqlite3_free(sql);
++	}
++
++	if (free_acc) {
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "completed shared free account registration",
++			      NULL);
++		ret = 0;
++		goto out;
++	}
++
++	sql = sqlite3_mprintf("INSERT INTO users(identity,realm,phase2,"
++			      "methods,cert,cert_pem,machine_managed) VALUES "
++			      "(%Q,%Q,1,%Q,%Q,%Q,%d)",
++			      user, realm, cert ? "TLS" : "TTLS-MSCHAPV2",
++			      fingerprint ? fingerprint : "",
++			      cert_pem ? cert_pem : "",
++			      pw_mm && atoi(pw_mm) ? 1 : 0);
++	if (sql == NULL)
++		goto out;
++	debug_print(ctx, 1, "DB: %s", sql);
++	if (sqlite3_exec(ctx->db, sql, NULL, NULL, NULL) != SQLITE_OK) {
++		debug_print(ctx, 1, "Failed to add user in sqlite database: %s",
++			    sqlite3_errmsg(ctx->db));
++		sqlite3_free(sql);
++		goto out;
++	}
++	sqlite3_free(sql);
++
++	if (cert)
++		ret = 0;
++	else
++		ret = update_password(ctx, user, realm, pw, 0);
++	if (ret < 0) {
++		sql = sqlite3_mprintf("DELETE FROM users WHERE identity=%Q AND "
++				      "realm=%Q AND phase2=1",
++				      user, realm);
++		if (sql) {
++			debug_print(ctx, 1, "DB: %s", sql);
++			sqlite3_exec(ctx->db, sql, NULL, NULL, NULL);
++			sqlite3_free(sql);
++		}
++	}
++
++	if (pps)
++		db_update_mo_str(ctx, user, realm, "pps", pps);
++
++	str = db_get_session_val(ctx, NULL, NULL, session_id, "devinfo");
++	if (str) {
++		db_update_mo_str(ctx, user, realm, "devinfo", str);
++		free(str);
++	}
++
++	str = db_get_session_val(ctx, NULL, NULL, session_id, "devdetail");
++	if (str) {
++		db_update_mo_str(ctx, user, realm, "devdetail", str);
++		free(str);
++	}
++
++	if (ret == 0) {
++		hs20_eventlog(ctx, user, realm, session_id,
++			      "completed subscription registration", NULL);
++	}
++
++out:
++	free(user);
++	free(realm);
++	free(pw);
++	free(pw_mm);
++	free(pps);
++	free(cert_pem);
++	free(fingerprint);
++	return ret;
++}
++
++
++static xml_node_t * hs20_spp_update_response(struct hs20_svc *ctx,
++					     xml_node_t *node,
++					     const char *user,
++					     const char *realm,
++					     const char *session_id,
++					     int dmacc)
++{
++	char *status;
++	xml_node_t *ret;
++	char *val;
++	enum hs20_session_operation oper;
++
++	status = xml_node_get_attr_value_ns(ctx->xml, node, SPP_NS_URI,
++					    "sppStatus");
++	if (status == NULL) {
++		debug_print(ctx, 1, "No sppStatus attribute");
++		return NULL;
++	}
++
++	debug_print(ctx, 1, "sppUpdateResponse: sppStatus: %s  sessionID: %s",
++		    status, session_id);
++
++	val = db_get_session_val(ctx, user, realm, session_id, "operation");
++	if (!val) {
++		debug_print(ctx, 1,
++			    "No session active for user: %s  sessionID: %s",
++			    user, session_id);
++		oper = NO_OPERATION;
++	} else
++		oper = atoi(val);
++
++	if (strcasecmp(status, "OK") == 0) {
++		char *new_pw = NULL;
++
++		xml_node_get_attr_value_free(ctx->xml, status);
++
++		if (oper == USER_REMEDIATION) {
++			new_pw = db_get_session_val(ctx, user, realm,
++						    session_id, "password");
++			if (new_pw == NULL || strlen(new_pw) == 0) {
++				free(new_pw);
++				ret = build_spp_exchange_complete(
++					ctx, session_id, "Error occurred",
++					"Other");
++				hs20_eventlog_node(ctx, user, realm,
++						   session_id, "No password "
++						   "had been assigned for "
++						   "session", ret);
++				db_remove_session(ctx, user, realm, session_id);
++				return ret;
++			}
++			oper = UPDATE_PASSWORD;
++		}
++		if (oper == UPDATE_PASSWORD) {
++			if (!new_pw) {
++				new_pw = db_get_session_val(ctx, user, realm,
++							    session_id,
++							    "password");
++				if (!new_pw) {
++					db_remove_session(ctx, user, realm,
++							  session_id);
++					return NULL;
++				}
++			}
++			debug_print(ctx, 1, "Update user '%s' password in DB",
++				    user);
++			if (update_password(ctx, user, realm, new_pw, dmacc) <
++			    0) {
++				debug_print(ctx, 1, "Failed to update user "
++					    "'%s' password in DB", user);
++				ret = build_spp_exchange_complete(
++					ctx, session_id, "Error occurred",
++					"Other");
++				hs20_eventlog_node(ctx, user, realm,
++						   session_id, "Failed to "
++						   "update database", ret);
++				db_remove_session(ctx, user, realm, session_id);
++				return ret;
++			}
++			hs20_eventlog(ctx, user, realm,
++				      session_id, "Updated user password "
++				      "in database", NULL);
++		}
++		if (oper == SUBSCRIPTION_REGISTRATION) {
++			if (add_subscription(ctx, session_id) < 0) {
++				debug_print(ctx, 1, "Failed to add "
++					    "subscription into DB");
++				ret = build_spp_exchange_complete(
++					ctx, session_id, "Error occurred",
++					"Other");
++				hs20_eventlog_node(ctx, user, realm,
++						   session_id, "Failed to "
++						   "update database", ret);
++				db_remove_session(ctx, user, realm, session_id);
++				return ret;
++			}
++		}
++		if (oper == POLICY_REMEDIATION || oper == POLICY_UPDATE) {
++			char *val;
++			val = db_get_val(ctx, user, realm, "remediation",
++					 dmacc);
++			if (val && strcmp(val, "policy") == 0)
++				db_update_val(ctx, user, realm, "remediation",
++					      "", dmacc);
++			free(val);
++		}
++		ret = build_spp_exchange_complete(
++			ctx, session_id,
++			"Exchange complete, release TLS connection", NULL);
++		hs20_eventlog_node(ctx, user, realm, session_id,
++				   "Exchange completed", ret);
++		db_remove_session(ctx, user, realm, session_id);
++		return ret;
++	}
++
++	ret = build_spp_exchange_complete(ctx, session_id, "Error occurred",
++					  "Other");
++	hs20_eventlog_node(ctx, user, realm, session_id, "Error occurred", ret);
++	db_remove_session(ctx, user, realm, session_id);
++	xml_node_get_attr_value_free(ctx->xml, status);
++	return ret;
++}
++
++
++#define SPP_SESSION_ID_LEN 16
++
++static char * gen_spp_session_id(void)
++{
++	FILE *f;
++	int i;
++	char *session;
++
++	session = os_malloc(SPP_SESSION_ID_LEN * 2 + 1);
++	if (session == NULL)
++		return NULL;
++
++	f = fopen("/dev/urandom", "r");
++	if (f == NULL) {
++		os_free(session);
++		return NULL;
++	}
++	for (i = 0; i < SPP_SESSION_ID_LEN; i++)
++		os_snprintf(session + i * 2, 3, "%02x", fgetc(f));
++
++	fclose(f);
++	return session;
++}
++
++xml_node_t * hs20_spp_server_process(struct hs20_svc *ctx, xml_node_t *node,
++				     const char *auth_user,
++				     const char *auth_realm, int dmacc)
++{
++	xml_node_t *ret = NULL;
++	char *session_id;
++	const char *op_name;
++	char *xml_err;
++	char fname[200];
++
++	debug_dump_node(ctx, "received request", node);
++
++	if (!dmacc && auth_user && auth_realm) {
++		char *real;
++		real = db_get_val(ctx, auth_user, auth_realm, "identity", 0);
++		if (!real) {
++			real = db_get_val(ctx, auth_user, auth_realm,
++					  "identity", 1);
++			if (real)
++				dmacc = 1;
++		}
++		os_free(real);
++	}
++
++	snprintf(fname, sizeof(fname), "%s/spp/spp.xsd", ctx->root_dir);
++	if (xml_validate(ctx->xml, node, fname, &xml_err) < 0) {
++		/*
++		 * We may not be able to extract the sessionID from invalid
++		 * input, but well, we can try.
++		 */
++		session_id = xml_node_get_attr_value_ns(ctx->xml, node,
++							SPP_NS_URI,
++							"sessionID");
++		debug_print(ctx, 1,
++			    "SPP message failed validation, xsd file: %s  xml-error: %s",
++			    fname, xml_err);
++		hs20_eventlog_node(ctx, auth_user, auth_realm, session_id,
++				   "SPP message failed validation", node);
++		hs20_eventlog(ctx, auth_user, auth_realm, session_id,
++			      "Validation errors", xml_err);
++		os_free(xml_err);
++		xml_node_get_attr_value_free(ctx->xml, session_id);
++		/* TODO: what to return here? */
++		ret = xml_node_create_root(ctx->xml, NULL, NULL, NULL,
++					   "SppValidationError");
++		return ret;
++	}
++
++	session_id = xml_node_get_attr_value_ns(ctx->xml, node, SPP_NS_URI,
++						"sessionID");
++	if (session_id) {
++		char *tmp;
++		debug_print(ctx, 1, "Received sessionID %s", session_id);
++		tmp = os_strdup(session_id);
++		xml_node_get_attr_value_free(ctx->xml, session_id);
++		if (tmp == NULL)
++			return NULL;
++		session_id = tmp;
++	} else {
++		session_id = gen_spp_session_id();
++		if (session_id == NULL) {
++			debug_print(ctx, 1, "Failed to generate sessionID");
++			return NULL;
++		}
++		debug_print(ctx, 1, "Generated sessionID %s", session_id);
++	}
++
++	op_name = xml_node_get_localname(ctx->xml, node);
++	if (op_name == NULL) {
++		debug_print(ctx, 1, "Could not get op_name");
++		return NULL;
++	}
++
++	if (strcmp(op_name, "sppPostDevData") == 0) {
++		hs20_eventlog_node(ctx, auth_user, auth_realm, session_id,
++				   "sppPostDevData received and validated",
++				   node);
++		ret = hs20_spp_post_dev_data(ctx, node, auth_user, auth_realm,
++					     session_id, dmacc);
++	} else if (strcmp(op_name, "sppUpdateResponse") == 0) {
++		hs20_eventlog_node(ctx, auth_user, auth_realm, session_id,
++				   "sppUpdateResponse received and validated",
++				   node);
++		ret = hs20_spp_update_response(ctx, node, auth_user,
++					       auth_realm, session_id, dmacc);
++	} else {
++		hs20_eventlog_node(ctx, auth_user, auth_realm, session_id,
++				   "Unsupported SPP message received and "
++				   "validated", node);
++		debug_print(ctx, 1, "Unsupported operation '%s'", op_name);
++		/* TODO: what to return here? */
++		ret = xml_node_create_root(ctx->xml, NULL, NULL, NULL,
++					   "SppUnknownCommandError");
++	}
++	os_free(session_id);
++
++	if (ret == NULL) {
++		/* TODO: what to return here? */
++		ret = xml_node_create_root(ctx->xml, NULL, NULL, NULL,
++					   "SppInternalError");
++	}
++
++	return ret;
++}
++
++
++int hs20_spp_server_init(struct hs20_svc *ctx)
++{
++	char fname[200];
++	ctx->db = NULL;
++	snprintf(fname, sizeof(fname), "%s/AS/DB/eap_user.db", ctx->root_dir);
++	if (sqlite3_open(fname, &ctx->db)) {
++		printf("Failed to open sqlite database: %s\n",
++		       sqlite3_errmsg(ctx->db));
++		sqlite3_close(ctx->db);
++		return -1;
++	}
++
++	return 0;
++}
++
++
++void hs20_spp_server_deinit(struct hs20_svc *ctx)
++{
++	sqlite3_close(ctx->db);
++	ctx->db = NULL;
++}
+diff -urN awpa_supplicant-2.6-original/hs20/server/spp_server.h bwpa_supplicant-2.6-patched-final/hs20/server/spp_server.h
+--- awpa_supplicant-2.6-original/hs20/server/spp_server.h	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/spp_server.h	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,32 @@
++/*
++ * Hotspot 2.0 SPP server
++ * Copyright (c) 2012-2013, Qualcomm Atheros, Inc.
++ *
++ * This software may be distributed under the terms of the BSD license.
++ * See README for more details.
++ */
++
++#ifndef SPP_SERVER_H
++#define SPP_SERVER_H
++
++struct hs20_svc {
++	const void *ctx;
++	struct xml_node_ctx *xml;
++	char *root_dir;
++	FILE *debug_log;
++	sqlite3 *db;
++	const char *addr;
++};
++
++
++void debug_print(struct hs20_svc *ctx, int print, const char *fmt, ...)
++	__attribute__ ((format (printf, 3, 4)));
++void debug_dump_node(struct hs20_svc *ctx, const char *title, xml_node_t *node);
++
++xml_node_t * hs20_spp_server_process(struct hs20_svc *ctx, xml_node_t *node,
++				     const char *auth_user,
++				     const char *auth_realm, int dmacc);
++int hs20_spp_server_init(struct hs20_svc *ctx);
++void hs20_spp_server_deinit(struct hs20_svc *ctx);
++
++#endif /* SPP_SERVER_H */
+diff -urN awpa_supplicant-2.6-original/hs20/server/sql-example.txt bwpa_supplicant-2.6-patched-final/hs20/server/sql-example.txt
+--- awpa_supplicant-2.6-original/hs20/server/sql-example.txt	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/sql-example.txt	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,17 @@
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','fqdn','example.com');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','friendly_name','Example Operator');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','spp_http_auth_url','https://subscription-server.osu.example.com/hs20/spp.php?realm=example.com');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','trust_root_cert_url','https://osu-server.osu.example.com/hs20/files/spp-root-ca.der');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','trust_root_cert_fingerprint','5b393a9246865569485c2605c3304e48212b449367858299beba9384c4cf4647');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','aaa_trust_root_cert_url','https://osu-server.osu.example.com/hs20/files/aaa-root-ca.der');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','aaa_trust_root_cert_fingerprint','5b393a9246865569485c2605c3304e48212b449367858299beba9384c4cf4647');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','free_account','free');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','policy_url','https://subscription-server.osu.example.com/hs20/spp.php?realm=example.com');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','remediation_url','https://subscription-server.osu.example.com/hs20/remediation.php?session_id=');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','free_remediation_url','https://subscription-server.osu.example.com/hs20/free-remediation.php?session_id=');
++INSERT INTO osu_config(realm,field,value) VALUES('example.com','signup_url','https://subscription-server.osu.example.com/hs20/signup.php?session_id=');
++
++
++INSERT INTO users(identity,realm,methods,password,phase2,shared) VALUES('free','example.com','TTLS-MSCHAPV2','free',1,1);
++
++INSERT INTO wildcards(identity,methods) VALUES('','TTLS,TLS');
+diff -urN awpa_supplicant-2.6-original/hs20/server/sql.txt bwpa_supplicant-2.6-patched-final/hs20/server/sql.txt
+--- awpa_supplicant-2.6-original/hs20/server/sql.txt	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/sql.txt	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,59 @@
++CREATE TABLE eventlog(
++	user TEXT,
++	realm TEXT,
++	sessionid TEXT COLLATE NOCASE,
++	timestamp TEXT,
++	notes TEXT,
++	dump TEXT,
++	addr TEXT
++);
++
++CREATE TABLE sessions(
++	timestamp TEXT,
++	id TEXT COLLATE NOCASE,
++	user TEXT,
++	realm TEXT,
++	password TEXT,
++	machine_managed BOOLEAN,
++	operation INTEGER,
++	type TEXT,
++	pps TEXT,
++	redirect_uri TEXT,
++	devinfo TEXT,
++	devdetail TEXT,
++	cert TEXT,
++	cert_pem TEXT
++);
++
++CREATE index sessions_id_index ON sessions(id);
++
++CREATE TABLE osu_config(
++       realm TEXT,
++       field TEXT,
++       value TEXT
++);
++
++CREATE TABLE users(
++	identity TEXT PRIMARY KEY,
++	methods TEXT,
++	password TEXT,
++	machine_managed BOOLEAN,
++	remediation TEXT,
++	phase2 INTEGER,
++	realm TEXT,
++	policy TEXT,
++	devinfo TEXT,
++	devdetail TEXT,
++	pps TEXT,
++	fetch_pps INTEGER,
++	osu_user TEXT,
++	osu_password TEXT,
++	shared INTEGER,
++	cert TEXT,
++	cert_pem TEXT
++);
++
++CREATE TABLE wildcards(
++	identity TEXT PRIMARY KEY,
++	methods TEXT
++);
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/add-free.php bwpa_supplicant-2.6-patched-final/hs20/server/www/add-free.php
+--- awpa_supplicant-2.6-original/hs20/server/www/add-free.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/add-free.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,50 @@
++<?php
++
++require('config.php');
++
++$db = new PDO($osu_db);
++if (!$db) {
++   die($sqliteerror);
++}
++
++if (isset($_POST["id"]))
++  $id = preg_replace("/[^a-fA-F0-9]/", "", $_POST["id"]);
++else
++  die("Missing session id");
++if (strlen($id) < 32)
++  die("Invalid session id");
++
++$row = $db->query("SELECT rowid,* FROM sessions WHERE id='$id'")->fetch();
++if ($row == false) {
++   die("Session not found");
++}
++
++$uri = $row['redirect_uri'];
++$rowid = $row['rowid'];
++$realm = $row['realm'];
++
++$row = $db->query("SELECT value FROM osu_config WHERE realm='$realm' AND field='free_account'")->fetch();
++if (!$row || strlen($row['value']) == 0) {
++  die("Free account disabled");
++}
++
++$user = $row['value'];
++
++$row = $db->query("SELECT password FROM users WHERE identity='$user' AND realm='$realm'")->fetch();
++if (!$row)
++  die("Free account not found");
++
++$pw = $row['password'];
++
++if (!$db->exec("UPDATE sessions SET user='$user', password='$pw', realm='$realm', machine_managed='1' WHERE rowid=$rowid")) {
++  die("Failed to update session database");
++}
++
++$db->exec("INSERT INTO eventlog(user,realm,sessionid,timestamp,notes) " .
++	"VALUES ('$user', '$realm', '$id', " .
++	"strftime('%Y-%m-%d %H:%M:%f','now'), " .
++	"'completed user input response for a new PPS MO')");
++
++header("Location: $uri", true, 302);
++
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/add-mo.php bwpa_supplicant-2.6-patched-final/hs20/server/www/add-mo.php
+--- awpa_supplicant-2.6-original/hs20/server/www/add-mo.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/add-mo.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,56 @@
++<?php
++
++require('config.php');
++
++$db = new PDO($osu_db);
++if (!$db) {
++   die($sqliteerror);
++}
++
++if (isset($_POST["id"]))
++  $id = preg_replace("/[^a-fA-F0-9]/", "", $_POST["id"]);
++else
++  die("Missing session id");
++
++$user = $_POST["user"];
++$pw = $_POST["password"];
++if (strlen($id) < 32 || !isset($user) || !isset($pw)) {
++  die("Invalid POST data");
++}
++
++if (strlen($user) < 1 || strncasecmp($user, "cert-", 5) == 0) {
++  echo "<html><body><p><red>Invalid username</red></p>\n";
++  echo "<a href=\"signup.php?session_id=$id\">Try again</a>\n";
++  echo "</body></html>\n";
++  exit;
++}
++
++$row = $db->query("SELECT rowid,* FROM sessions WHERE id='$id'")->fetch();
++if ($row == false) {
++   die("Session not found");
++}
++$realm = $row['realm'];
++
++$userrow = $db->query("SELECT identity FROM users WHERE identity='$user' AND realm='$realm'")->fetch();
++if ($userrow) {
++  echo "<html><body><p><red>Selected username is not available</red></p>\n";
++  echo "<a href=\"signup.php?session_id=$id\">Try again</a>\n";
++  echo "</body></html>\n";
++  exit;
++}
++
++$uri = $row['redirect_uri'];
++$rowid = $row['rowid'];
++
++if (!$db->exec("UPDATE sessions SET user='$user', password='$pw', realm='$realm', type='password' WHERE rowid=$rowid")) {
++  die("Failed to update session database");
++}
++
++$db->exec("INSERT INTO eventlog(user,realm,sessionid,timestamp,notes) " .
++	"VALUES ('$user', '$realm', '$id', " .
++	"strftime('%Y-%m-%d %H:%M:%f','now'), " .
++	"'completed user input response for a new PPS MO')");
++
++header("Location: $uri", true, 302);
++
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/cert-enroll.php bwpa_supplicant-2.6-patched-final/hs20/server/www/cert-enroll.php
+--- awpa_supplicant-2.6-original/hs20/server/www/cert-enroll.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/cert-enroll.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,39 @@
++<?php
++
++require('config.php');
++
++$db = new PDO($osu_db);
++if (!$db) {
++   die($sqliteerror);
++}
++
++if (isset($_GET["id"]))
++  $id = preg_replace("/[^a-fA-F0-9]/", "", $_GET["id"]);
++else
++  die("Missing session id");
++if (strlen($id) < 32)
++  die("Invalid session id");
++
++$row = $db->query("SELECT rowid,* FROM sessions WHERE id='$id'")->fetch();
++if ($row == false) {
++   die("Session not found");
++}
++
++$uri = $row['redirect_uri'];
++$rowid = $row['rowid'];
++$realm = $row['realm'];
++
++$user = sha1(mt_rand());
++
++if (!$db->exec("UPDATE sessions SET user='$user', type='cert' WHERE rowid=$rowid")) {
++  die("Failed to update session database");
++}
++
++$db->exec("INSERT INTO eventlog(user,realm,sessionid,timestamp,notes) " .
++	"VALUES ('', '$realm', '$id', " .
++	"strftime('%Y-%m-%d %H:%M:%f','now'), " .
++	"'completed user input response for client certificate enrollment')");
++
++header("Location: $uri", true, 302);
++
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/config.php bwpa_supplicant-2.6-patched-final/hs20/server/www/config.php
+--- awpa_supplicant-2.6-original/hs20/server/www/config.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/config.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,4 @@
++<?php
++$osu_root = "/home/user/hs20-server";
++$osu_db = "sqlite:$osu_root/AS/DB/eap_user.db";
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/est.php bwpa_supplicant-2.6-patched-final/hs20/server/www/est.php
+--- awpa_supplicant-2.6-original/hs20/server/www/est.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/est.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,198 @@
++<?php
++
++require('config.php');
++
++$params = split("/", $_SERVER["PATH_INFO"], 3);
++$realm = $params[1];
++$cmd = $params[2];
++$method = $_SERVER["REQUEST_METHOD"];
++
++unset($user);
++unset($rowid);
++
++if (!empty($_SERVER['PHP_AUTH_DIGEST'])) {
++  $needed = array('nonce'=>1, 'nc'=>1, 'cnonce'=>1, 'qop'=>1, 'username'=>1,
++		  'uri'=>1, 'response'=>1);
++  $data = array();
++  $keys = implode('|', array_keys($needed));
++  preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@',
++		 $_SERVER['PHP_AUTH_DIGEST'], $matches, PREG_SET_ORDER);
++  foreach ($matches as $m) {
++    $data[$m[1]] = $m[3] ? $m[3] : $m[4];
++    unset($needed[$m[1]]);
++  }
++  if ($needed) {
++    error_log("EST: Missing auth parameter");
++    die('Authentication failed');
++  }
++  $user = $data['username'];
++  if (strlen($user) < 1) {
++    error_log("EST: Empty username");
++    die('Authentication failed');
++  }
++
++  $db = new PDO($osu_db);
++  if (!$db) {
++    error_log("EST: Could not access database");
++    die("Could not access database");
++  }
++
++  $sql = "SELECT rowid,password,operation FROM sessions " .
++    "WHERE user='$user' AND realm='$realm'";
++  $q = $db->query($sql);
++  if (!$q) {
++    error_log("EST: Session not found for user=$user realm=$realm");
++    die("Session not found");
++  }
++  $row = $q->fetch();
++  if (!$row) {
++    error_log("EST: Session fetch failed for user=$user realm=$realm");
++    die('Session not found');
++  }
++  $rowid = $row['rowid'];
++
++  $oper = $row['operation'];
++  if ($oper != '5') {
++    error_log("EST: Unexpected operation $oper for user=$user realm=$realm");
++    die("Session not found");
++  }
++  $pw = $row['password'];
++  if (strlen($pw) < 1) {
++    error_log("EST: Empty password for user=$user realm=$realm");
++    die('Authentication failed');
++  }
++
++  $A1 = md5($user . ':' . $realm . ':' . $pw);
++  $A2 = md5($method . ':' . $data['uri']);
++  $resp = md5($A1 . ':' . $data['nonce'] . ':' . $data['nc'] . ':' .
++	      $data['cnonce'] . ':' . $data['qop'] . ':' . $A2);
++  if ($data['response'] != $resp) {
++    error_log("EST: Incorrect authentication response for user=$user realm=$realm");
++    die('Authentication failed');
++  }
++}
++
++
++if ($method == "GET" && $cmd == "cacerts") {
++  $fname = "$osu_root/est/$realm-cacerts.pkcs7";
++  if (!file_exists($fname)) {
++    error_log("EST: cacerts - unknown realm $realm");
++    die("Unknown realm");
++  }
++
++  header("Content-Transfer-Encoding: base64");
++  header("Content-Type: application/pkcs7-mime");
++
++  $data = file_get_contents($fname);
++  echo wordwrap(base64_encode($data), 72, "\n", true);
++  echo "\n";
++  error_log("EST: cacerts");
++} else if ($method == "GET" && $cmd == "csrattrs") {
++  header("Content-Transfer-Encoding: base64");
++  header("Content-Type: application/csrattrs");
++  readfile("$osu_root/est/est-attrs.b64");
++  error_log("EST: csrattrs");
++} else if ($method == "POST" && $cmd == "simpleenroll") {
++  if (!isset($user) || strlen($user) == 0) {
++    header('HTTP/1.1 401 Unauthorized');
++    header('WWW-Authenticate: Digest realm="'.$realm.
++	   '",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
++    error_log("EST: simpleenroll - require authentication");
++    die('Authentication required');
++  }
++  if (!isset($_SERVER["CONTENT_TYPE"])) {
++    error_log("EST: simpleenroll without Content-Type");
++    die("Missing Content-Type");
++  }
++  if (!stristr($_SERVER["CONTENT_TYPE"], "application/pkcs10")) {
++    error_log("EST: simpleenroll - unexpected Content-Type: " .
++	      $_SERVER["CONTENT_TYPE"]);
++    die("Unexpected Content-Type");
++  }
++
++  $data = file_get_contents("php://input");
++  error_log("EST: simpleenroll - POST data from php://input: " . $data);
++  $req = base64_decode($data);
++  if ($req == FALSE) {
++    error_log("EST: simpleenroll - Invalid base64-encoded PKCS#10 data");
++    die("Invalid base64-encoded PKCS#10 data");
++  }
++  $cadir = "$osu_root/est";
++  $reqfile = "$cadir/tmp/cert-req.pkcs10";
++  $f = fopen($reqfile, "wb");
++  fwrite($f, $req);
++  fclose($f);
++
++  $req_pem = "$reqfile.pem";
++  if (file_exists($req_pem))
++    unlink($req_pem);
++  exec("openssl req -in $reqfile -inform DER -out $req_pem -outform PEM");
++  if (!file_exists($req_pem)) {
++    error_log("EST: simpleenroll - Failed to parse certificate request");
++    die("Failed to parse certificate request");
++  }
++
++  /* FIX: validate request and add HS 2.0 extensions to cert */
++  $cert_pem = "$cadir/tmp/req-signed.pem";
++  if (file_exists($cert_pem))
++    unlink($cert_pem);
++  exec("openssl x509 -req -in $req_pem -CAkey $cadir/cakey.pem -out $cert_pem -CA $cadir/cacert.pem -CAserial $cadir/serial -days 365 -text");
++  if (!file_exists($cert_pem)) {
++    error_log("EST: simpleenroll - Failed to sign certificate");
++    die("Failed to sign certificate");
++  }
++
++  $cert = file_get_contents($cert_pem);
++  $handle = popen("openssl x509 -in $cert_pem -serial -noout", "r");
++  $serial = fread($handle, 200);
++  pclose($handle);
++  $pattern = "/serial=(?P<snhex>[0-9a-fA-F:]*)/m";
++  preg_match($pattern, $serial, $matches);
++  if (!isset($matches['snhex']) || strlen($matches['snhex']) < 1) {
++    error_log("EST: simpleenroll - Could not get serial number");
++    die("Could not get serial number");
++  }
++  $sn = str_replace(":", "", strtoupper($matches['snhex']));
++
++  $user = "cert-$sn";
++  error_log("EST: user = $user");
++
++  $cert_der = "$cadir/tmp/req-signed.der";
++  if (file_exists($cert_der))
++    unlink($cert_der);
++  exec("openssl x509 -in $cert_pem -inform PEM -out $cert_der -outform DER");
++  if (!file_exists($cert_der)) {
++    error_log("EST: simpleenroll - Failed to convert certificate");
++    die("Failed to convert certificate");
++  }
++  $der = file_get_contents($cert_der);
++  $fingerprint = hash("sha256", $der);
++
++  $pkcs7 = "$cadir/tmp/est-client.pkcs7";
++  if (file_exists($pkcs7))
++    unlink($pkcs7);
++  exec("openssl crl2pkcs7 -nocrl -certfile $cert_pem -out $pkcs7 -outform DER");
++  if (!file_exists($pkcs7)) {
++    error_log("EST: simpleenroll - Failed to prepare PKCS#7 file");
++    die("Failed to prepare PKCS#7 file");
++  }
++
++  if (!$db->exec("UPDATE sessions SET user='$user', cert='$fingerprint', cert_pem='$cert' WHERE rowid=$rowid")) {
++    error_log("EST: simpleenroll - Failed to update session database");
++    die("Failed to update session database");
++  }
++
++  header("Content-Transfer-Encoding: base64");
++  header("Content-Type: application/pkcs7-mime");
++
++  $data = file_get_contents($pkcs7);
++  $resp = wordwrap(base64_encode($data), 72, "\n", true);
++  echo $resp . "\n";
++  error_log("EST: simpleenroll - PKCS#7 response: " . $resp);
++} else {
++  header("HTTP/1.0 404 Not Found");
++  error_log("EST: Unexpected method or path");
++  die("Unexpected method or path");
++}
++
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/free.php bwpa_supplicant-2.6-patched-final/hs20/server/www/free.php
+--- awpa_supplicant-2.6-original/hs20/server/www/free.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/free.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,23 @@
++<html>
++<head>
++<title>Hotspot 2.0 - public and free hotspot</title>
++</head>
++<body>
++
++<?php
++
++$id = $_GET["session_id"];
++
++echo "<h3>Hotspot 2.0 - public and free hotspot</h3>\n";
++
++echo "<form action=\"add-free.php\" method=\"POST\">\n";
++echo "<input type=\"hidden\" name=\"id\" value=\"$id\">\n";
++
++?>
++
++<p>Terms and conditions..</p>
++<input type="submit" value="Accept">
++</form>
++
++</body>
++</html>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/free-remediation.php bwpa_supplicant-2.6-patched-final/hs20/server/www/free-remediation.php
+--- awpa_supplicant-2.6-original/hs20/server/www/free-remediation.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/free-remediation.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,19 @@
++<html>
++<head>
++<title>Hotspot 2.0 - public and free hotspot - remediation</title>
++</head>
++<body>
++
++<h3>Hotspot 2.0 - public and free hotspot</h3>
++
++<p>Terms and conditions have changed. You need to accept the new terms
++to continue using this network.</p>
++
++<p>Terms and conditions..</p>
++
++<?php
++echo "<a href=\"redirect.php?id=" . $_GET["session_id"] . "\">Accept</a><br>\n";
++?>
++
++</body>
++</html>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/redirect.php bwpa_supplicant-2.6-patched-final/hs20/server/www/redirect.php
+--- awpa_supplicant-2.6-original/hs20/server/www/redirect.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/redirect.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,32 @@
++<?php
++
++require('config.php');
++
++$db = new PDO($osu_db);
++if (!$db) {
++   die($sqliteerror);
++}
++
++if (isset($_GET["id"]))
++	$id = preg_replace("/[^a-fA-F0-9]/", "", $_GET["id"]);
++else
++	$id = 0;
++
++$row = $db->query("SELECT rowid,* FROM sessions WHERE id='$id'")->fetch();
++if ($row == false) {
++   die("Session not found");
++}
++
++$uri = $row['redirect_uri'];
++
++header("Location: $uri", true, 302);
++
++$user = $row['user'];
++$realm = $row['realm'];
++
++$db->exec("INSERT INTO eventlog(user,realm,sessionid,timestamp,notes) " .
++	  "VALUES ('$user', '$realm', '$id', " .
++	  "strftime('%Y-%m-%d %H:%M:%f','now'), " .
++	  "'redirected after user input')");
++
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/remediation.php bwpa_supplicant-2.6-patched-final/hs20/server/www/remediation.php
+--- awpa_supplicant-2.6-original/hs20/server/www/remediation.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/remediation.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,18 @@
++<html>
++<head>
++<title>Hotspot 2.0 subscription remediation</title>
++</head>
++<body>
++
++<?php
++
++echo "SessionID: " . $_GET["session_id"] . "<br>\n";
++
++echo "<a href=\"redirect.php?id=" . $_GET["session_id"] . "\">Complete user subscription remediation</a><br>\n";
++
++?>
++
++This will provide a new machine-generated password.
++
++</body>
++</html>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/signup.php bwpa_supplicant-2.6-patched-final/hs20/server/www/signup.php
+--- awpa_supplicant-2.6-original/hs20/server/www/signup.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/signup.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,46 @@
++<html>
++<head>
++<title>Hotspot 2.0 signup</title>
++</head>
++<body>
++
++<?php
++
++$id = $_GET["session_id"];
++
++require('config.php');
++
++$db = new PDO($osu_db);
++if (!$db) {
++   die($sqliteerror);
++}
++
++$row = $db->query("SELECT realm FROM sessions WHERE id='$id'")->fetch();
++if ($row == false) {
++   die("Session not found for id: $id");
++}
++$realm = $row['realm'];
++
++echo "<h3>Sign up for a subscription - $realm</h3>\n";
++
++$row = $db->query("SELECT value FROM osu_config WHERE realm='$realm' AND field='free_account'")->fetch();
++if ($row && strlen($row['value']) > 0) {
++  echo "<p><a href=\"free.php?session_id=$id\">Sign up for free access</a></p>\n";
++}
++
++echo "<form action=\"add-mo.php\" method=\"POST\">\n";
++echo "<input type=\"hidden\" name=\"id\" value=\"$id\">\n";
++?>
++Select a username and password. Leave password empty to get automatically
++generated and machine managed password.<br>
++Username: <input type="text" name="user"><br>
++Password: <input type="password" name="password"><br>
++<input type="submit" value="Complete subscription registration">
++</form>
++
++<?php
++echo "<p><a href=\"cert-enroll.php?id=$id\">Enroll a client certificate</a></p>\n"
++?>
++
++</body>
++</html>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/spp.php bwpa_supplicant-2.6-patched-final/hs20/server/www/spp.php
+--- awpa_supplicant-2.6-original/hs20/server/www/spp.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/spp.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,128 @@
++<?php
++
++require('config.php');
++
++if (!stristr($_SERVER["CONTENT_TYPE"], "application/soap+xml")) {
++  error_log("spp.php - Unexpected Content-Type " . $_SERVER["CONTENT_TYPE"]);
++  die("Unexpected Content-Type");
++}
++
++if ($_SERVER["REQUEST_METHOD"] != "POST") {
++  error_log("spp.php - Unexpected method " . $_SERVER["REQUEST_METHOD"]);
++  die("Unexpected method");
++}
++
++if (isset($_GET["realm"])) {
++  $realm = $_GET["realm"];
++  $realm = PREG_REPLACE("/[^0-9a-zA-Z\.\-]/i", '', $realm);
++} else {
++  error_log("spp.php - Realm not specified");
++  die("Realm not specified");
++}
++
++unset($user);
++putenv("HS20CERT");
++
++if (!empty($_SERVER['PHP_AUTH_DIGEST'])) {
++  $needed = array('nonce'=>1, 'nc'=>1, 'cnonce'=>1, 'qop'=>1, 'username'=>1,
++		  'uri'=>1, 'response'=>1);
++  $data = array();
++  $keys = implode('|', array_keys($needed));
++  preg_match_all('@(' . $keys . ')=(?:([\'"])([^\2]+?)\2|([^\s,]+))@',
++		 $_SERVER['PHP_AUTH_DIGEST'], $matches, PREG_SET_ORDER);
++  foreach ($matches as $m) {
++    $data[$m[1]] = $m[3] ? $m[3] : $m[4];
++    unset($needed[$m[1]]);
++  }
++  if ($needed) {
++    error_log("spp.php - Authentication failed - missing: " . print_r($needed));
++    die('Authentication failed');
++  }
++  $user = $data['username'];
++  if (strlen($user) < 1) {
++    error_log("spp.php - Authentication failed - empty username");
++    die('Authentication failed');
++  }
++
++
++  $db = new PDO($osu_db);
++  if (!$db) {
++    error_log("spp.php - Could not access database");
++    die("Could not access database");
++  }
++  $row = $db->query("SELECT password FROM users " .
++		    "WHERE identity='$user' AND realm='$realm'")->fetch();
++  if (!$row) {
++    $row = $db->query("SELECT osu_password FROM users " .
++		      "WHERE osu_user='$user' AND realm='$realm'")->fetch();
++    $pw = $row['osu_password'];
++  } else
++    $pw = $row['password'];
++  if (!$row) {
++    error_log("spp.php - Authentication failed - user '$user' not found");
++    die('Authentication failed');
++  }
++  if (strlen($pw) < 1) {
++    error_log("spp.php - Authentication failed - empty password");
++    die('Authentication failed');
++  }
++
++  $A1 = md5($user . ':' . $realm . ':' . $pw);
++  $A2 = md5($_SERVER['REQUEST_METHOD'] . ':' . $data['uri']);
++  $resp = md5($A1 . ':' . $data['nonce'] . ':' . $data['nc'] . ':' .
++	      $data['cnonce'] . ':' . $data['qop'] . ':' . $A2);
++  if ($data['response'] != $resp) {
++    error_log("Authentication failure - response mismatch");
++    die('Authentication failed');
++  }
++} else if (isset($_SERVER["SSL_CLIENT_VERIFY"]) &&
++	   $_SERVER["SSL_CLIENT_VERIFY"] == "SUCCESS" &&
++	   isset($_SERVER["SSL_CLIENT_M_SERIAL"])) {
++  $user = "cert-" . $_SERVER["SSL_CLIENT_M_SERIAL"];
++  putenv("HS20CERT=yes");
++} else if (!isset($_SERVER["PATH_INFO"]) ||
++	   $_SERVER["PATH_INFO"] != "/signup") {
++  header('HTTP/1.1 401 Unauthorized');
++  header('WWW-Authenticate: Digest realm="'.$realm.
++	 '",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
++  error_log("spp.php - Authentication required (not signup)");
++  die('Authentication required (not signup)');
++}
++
++
++if (isset($user) && strlen($user) > 0)
++  putenv("HS20USER=$user");
++else
++  putenv("HS20USER");
++
++putenv("HS20REALM=$realm");
++$postdata = file_get_contents("php://input");
++putenv("HS20POST=$postdata");
++$addr = $_SERVER["REMOTE_ADDR"];
++putenv("HS20ADDR=$addr");
++
++$last = exec("$osu_root/spp/hs20_spp_server -r$osu_root -f/tmp/hs20_spp_server.log", $output, $ret);
++
++if ($ret == 2) {
++  if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
++    header('HTTP/1.1 401 Unauthorized');
++    header('WWW-Authenticate: Digest realm="'.$realm.
++           '",qop="auth",nonce="'.uniqid().'",opaque="'.md5($realm).'"');
++    error_log("spp.php - Authentication required (ret 2)");
++    die('Authentication required');
++  } else {
++    error_log("spp.php - Unexpected authentication error");
++    die("Unexpected authentication error");
++  }
++}
++if ($ret != 0) {
++  error_log("spp.php - Failed to process SPP request");
++  die("Failed to process SPP request");
++}
++//error_log("spp.php: Response: " . implode($output));
++
++header("Content-Type: application/soap+xml");
++
++echo implode($output);
++
++?>
+diff -urN awpa_supplicant-2.6-original/hs20/server/www/users.php bwpa_supplicant-2.6-patched-final/hs20/server/www/users.php
+--- awpa_supplicant-2.6-original/hs20/server/www/users.php	1969-12-31 18:00:00.000000000 -0600
++++ bwpa_supplicant-2.6-patched-final/hs20/server/www/users.php	2016-10-02 13:51:11.000000000 -0500
+@@ -0,0 +1,349 @@
++<?php
++
++require('config.php');
++
++$db = new PDO($osu_db);
++if (!$db) {
++   die($sqliteerror);
++}
++
++if (isset($_GET["id"])) {
++	$id = $_GET["id"];
++	if (!is_numeric($id))
++		$id = 0;
++} else
++	$id = 0;
++if (isset($_GET["cmd"]))
++	$cmd = $_GET["cmd"];
++else
++	$cmd = '';
++
++if ($cmd == 'eventlog' && $id > 0) {
++	$row = $db->query("SELECT dump FROM eventlog WHERE rowid=$id")->fetch();
++	$dump = $row['dump'];
++	if ($dump[0] == '<') {
++	  header("Content-type: text/xml");
++	  echo "<?xml version=\"1.0\"?>\n";
++	  echo $dump;
++	} else {
++	  header("Content-type: text/plain");
++	  echo $dump;
++	}
++	exit;
++}
++
++if ($cmd == 'mo' && $id > 0) {
++	$mo = $_GET["mo"];
++	if (!isset($mo))
++		exit;
++	if ($mo != "devinfo" && $mo != "devdetail" && $mo != "pps")
++		exit;
++	$row = $db->query("SELECT $mo FROM users WHERE rowid=$id")->fetch();
++	header("Content-type: text/xml");
++	echo "<?xml version=\"1.0\"?>\n";
++	echo $row[$mo];
++	exit;
++}
++
++if ($cmd == 'cert' && $id > 0) {
++	$row = $db->query("SELECT cert_pem FROM users WHERE rowid=$id")->fetch();
++	header("Content-type: text/plain");
++	echo $row['cert_pem'];
++	exit;
++}
++
++?>
++
++<html>
++<head><title>HS 2.0 users</title></head>
++<body>
++
++<?php
++
++if ($cmd == 'subrem-clear' && $id > 0) {
++	$db->exec("UPDATE users SET remediation='' WHERE rowid=$id");
++}
++if ($cmd == 'subrem-add-user' && $id > 0) {
++	$db->exec("UPDATE users SET remediation='user' WHERE rowid=$id");
++}
++if ($cmd == 'subrem-add-machine' && $id > 0) {
++	$db->exec("UPDATE users SET remediation='machine' WHERE rowid=$id");
++}
++if ($cmd == 'subrem-add-policy' && $id > 0) {
++	$db->exec("UPDATE users SET remediation='policy' WHERE rowid=$id");
++}
++if ($cmd == 'subrem-add-free' && $id > 0) {
++	$db->exec("UPDATE users SET remediation='free' WHERE rowid=$id");
++}
++if ($cmd == 'fetch-pps-on' && $id > 0) {
++	$db->exec("UPDATE users SET fetch_pps=1 WHERE rowid=$id");
++}
++if ($cmd == 'fetch-pps-off' && $id > 0) {
++	$db->exec("UPDATE users SET fetch_pps=0 WHERE rowid=$id");
++}
++if ($cmd == 'reset-pw' && $id > 0) {
++	$db->exec("UPDATE users SET password='ChangeMe' WHERE rowid=$id");
++}
++if ($cmd == "policy" && $id > 0 && isset($_GET["policy"])) {
++	$policy = $_GET["policy"];
++	if ($policy == "no-policy" ||
++	    is_readable("$osu_root/spp/policy/$policy.xml")) {
++		$db->exec("UPDATE users SET policy='$policy' WHERE rowid=$id");
++	}
++}
++if ($cmd == "account-type" && $id > 0 && isset($_GET["type"])) {
++	$type = $_GET["type"];
++	if ($type == "shared")
++		$db->exec("UPDATE users SET shared=1 WHERE rowid=$id");
++	if ($type == "default")
++		$db->exec("UPDATE users SET shared=0 WHERE rowid=$id");
++}
++
++if ($cmd == "set-osu-cred" && $id > 0) {
++  $osu_user = $_POST["osu_user"];
++  $osu_password = $_POST["osu_password"];
++  if (strlen($osu_user) == 0)
++    $osu_password = "";
++  $db->exec("UPDATE users SET osu_user='$osu_user', osu_password='$osu_password' WHERE rowid=$id");
++}
++
++$dump = 0;
++
++if ($id > 0) {
++
++if (isset($_GET["dump"])) {
++	$dump = $_GET["dump"];
++	if (!is_numeric($dump))
++		$dump = 0;
++} else
++	$dump = 0;
++
++echo "[<a href=\"users.php\">All users</a>] ";
++if ($dump == 0)
++	echo "[<a href=\"users.php?id=$id&dump=1\">Include debug dump</a>] ";
++else
++	echo "[<a href=\"users.php?id=$id\">Without debug dump</a>] ";
++echo "<br>\n";
++
++$row = $db->query("SELECT rowid,* FROM users WHERE rowid=$id")->fetch();
++
++echo "<H3>" . $row['identity'] . "@" . $row['realm'] . "</H3>\n";
++
++echo "MO: ";
++if (strlen($row['devinfo']) > 0) {
++	echo "[<a href=\"users.php?cmd=mo&id=$id&mo=devinfo\">DevInfo</a>]\n";
++}
++if (strlen($row['devdetail']) > 0) {
++	echo "[<a href=\"users.php?cmd=mo&id=$id&mo=devdetail\">DevDetail</a>]\n";
++}
++if (strlen($row['pps']) > 0) {
++	echo "[<a href=\"users.php?cmd=mo&id=$id&mo=pps\">PPS</a>]\n";
++}
++if (strlen($row['cert_pem']) > 0) {
++	echo "[<a href=\"users.php?cmd=cert&id=$id\">Certificate</a>]\n";
++}
++echo "<BR>\n";
++
++echo "Fetch PPS MO: ";
++if ($row['fetch_pps'] == "1") {
++	echo "On next connection " .
++		"[<a href=\"users.php?cmd=fetch-pps-off&id=$id\">" .
++		"do not fetch</a>]<br>\n";
++} else {
++	echo "Do not fetch " .
++		"[<a href=\"users.php?cmd=fetch-pps-on&id=$id\">" .
++		"request fetch</a>]<br>\n";
++}
++
++$cert = $row['cert'];
++if (strlen($cert) > 0) {
++  echo "Certificate fingerprint: $cert<br>\n";
++}
++
++echo "Remediation: ";
++$rem = $row['remediation'];
++if ($rem == "") {
++	echo "Not required";
++	echo " [<a href=\"users.php?cmd=subrem-add-user&id=" .
++		   $row['rowid'] . "\">add:user</a>]";
++	echo " [<a href=\"users.php?cmd=subrem-add-machine&id=" .
++		   $row['rowid'] . "\">add:machine</a>]";
++	echo " [<a href=\"users.php?cmd=subrem-add-policy&id=" .
++		   $row['rowid'] . "\">add:policy</a>]";
++	echo " [<a href=\"users.php?cmd=subrem-add-free&id=" .
++		   $row['rowid'] . "\">add:free</a>]";
++} else if ($rem == "user") {
++	echo "User [<a href=\"users.php?cmd=subrem-clear&id=" .
++		       $row['rowid'] . "\">clear</a>]";
++} else if ($rem == "policy") {
++	echo "Policy [<a href=\"users.php?cmd=subrem-clear&id=" .
++		       $row['rowid'] . "\">clear</a>]";
++} else if ($rem == "free") {
++	echo "Free [<a href=\"users.php?cmd=subrem-clear&id=" .
++		       $row['rowid'] . "\">clear</a>]";
++} else  {
++	echo "Machine [<a href=\"users.php?cmd=subrem-clear&id=" .
++			  $row['rowid'] . "\">clear</a>]";
++}
++echo "<br>\n";
++
++echo "<form>Policy: <select name=\"policy\" " .
++	"onChange=\"window.location='users.php?cmd=policy&id=" .
++	$row['rowid'] . "&policy=' + this.value;\">\n";
++echo "<option value=\"" . $row['policy'] . "\" selected>" . $row['policy'] .
++      "</option>\n";
++$files = scandir("$osu_root/spp/policy");
++foreach ($files as $file) {
++	if (!preg_match("/.xml$/", $file))
++		continue;
++	if ($file == $row['policy'] . ".xml")
++		continue;
++	$p = substr($file, 0, -4);
++	echo "<option value=\"$p\">$p</option>\n";
++}
++echo "<option value=\"no-policy\">no policy</option>\n";
++echo "</select></form>\n";
++
++echo "<form>Account type: <select name=\"type\" " .
++	"onChange=\"window.location='users.php?cmd=account-type&id=" .
++	$row['rowid'] . "&type=' + this.value;\">\n";
++if ($row['shared'] > 0) {
++  $default_sel = "";
++  $shared_sel = " selected";
++} else {
++  $default_sel = " selected";
++  $shared_sel = "";
++}
++echo "<option value=\"default\"$default_sel>default</option>\n";
++echo "<option value=\"shared\"$shared_sel>shared</option>\n";
++echo "</select></form>\n";
++
++echo "Phase 2 method(s): " . $row['methods'] . "<br>\n";
++
++echo "<br>\n";
++echo "<a href=\"users.php?cmd=reset-pw&id=" .
++	 $row['rowid'] . "\">Reset AAA password</a><br>\n";
++
++echo "<br>\n";
++echo "<form action=\"users.php?cmd=set-osu-cred&id=" . $row['rowid'] .
++  "\" method=\"POST\">\n";
++echo "OSU credentials (if username empty, AAA credentials are used):<br>\n";
++echo "username: <input type=\"text\" name=\"osu_user\" value=\"" .
++  $row['osu_user'] . "\">\n";
++echo "password: <input type=\"password\" name=\"osu_password\">\n";
++echo "<input type=\"submit\" value=\"Set OSU credentials\">\n";
++echo "</form>\n";
++
++echo "<hr>\n";
++
++$user = $row['identity'];
++$osu_user = $row['osu_user'];
++$realm = $row['realm'];
++}
++
++if ($id > 0 || ($id == 0 && $cmd == 'eventlog')) {
++
++  if ($id == 0) {
++    echo "[<a href=\"users.php\">All users</a>] ";
++    echo "<br>\n";
++  }
++
++echo "<table border=1>\n";
++echo "<tr>";
++if ($id == 0) {
++  echo "<th>user<th>realm";
++}
++echo "<th>time<th>address<th>sessionID<th>notes";
++if ($dump > 0)
++	echo "<th>dump";
++echo "\n";
++if (isset($_GET["limit"])) {
++	$limit = $_GET["limit"];
++	if (!is_numeric($limit))
++		$limit = 20;
++} else
++	$limit = 20;
++if ($id == 0)
++  $res = $db->query("SELECT rowid,* FROM eventlog ORDER BY timestamp DESC LIMIT $limit");
++else if (strlen($osu_user) > 0)
++  $res = $db->query("SELECT rowid,* FROM eventlog WHERE (user='$user' OR user='$osu_user') AND realm='$realm' ORDER BY timestamp DESC LIMIT $limit");
++else
++  $res = $db->query("SELECT rowid,* FROM eventlog WHERE user='$user' AND realm='$realm' ORDER BY timestamp DESC LIMIT $limit");
++foreach ($res as $row) {
++	echo "<tr>";
++	if ($id == 0) {
++	  echo "<td>" . $row['user'] . "\n";
++	  echo "<td>" . $row['realm'] . "\n";
++	}
++	echo "<td>" . $row['timestamp'] . "\n";
++	echo "<td>" . $row['addr'] . "\n";
++	echo "<td>" . $row['sessionid'] . "\n";
++	echo "<td>" . $row['notes'] . "\n";
++	$d = $row['dump'];
++	if (strlen($d) > 0) {
++		echo "[<a href=\"users.php?cmd=eventlog&id=" . $row['rowid'] .
++		  "\">";
++		if ($d[0] == '<')
++		  echo "XML";
++		else
++		  echo "txt";
++		echo "</a>]\n";
++		if ($dump > 0)
++			echo "<td>" . htmlspecialchars($d) . "\n";
++	}
++}
++echo "</table>\n";
++
++}
++
++
++if ($id == 0 && $cmd != 'eventlog') {
++
++echo "[<a href=\"users.php?cmd=eventlog&limit=50\">Eventlog</a>] ";
++echo "<br>\n";
++
++echo "<table border=1>\n";
++echo "<tr><th>User<th>Realm<th>Remediation<th>Policy<th>Account type<th>Phase 2 method(s)<th>DevId\n";
++
++$res = $db->query('SELECT rowid,* FROM users WHERE phase2=1');
++foreach ($res as $row) {
++	echo "<tr><td><a href=\"users.php?id=" . $row['rowid'] . "\"> " .
++	    $row['identity'] . " </a>";
++	echo "<td>" . $row['realm'];
++	$rem = $row['remediation'];
++	echo "<td>";
++	if ($rem == "") {
++		echo "Not required";
++	} else if ($rem == "user") {
++		echo "User";
++	} else if ($rem == "policy") {
++		echo "Policy";
++	} else if ($rem == "free") {
++		echo "Free";
++	} else  {
++		echo "Machine";
++	}
++	echo "<td>" . $row['policy'];
++	if ($row['shared'] > 0)
++	  echo "<td>shared";
++	else
++	  echo "<td>default";
++	echo "<td>" . $row['methods'];
++	echo "<td>";
++	$xml = xml_parser_create();
++	xml_parse_into_struct($xml, $row['devinfo'], $devinfo);
++	foreach($devinfo as $k) {
++	  if ($k['tag'] == 'DEVID') {
++	    echo $k['value'];
++	    break;
++	  }
++	}
++	echo "\n";
++}
++echo "</table>\n";
++
++}
++
++?>
++
++</html>

@@ -1,0 +1,15 @@
+diff --git a/wilc1000/wilc_wfi_cfgoperations.c b/wilc1000/wilc_wfi_cfgoperations.c
+index a6aefcc..2979e18 100644
+--- a/wilc_wfi_cfgoperations.c
++++ b/wilc_wfi_cfgoperations.c
+@@ -1867,8 +1867,8 @@ static int set_power_mgmt(struct wiphy *wiphy, struct net_device *dev,
+ 
+ #if LINUX_VERSION_CODE < KERNEL_VERSION(4,11,0)
+ static int change_virtual_intf(struct wiphy *wiphy, struct net_device *dev,
+-			       u32 *flags,
+-			       enum nl80211_iftype type, struct vif_params *params)
++			       enum nl80211_iftype type,
++			       u32 *flags, struct vif_params *params)
+ #else
+ static int change_virtual_intf(struct wiphy *wiphy, struct net_device *dev,
+ 			       enum nl80211_iftype type, struct vif_params *params)
