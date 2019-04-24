@@ -385,14 +385,14 @@ create_petalinux_bsp ()
   echo "Importing hardware definition ${HDL_HARDWARE_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
 
   echo " "
   echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -728,7 +728,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
 
   # Clean the hardware project output products using the HDL TCL scripts.
-  echo "set argv [list board=${HDL_BOARD_NAME} project=${HDL_PROJECT_NAME} clean=yes jtag=yes version_override=yes]" > cleanup.tcl
+  echo "set argv [list board=${HDL_BOARD_NAME}_${PLNX_VER} project=${HDL_PROJECT_NAME} clean=yes jtag=yes version_override=yes]" > cleanup.tcl
   echo "set argc [llength \$argv]" >> cleanup.tcl
   echo "source ./make.tcl -notrace" >> cleanup.tcl
 
@@ -840,7 +840,7 @@ create_petalinux_bsp ()
 
   # Package the hardware source into a BSP package output.
   petalinux-package --bsp -p ${PETALINUX_PROJECT_NAME} \
-  --hwsource ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/ \
+  --hwsource ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
 
   # Change to PetaLinux scripts folder.
@@ -855,10 +855,10 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.  
   # If it hasn't then build it now.  
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/
-    echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME} found."
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+    echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
     read -t 5 -p "Pause here for 5 seconds"
     
@@ -867,7 +867,7 @@ build_hw_platform ()
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
     vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
-    echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}."
+    echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
     echo "Will build the PetaLinux BSP now."
     read -t 5 -p "Pause here for 5 seconds"
   
