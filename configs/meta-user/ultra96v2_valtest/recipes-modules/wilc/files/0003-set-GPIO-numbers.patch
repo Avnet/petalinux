@@ -1,9 +1,14 @@
-GPIO_NUM_RESET = 330 when WiFi radio RST_N is connected to MIO[7] (1.8V - JT5 strapped to pins 2-3)
-GPIO_NUM_RESET = 400 when WiFi radio RST_N is connected to EMIO[0] (1.2V - JT5 strapped to pins 1-2)
+GPIO_NUM specifies the GPIO for the interrupt, which is mapped to MIO[76]
+GPIO_NUM_CHIP_EN specifies the GPIO for the enable, which is mapped to MIO[8]
+GPIO_NUM_RESET specifies the GPIO for the reset_n
+GPIO_NUM_RESET can be mapped to either MIO[7] (1.8V I/O) or EMIO[0] (1.2V I/O)
+GPIO_NUM_RESET on MIO[7] is the production default
 There are 78 MIO GPIOs (0-77) so the first EMIO is #78.
 For PetaLinux 2017.4 the Zynq MPSoC GPIO base is 322
+The WiFi interrupt is connected to MIO[76], so GPIO_NUM = 322+76 = 398
 The WiFi EN is connected to MIO[8], so GPIO_NUM_CHIP_EN = 322+8 = 330
-The WiFi RSTN is mapped to EMIO[0], so GPIO_NUM_RESET = 322+78 = 400
+If the WiFi RSTN is mapped to EMIO[0], then GPIO_NUM_RESET = 322+78 = 400
+If the WiFi RSTN is mapped to MIO[7], then GPIO_NUM_RESET = 322+7 = 329
 diff --git a/wilc1000/wilc_wlan.h b/wilc1000/wilc_wlan.h
 index b7cb1b7..5b5186a 100644
 --- a/wilc_wlan.h
@@ -17,7 +22,7 @@ index b7cb1b7..5b5186a 100644
 -#define GPIO_NUM_RESET		60
 +#define GPIO_NUM		398
 +#define GPIO_NUM_CHIP_EN	330
-+#define GPIO_NUM_RESET		400
++#define GPIO_NUM_RESET		329
  
  
  #define NQUEUES			4
