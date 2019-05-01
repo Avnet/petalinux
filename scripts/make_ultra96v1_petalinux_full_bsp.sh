@@ -855,6 +855,10 @@ create_petalinux_bsp ()
   # specified explicitly.
   mv -f pre-built/linux/implementation/system_wrapper.bit \
   pre-built/linux/implementation/download.bit
+  
+  # Copy the rootfs archive to the pre-built folder.  This is needed for
+  # systems that boot the rootfs from a ext4 partition on the micro SD card.
+  cp -f ./images/linux/rootfs.tar.gz ./pre-built/linux/images/.
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
   echo "#!/bin/sh" > cptftp_jtag.sh
