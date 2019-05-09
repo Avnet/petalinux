@@ -34,9 +34,9 @@
 # 
 #  Create Date:         Aug 01, 2018
 #  Design Name:         Avnet Ultra96v1 PetaLinux BSP Generator
-#  Module Name:         clean_ultra96v1_petalinux_bsp.tcl
+#  Module Name:         make_ultra96v1_petalinux_bsp.tcl
 #  Project Name:        Avnet Ultra96v1 PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
+#  Target Devices:      Xilinx Zynq Ultrascale+ MPSoC
 #  Hardware Boards:     Ultra96v1 Eval Board
 # 
 #  Tool versions:       Xilinx PetaLinux 2018.2
@@ -444,7 +444,9 @@ create_petalinux_bsp ()
  
   # DEBUG
   echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
-  read -p "Press ENTER to continue" 
+  #read -p "Press ENTER to continue" 
+  read -t 10 -p "Pause here for 10 seconds"
+  
   
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -465,7 +467,9 @@ create_petalinux_bsp ()
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
     patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-  read -p "Press ENTER to continue" 
+  #read -p "Press ENTER to continue" 
+  read -t 10 -p "Pause here for 10 seconds"
+
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
     echo " "
@@ -487,7 +491,8 @@ create_petalinux_bsp ()
     echo " "
   fi
   echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
-  read -p "Press ENTER to continue" 
+  #read -p "Press ENTER to continue" 
+  read -t 10 -p "Pause here for 10 seconds"
   
 
   # Configure the root file system.
@@ -507,8 +512,8 @@ create_petalinux_bsp ()
 
   # DEBUG
   echo "Stop here and check for WARNING messages."
-  read -p "Press ENTER to continue."
-  #read -t 10 -p "Pause here for 10 seconds"
+  #read -p "Press ENTER to continue."
+  read -t 10 -p "Pause here for 10 seconds"
 
   # If the QSPI boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI.
@@ -520,6 +525,10 @@ create_petalinux_bsp ()
     # Modify the project configuration for QSPI boot.
     petalinux_project_set_boot_config_qspi
 
+    # DEBUG
+    #echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC boot"
+    #read -p "Press ENTER to continue."
+ 
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -615,6 +624,10 @@ create_petalinux_bsp ()
     # Modify the project configuration for EMMC boot.
     petalinux_project_set_boot_config_emmc_no_bit
 
+    # DEBUG
+    #echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC boot"
+    #read -p "Press ENTER to continue."
+ 
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -668,6 +681,10 @@ create_petalinux_bsp ()
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd_no_bit
 
+    # DEBUG
+    #echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC boot"
+    #read -p "Press ENTER to continue."
+ 
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -723,8 +740,9 @@ create_petalinux_bsp ()
 
     # DEBUG
     echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
-    read -p "Press enter to continue"
-
+    #read -p "Press enter to continue"
+    read -t 10 -p "Pause here for 10 seconds"
+    
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -784,8 +802,9 @@ create_petalinux_bsp ()
 
     # DEBUG
     echo "Stop here and go check the platform-top.h and config files and make sure they are set for SD EXT4 boot"
-    read -p "Press enter to continue"
-
+    #read -p "Press enter to continue"
+    read -t 10 -p "Pause here for 10 seconds"
+  
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
