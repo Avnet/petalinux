@@ -1,0 +1,234 @@
+From fb4b8c9d802c724c08e75342cf3be33545cf1c48 Mon Sep 17 00:00:00 2001
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Date: Fri, 20 Oct 2017 03:15:26 -0500
+Subject: [PATCH 9/9] wpa_supplicant: Add BRCM_VE support for WFA VE
+ certification
+
+Add BRCM_VE support for WFA Voice Enterprise certification.
+
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+---
+ src/common/ieee802_11_defs.h      |  3 +++
+ src/drivers/driver_nl80211.c      | 11 +++++++++++
+ src/drivers/driver_nl80211_capa.c |  5 +++++
+ src/rsn_supp/wpa.c                | 36 ++++++++++++++++++++++++++++++++++++
+ src/rsn_supp/wpa.h                | 10 ++++++++++
+ wpa_supplicant/Makefile           |  4 ++++
+ wpa_supplicant/events.c           | 26 ++++++++++++++++++++++++++
+ wpa_supplicant/wpas_glue.c        |  5 +++++
+ 8 files changed, 100 insertions(+)
+
+diff --git a/src/common/ieee802_11_defs.h b/src/common/ieee802_11_defs.h
+index d453aec..2372a51 100644
+--- a/src/common/ieee802_11_defs.h
++++ b/src/common/ieee802_11_defs.h
+@@ -1385,6 +1385,9 @@ enum plink_action_field {
+ #define WLAN_CIPHER_SUITE_CKIP_CMIC	0x00409601
+ #define WLAN_CIPHER_SUITE_CMIC		0x00409602
+ #define WLAN_CIPHER_SUITE_KRK		0x004096FF /* for nl80211 use only */
++#ifdef BRCM_VE
++#define WLAN_CIPHER_SUITE_PMK		0x00904C00
++#endif /* BRCM_VE */
+ 
+ /* AKM suite selectors */
+ #define WLAN_AKM_SUITE_8021X		0x000FAC01
+diff --git a/src/drivers/driver_nl80211.c b/src/drivers/driver_nl80211.c
+index 1210d43..54fb667 100644
+--- a/src/drivers/driver_nl80211.c
++++ b/src/drivers/driver_nl80211.c
+@@ -2556,6 +2556,11 @@ static u32 wpa_alg_to_cipher_suite(enum wpa_alg alg, size_t key_len)
+ 		return WLAN_CIPHER_SUITE_KRK;
+ 	case WPA_ALG_NONE:
+ 	case WPA_ALG_PMK:
++#if defined(IEEE8021X_EAPOL) && defined(BRCM_VE)
++		wpa_printf(MSG_DEBUG, "nl80211: Selected encryption algorithm "
++			   "WPA_ALG_PMK");
++		return WLAN_CIPHER_SUITE_PMK;
++#endif /* IEEE8021X_EAPOL && BRCM_VE */
+ 		wpa_printf(MSG_ERROR, "nl80211: Unexpected encryption algorithm %d",
+ 			   alg);
+ 		return 0;
+@@ -3619,6 +3624,12 @@ static int wpa_driver_nl80211_set_ap(void *priv,
+ 		suites[num_suites++] = WLAN_AKM_SUITE_8021X;
+ 	if (params->key_mgmt_suites & WPA_KEY_MGMT_PSK)
+ 		suites[num_suites++] = WLAN_AKM_SUITE_PSK;
++#ifdef BRCM_VE
++	if (params->key_mgmt_suites & WPA_KEY_MGMT_FT_IEEE8021X)
++		suites[num_suites++] = WLAN_AKM_SUITE_FT_8021X;
++	if (params->key_mgmt_suites & WPA_KEY_MGMT_FT_PSK)
++		suites[num_suites++] = WLAN_AKM_SUITE_FT_PSK;
++#endif /* BRCM_VE */
+ 	if (num_suites &&
+ 	    nla_put(msg, NL80211_ATTR_AKM_SUITES, num_suites * sizeof(u32),
+ 		    suites))
+diff --git a/src/drivers/driver_nl80211_capa.c b/src/drivers/driver_nl80211_capa.c
+index 6adc3f6..1da1cf7 100644
+--- a/src/drivers/driver_nl80211_capa.c
++++ b/src/drivers/driver_nl80211_capa.c
+@@ -998,6 +998,11 @@ int wpa_driver_nl80211_capa(struct wpa_driver_nl80211_data *drv)
+ 	drv->capa.auth = WPA_DRIVER_AUTH_OPEN |
+ 		WPA_DRIVER_AUTH_SHARED |
+ 		WPA_DRIVER_AUTH_LEAP;
++#if defined(CONFIG_IEEE80211R) && defined(BRCM_VE)
++	/* Also assume that FT-PSK & FT-EAP are supported */
++	drv->capa.key_mgmt |= WPA_DRIVER_CAPA_KEY_MGMT_FT |
++		WPA_DRIVER_CAPA_KEY_MGMT_FT_PSK;
++#endif /* CONFIG_IEEE80211R && BRCM_VE */
+ 
+ 	drv->capa.flags |= WPA_DRIVER_FLAGS_SANE_ERROR_CODES;
+ 	drv->capa.flags |= WPA_DRIVER_FLAGS_SET_KEYS_AFTER_ASSOC_DONE;
+diff --git a/src/rsn_supp/wpa.c b/src/rsn_supp/wpa.c
+index 2a53c6f..ada4553 100644
+--- a/src/rsn_supp/wpa.c
++++ b/src/rsn_supp/wpa.c
+@@ -22,6 +22,10 @@
+ #include "wpa_i.h"
+ #include "wpa_ie.h"
+ #include "peerkey.h"
++#ifdef BRCM_VE
++#include "../wpa_supplicant/wpa_supplicant_i.h"
++#include "../wpa_supplicant/driver_i.h"
++#endif /* BRCM_VE */
+ 
+ 
+ static const u8 null_rsc[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+@@ -2975,6 +2979,38 @@ void wpa_sm_pmksa_cache_flush(struct wpa_sm *sm, void *network_ctx)
+ 	pmksa_cache_flush(sm->pmksa, network_ctx, NULL, 0);
+ }
+ 
++#ifdef BRCM_VE
++void wpa_sm_install_pmk(struct wpa_sm *sm)
++{
++	/* In case the driver wants to handle re-assocs, pass it down the PMK. */
++	if (wpa_sm_set_key(sm, WPA_ALG_PMK, NULL, 0, 0, NULL, 0, (u8*)sm->pmk, sm->pmk_len) < 0) {
++		wpa_hexdump(MSG_DEBUG, "PSK: Install PMK to the driver for driver reassociations",
++			    (u8*)sm->pmk, sm->pmk_len);
++		/* No harm if the driver doesn't support. */
++		wpa_msg(sm->ctx->msg_ctx, MSG_DEBUG, "WPA: Failed to set PMK to the driver");
++	}
++}
++
++void wpa_sm_notify_brcm_ft_reassoc(struct wpa_sm *sm, const u8 *bssid)
++{
++	wpa_dbg(sm->ctx->msg_ctx, MSG_DEBUG,
++		"WPA: BRCM FT Reassociation event - clear replay counter");
++	os_memcpy(sm->bssid, bssid, ETH_ALEN);
++	os_memset(sm->rx_replay_counter, 0, WPA_REPLAY_COUNTER_LEN);
++	sm->rx_replay_counter_set = 0;
++
++	if (wpa_drv_driver_cmd(wpa_s, "GET_FTKEY", (char *)buf, sizeof(buf)) < 0) {
++		wpa_msg(sm->ctx->msg_ctx, MSG_ERROR,
++			"WPA: Failed to get FT KEY information");
++	} else {
++		/* update kck and kek */
++		os_memcpy(sm->ptk.kck, buf, 16);
++		os_memcpy(sm->ptk.kek, buf + 16, 16);
++		wpa_msg(sm->ctx->msg_ctx, MSG_ERROR,
++			"WPA: Updated KCK and KEK after FT reassoc");
++	}
++}
++#endif /* BRCM_VE */
+ 
+ #ifdef CONFIG_WNM
+ int wpa_wnmsleep_install_key(struct wpa_sm *sm, u8 subelem_id, u8 *buf)
+diff --git a/src/rsn_supp/wpa.h b/src/rsn_supp/wpa.h
+index 0b7477f..2b20e8f 100644
+--- a/src/rsn_supp/wpa.h
++++ b/src/rsn_supp/wpa.h
+@@ -156,6 +156,10 @@ void wpa_sm_pmksa_cache_flush(struct wpa_sm *sm, void *network_ctx);
+ 
+ int wpa_sm_get_p2p_ip_addr(struct wpa_sm *sm, u8 *buf);
+ 
++#ifdef BRCM_VE
++void wpa_sm_install_pmk(struct wpa_sm *sm);
++void wpa_sm_notify_brcm_ft_reassoc(struct wpa_sm *sm, const u8 *bssid);
++#endif /* BRCM_VE */
+ void wpa_sm_set_rx_replay_ctr(struct wpa_sm *sm, const u8 *rx_replay_counter);
+ void wpa_sm_set_ptk_kck_kek(struct wpa_sm *sm,
+ 			    const u8 *ptk_kck, size_t ptk_kck_len,
+@@ -316,6 +320,12 @@ static inline void wpa_sm_pmksa_cache_flush(struct wpa_sm *sm,
+ {
+ }
+ 
++#ifdef BRCM_VE
++static inline void wpa_sm_install_pmk(struct wpa_sm *sm)
++{
++}
++#endif /* BRCM_VE */
++
+ static inline void wpa_sm_set_rx_replay_ctr(struct wpa_sm *sm,
+ 					    const u8 *rx_replay_counter)
+ {
+diff --git a/wpa_supplicant/Makefile b/wpa_supplicant/Makefile
+index f3e86c1..d6aef37 100644
+--- a/wpa_supplicant/Makefile
++++ b/wpa_supplicant/Makefile
+@@ -250,6 +250,10 @@ NEED_SHA256=y
+ NEED_AES_OMAC1=y
+ endif
+ 
++ifdef CONFIG_BRCM_VE
++CFLAGS += -DBRCM_VE
++endif
++
+ ifdef CONFIG_MESH
+ NEED_80211_COMMON=y
+ NEED_SHA256=y
+diff --git a/wpa_supplicant/events.c b/wpa_supplicant/events.c
+index abe3b47..0788056 100644
+--- a/wpa_supplicant/events.c
++++ b/wpa_supplicant/events.c
+@@ -2270,6 +2270,32 @@ static void wpa_supplicant_event_assoc(struct wpa_supplicant *wpa_s,
+ 		return;
+ 	}
+ 
++#ifdef BRCM_VE
++	/*
++	 * If the old bss is non-NULL & connection is FT then assume driver
++	 * did the 4-way handshake
++	 */
++	if (wpa_s->wpa_state == WPA_COMPLETED && wpa_key_mgmt_ft(wpa_s->key_mgmt)) {
++		if (os_memcmp(bssid, wpa_s->bssid, ETH_ALEN) != 0 &&
++		    !is_zero_ether_addr(bssid)) {
++			if (wpa_key_mgmt_ft(wpa_s->key_mgmt))
++				wpa_dbg(wpa_s, MSG_DEBUG,
++					"FT: Assume FT reassoc completed by driver %d",
++					ft_completed);
++			os_memcpy(wpa_s->bssid, bssid, ETH_ALEN);
++			wpa_sm_notify_brcm_ft_reassoc(wpa_s->wpa, bssid);
++			return;
++		}
++	}
++
++	/* For driver based roaming, insert PSK during the initial association */
++	if (wpa_key_mgmt_wpa_psk(wpa_s->key_mgmt)) {
++		/* In case the driver wants to handle re-assocs, pass it down the PMK. */
++		wpa_dbg(wpa_s, MSG_DEBUG, "Pass the PMK to the driver");
++		wpa_sm_install_pmk(wpa_s->wpa);
++	}
++#endif /* BRCM_VE */
++
+ 	wpa_supplicant_set_state(wpa_s, WPA_ASSOCIATED);
+ 	if (os_memcmp(bssid, wpa_s->bssid, ETH_ALEN) != 0) {
+ 		wpa_dbg(wpa_s, MSG_DEBUG, "Associated to a new BSS: BSSID="
+diff --git a/wpa_supplicant/wpas_glue.c b/wpa_supplicant/wpas_glue.c
+index f84c8b9..d2b88d3 100644
+--- a/wpa_supplicant/wpas_glue.c
++++ b/wpa_supplicant/wpas_glue.c
+@@ -292,8 +292,13 @@ static void wpa_supplicant_eapol_cb(struct eapol_sm *eapol,
+ 		ieee802_1x_notify_create_actor(wpa_s, wpa_s->last_eapol_src);
+ 	}
+ 
++#ifdef BRCM_VE
++	/* Always try and pass down the PMK/XXKey to the driver. */
++	if (result != EAPOL_SUPP_RESULT_SUCCESS)
++#else
+ 	if (result != EAPOL_SUPP_RESULT_SUCCESS ||
+ 	    !(wpa_s->drv_flags & WPA_DRIVER_FLAGS_4WAY_HANDSHAKE))
++#endif /* BRCM_VE */
+ 		return;
+ 
+ 	if (!wpa_key_mgmt_wpa_ieee8021x(wpa_s->key_mgmt))
+-- 
+2.1.0
+

@@ -1,0 +1,19 @@
+diff --git a/wilc1000/Makefile b/wilc1000/Makefile
+index f085daf..a615331 100644
+--- a/Makefile
++++ b/Makefile
+@@ -13,3 +13,14 @@ wilc-sdio-objs += wilc_sdio.o wilc_bt.o
+ 
+ obj-$(CONFIG_WILC_SPI) += wilc-spi.o
+ wilc-spi-objs += wilc_spi.o wilc_bt.o
++
++all:
++	$(MAKE) -C $(KERNEL_SRC) M=$(CURDIR) modules
++
++modules_install:
++	$(MAKE) -C $(KERNEL_SRC) M=$(CURDIR) modules_install
++
++clean:
++	rm -f *.o *~ core .depend .*.cmd *.ko *.mod.c
++	rm -f Module.markers Module.symvers modules.order
++	rm -rf .tmp_versions Modules.symvers
