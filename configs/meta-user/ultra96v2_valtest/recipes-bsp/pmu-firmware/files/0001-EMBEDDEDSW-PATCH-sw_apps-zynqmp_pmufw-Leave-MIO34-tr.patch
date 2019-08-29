@@ -1,0 +1,178 @@
+From 300fd5687d94042f542b20e3f6a7518061a82560 Mon Sep 17 00:00:00 2001
+From: Sai Hari Chandana Kalluri <chandana.kalluri@xilinx.com>
+Date: Tue, 5 Feb 2019 10:56:14 -0800
+Subject: [PATCH] [EMBEDDEDSW PATCH] sw_apps: zynqmp_pmufw: Leave MIO34
+ tristated and connect it to PMU GPO when it needs to be driven low
+
+When POR is asserted, MIO34 is driven low due to GPO being driven low.
+To avoid this, leave MIO34 tristated when CONNECT_PMU_GPO2 is defined
+and connect it to PMU GPO when MIO34 need to be driven low.
+
+Signed-off-by: Mounika Grace Akula <makula@xilinx.com>
+Signed-off-by: Sai Hari Chandana Kalluri <chandana.kalluri@xilinx.com>
+---
+ lib/sw_apps/zynqmp_pmufw/src/pm_config.c    | 16 +++++++++-------
+ lib/sw_apps/zynqmp_pmufw/src/pm_core.c      |  7 +++++++
+ lib/sw_apps/zynqmp_pmufw/src/pm_hooks.c     |  6 +++++-
+ lib/sw_apps/zynqmp_pmufw/src/xpfw_config.h  | 22 ++++++++++++++++++++++
+ lib/sw_apps/zynqmp_pmufw/src/xpfw_default.h |  5 +++++
+ 5 files changed, 48 insertions(+), 8 deletions(-)
+
+diff --git a/lib/sw_apps/zynqmp_pmufw/src/pm_config.c b/lib/sw_apps/zynqmp_pmufw/src/pm_config.c
+index e84f914..c52fb3f 100644
+--- a/lib/sw_apps/zynqmp_pmufw/src/pm_config.c
++++ b/lib/sw_apps/zynqmp_pmufw/src/pm_config.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2014 - 2016 Xilinx, Inc.  All rights reserved.
++ * Copyright (C) 2014 - 2019 Xilinx, Inc.  All rights reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+@@ -54,11 +54,6 @@ static int PmConfigGpoSectionHandler(u32* const addr);
+  * Macros
+  ********************************************************************/
+ 
+-#define IOU_SLCR_MIO_PIN_34_OFFSET	0x00000088
+-#define IOU_SLCR_MIO_PIN_35_OFFSET	0x0000008C
+-#define IOU_SLCR_MIO_PIN_36_OFFSET	0x00000090
+-#define IOU_SLCR_MIO_PIN_37_OFFSET	0x00000094
+-
+ #define PM_CONFIG_GPO_2_ENABLE_MASK	BIT(10U)
+ #define PM_CONFIG_GPO_3_ENABLE_MASK	BIT(11U)
+ #define PM_CONFIG_GPO_4_ENABLE_MASK	BIT(12U)
+@@ -484,26 +479,33 @@ static int PmConfigGpoSectionHandler(u32* const addr)
+ 	reg |= (gpoState & PM_CONFIG_GPO_MASK);
+ 	XPfw_Write32(PMU_IOMODULE_GPO1, reg);
+ 
++#ifdef CONNECT_PMU_GPO_2
+ 	if (gpoState & PM_CONFIG_GPO_2_ENABLE_MASK) {
+ 		XPfw_RMW32((IOU_SLCR_BASE + IOU_SLCR_MIO_PIN_34_OFFSET),
+ 				0x000000FEU, 0x00000008U);
+ 	}
++#endif
+ 
++#ifdef CONNECT_PMU_GPO_3
+ 	if (gpoState & PM_CONFIG_GPO_3_ENABLE_MASK) {
+ 		XPfw_RMW32((IOU_SLCR_BASE + IOU_SLCR_MIO_PIN_35_OFFSET),
+ 				0x000000FEU, 0x00000008U);
+ 	}
++#endif
+ 
++#ifdef CONNECT_PMU_GPO_4
+ 	if (gpoState & PM_CONFIG_GPO_4_ENABLE_MASK) {
+ 		XPfw_RMW32((IOU_SLCR_BASE + IOU_SLCR_MIO_PIN_36_OFFSET),
+ 				0x000000FEU, 0x00000008U);
+ 	}
++#endif
+ 
++#ifdef CONNECT_PMU_GPO_5
+ 	if (gpoState & PM_CONFIG_GPO_5_ENABLE_MASK) {
+ 		XPfw_RMW32((IOU_SLCR_BASE + IOU_SLCR_MIO_PIN_37_OFFSET),
+ 				0x000000FEU, 0x00000008U);
+ 	}
+-
++#endif
+ 	return XST_SUCCESS;
+ }
+ 
+diff --git a/lib/sw_apps/zynqmp_pmufw/src/pm_core.c b/lib/sw_apps/zynqmp_pmufw/src/pm_core.c
+index 0e5d90d..4f43604 100644
+--- a/lib/sw_apps/zynqmp_pmufw/src/pm_core.c
++++ b/lib/sw_apps/zynqmp_pmufw/src/pm_core.c
+@@ -164,9 +164,16 @@ static void PmKillBoardPower(void)
+ 	u32 reg = XPfw_Read32(PMU_LOCAL_GPO1_READ);
+ 	u32 mask = PMU_IOMODULE_GPO1_MIO_0_MASK << BOARD_SHUTDOWN_PIN;
+ 	u32 value = BOARD_SHUTDOWN_PIN_STATE << BOARD_SHUTDOWN_PIN;
++        u32 mioPinOffset;
++
++        mioPinOffset = IOU_SLCR_MIO_PIN_34_OFFSET + (BOARD_SHUTDOWN_PIN - 2U)*4;
+ 
+ 	reg = (reg & (~mask)) | (mask & value);
+ 	XPfw_Write32(PMU_IOMODULE_GPO1, reg);
++        /* Configure board shutodwn pin to be controlled by the PMU */
++        XPfw_RMW32((IOU_SLCR_BASE + mioPinOffset),
++                       0x000000FEU, 0x00000008U);
++
+ }
+ #endif
+ 
+diff --git a/lib/sw_apps/zynqmp_pmufw/src/pm_hooks.c b/lib/sw_apps/zynqmp_pmufw/src/pm_hooks.c
+index fd3b08d..845f01a 100644
+--- a/lib/sw_apps/zynqmp_pmufw/src/pm_hooks.c
++++ b/lib/sw_apps/zynqmp_pmufw/src/pm_hooks.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2017 - 2018 Xilinx, Inc.  All rights reserved.
++ * Copyright (C) 2017 - 2019 Xilinx, Inc.  All rights reserved.
+  *
+  * Permission is hereby granted, free of charge, to any person obtaining a copy
+  * of this software and associated documentation files (the "Software"), to deal
+@@ -132,6 +132,10 @@ void PmHookPowerDownLpd(void)
+ 	reg = XPfw_Read32(PMU_LOCAL_GPO1_READ);
+ 	reg &= ~PMU_IOMODULE_GPO1_MIO_2_MASK;
+ 	XPfw_Write32(PMU_IOMODULE_GPO1, reg);
++        /* Configure MIO34 to be controlled by the PMU */
++        XPfw_RMW32((IOU_SLCR_BASE + IOU_SLCR_MIO_PIN_34_OFFSET),
++                        0x000000FEU, 0x00000008U);
++ 
+ }
+ 
+ #ifdef ENABLE_DDR_SR_WR
+diff --git a/lib/sw_apps/zynqmp_pmufw/src/xpfw_config.h b/lib/sw_apps/zynqmp_pmufw/src/xpfw_config.h
+index de45e52..f0b1c30 100644
+--- a/lib/sw_apps/zynqmp_pmufw/src/xpfw_config.h
++++ b/lib/sw_apps/zynqmp_pmufw/src/xpfw_config.h
+@@ -139,6 +139,11 @@
+ #define	BOARD_SHUTDOWN_PIN_VAL			(0U)
+ #define	BOARD_SHUTDOWN_PIN_STATE_VAL	(0U)
+ 
++#define CONNECT_PMU_GPO_2_VAL                  (1U)
++#define CONNECT_PMU_GPO_3_VAL                  (1U)
++#define CONNECT_PMU_GPO_4_VAL                  (1U)
++#define CONNECT_PMU_GPO_5_VAL                  (1U)
++
+ #define SECURE_ACCESS_VAL		(0U)
+ 
+ #if ENABLE_PM_VAL
+@@ -262,4 +267,21 @@
+ #define ENABLE_POS_QSPI
+ #endif
+ 
++#if CONNECT_PMU_GPO_2_VAL
++#define CONNECT_PMU_GPO_2
++#endif
++
++#if CONNECT_PMU_GPO_3_VAL
++#define CONNECT_PMU_GPO_3
++#endif
++
++#if CONNECT_PMU_GPO_4_VAL
++#define CONNECT_PMU_GPO_4
++#endif
++
++#if CONNECT_PMU_GPO_5_VAL
++#define CONNECT_PMU_GPO_5
++#endif
++
++
+ #endif /* XPFW_CONFIG_H_ */
+diff --git a/lib/sw_apps/zynqmp_pmufw/src/xpfw_default.h b/lib/sw_apps/zynqmp_pmufw/src/xpfw_default.h
+index 13a7ada..0829d7d 100644
+--- a/lib/sw_apps/zynqmp_pmufw/src/xpfw_default.h
++++ b/lib/sw_apps/zynqmp_pmufw/src/xpfw_default.h
+@@ -54,6 +54,11 @@
+ /* Base address of the IOU_SLCR module */
+ #define IOU_SLCR_BASE			0xFF180000U
+ 
++#define IOU_SLCR_MIO_PIN_34_OFFSET     0x00000088
++#define IOU_SLCR_MIO_PIN_35_OFFSET     0x0000008C
++#define IOU_SLCR_MIO_PIN_36_OFFSET     0x00000090
++#define IOU_SLCR_MIO_PIN_37_OFFSET     0x00000094
++
+ /* RAM address used for scrubbing */
+ #define PARAM_RAM_LOW_ADDRESS		0Xffdc0000U
+ #define PARAM_RAM_HIGH_ADDRESS		0Xffdcff00U
+-- 
+2.7.4
+

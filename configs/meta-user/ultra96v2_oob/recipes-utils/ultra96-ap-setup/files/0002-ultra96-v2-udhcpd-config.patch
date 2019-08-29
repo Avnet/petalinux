@@ -1,0 +1,12 @@
+diff --git a/recipes-utils/ultra96-ap-setup/files/udhcpd.conf b/home/training/Projects/ultra96v2_oob_2018_3/oob_rootfs_file_mods/wpa_ap/udhcpd.conf
+index 20cf3fa..0f9276f 100644
+--- a/udhcpd.conf
++++ b/udhcpd.conf
+@@ -1,6 +1,6 @@
+ start 192.168.2.2
+ end 192.168.2.254
+-interface wlan1
++interface p2p0
+ remaining yes
+ opt subnet 255.255.255.0
+ opt router 192.168.2.1

@@ -1,0 +1,169 @@
+/include/ "system-conf.dtsi"
+/include/ "openamp.dtsi"
+/ {
+   sdio_pwrseq: sdio_pwrseq {  /* This needs to be able to manipulate the chip_en and the resetn properly */
+      compatible = "mmc-pwrseq-simple";
+      /* post-power-on-delay-ms = <10>; */
+      reset-gpios = <&gpio 7 1>; // MIO[7] for WILC3000 RESETN, Active low
+      /* reset-gpios = <&gpio 78 1>;  // Some prototype boards only! device pin A3 for RESETN, Active low */
+      chip_en-gpios = <&gpio 8 1>; 
+   };
+
+   // Remove V1 Power ON/OFF controller from U96 V1 DT
+   /delete-node/ ltc2954;
+
+	aliases {
+		i2c0 = &i2c1;
+   };
+};
+
+&uart0 {
+   // Remove TI child node from U96 V1 DT
+   /delete-node/bluetooth;
+};
+
+&gpio {
+   /delete-property/gpio-line-names;
+};
+
+&sdhci1 {
+   bus-width= <0x4>;
+   /* non-removeable; */
+   /* mmc-pwrseq = <&sdio_pwrseq>; */
+   max-frequency = <50000000>;
+   /delete-property/cap-power-off-card; // This is not compatible with the WILC3000 and means the WILC will always be powered on
+   status = "okay";
+   #address-cells = <1>;
+   #size-cells = <0>;
+   wilc_sdio@1 {
+      compatible = "microchip,wilc3000", "microchip,wilc3000";
+      reg = <0>;
+      // interrupt-parent = <&gpio>; // Microchip driver DOES NOT use gpio irq any more!
+      // interrupts = <76 2>; /* MIO76 WILC IRQ 1V8 */ // Microchip driver DOES NOT use gpio irq any more!
+      // irq-gpios = <&gpio 76 0>; // Microchip driver DOES NOT use gpio irq any more!
+      bus-width= <0x4>;
+      status = "okay";
+   };
+   // Remove TI child node from U96 V1 DT
+   /delete-node/wifi@2;
+};
+
+&i2c1 {
+	status = "okay";
+	clock-frequency = <100000>;
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c1_default>;
+	pinctrl-1 = <&pinctrl_i2c1_gpio>;
+	scl-gpios = <&gpio 4 0>;
+	sda-gpios = <&gpio 5 0>;
+
+	i2cswitch@75 { /* U7 on Ultra96-V2 */
+		compatible = "nxp,pca9548";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		reg = <0x75>;
+		i2c@0 { /* i2c mw 75 0 1 */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0>;
+         /* LS MEZZ I2C0 */
+      };
+		i2c@1 { /* i2c mw 75 0 2 */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+         /* LS MEZZ I2C1 */
+      };
+		i2c@2 { /* i2c mw 75 0 4 */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <2>;
+         /* HS MEZZ I2C2 */
+      };
+		i2c@3 { /* i2c mw 75 0 8 */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <3>;
+         /* HS MEZZ I2C3 */
+      };
+		i2c@4 { /* i2c mw 75 0 10 */
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <4>;
+			/* PMBus PMIC */
+			irps5401_13: irps5401@13 { /* U11 on Ultra96-V2 */
+            /* #clock-cells = <0>; */
+				compatible = "infineon,irps5401";
+				reg = <0x13>;
+			};
+
+			/* PMBus PMIC */
+			irps5401_14: irps5401@14 { /* U12 on Ultra96-V2 */
+            /* #clock-cells = <0>; */
+				compatible = "infineon,irps5401";
+				reg = <0x14>;
+			};
+
+			/* PMBus PMIC */
+			ir38060_15: ir38060@15 { /* U21 on Ultra96-V2 */
+            /* #clock-cells = <0>; */
+				compatible = "infineon,ir38060";
+				reg = <0x15>;
+			};
+		};
+	};
+};
+
+&pinctrl0 {
+	status = "okay";
+	pinctrl_i2c1_default: i2c1-default {
+		mux {
+			groups = "i2c1_1_grp";
+			function = "i2c1";
+		};
+
+		conf {
+			groups = "i2c1_1_grp";
+			bias-pull-up;
+			slew-rate = <1>;
+			io-standard = <1>;
+		};
+	};
+
+	pinctrl_i2c1_gpio: i2c1-gpio {
+		mux {
+			groups = "gpio0_4_grp", "gpio0_5_grp";
+			function = "gpio0";
+		};
+
+		conf {
+			groups = "gpio0_4_grp", "gpio0_5_grp";
+			slew-rate = <1>;
+			io-standard = <1>;
+		};
+	};
+};
+
+&usb0 {
+   status = "okay";
+};
+
+&dwc3_0 {
+   status = "okay";
+   dr_mode = "peripheral";
+   phy-names = "usb3-phy";
+	phys = <&lane2 4 0 0 26000000>;
+	maximum-speed = "super-speed";   
+};
+
+&usb1 {
+   status = "okay";
+};
+
+&dwc3_1 {
+   status = "okay";
+	dr_mode = "host";
+	phy-names = "usb3-phy";
+	phys = <&lane3 4 1 0 26000000>;
+	maximum-speed = "super-speed";
+};

@@ -1,8 +1,7 @@
-From b806f7cf57d43ed3c7477a370cfdf4418d3d4f71 Mon Sep 17 00:00:00 2001
+From b02ec4c8c5c0299019347b93d250118c294531af Mon Sep 17 00:00:00 2001
 From: Jyotheeswar Reddy <jyothee@xilinx.com>
 Date: Mon, 22 Oct 2018 10:03:12 -0700
-Subject: [EMBEDDEDSW PATCH v2] zynqmp_pmufw: Add support for Ultra96 power
- button
+Subject: [PATCH] zynqmp_pmufw: Add support for Ultra96 power button
 
 Ultra96 has a power button controller LTC2950 which generates an active low
 interrupt on MIO26 whenever the power button is pressed.  Since PMU GPI
@@ -33,7 +32,7 @@ Signed-off-by: Jyotheeswar Reddy <jyothee@xilinx.com>
 
 diff --git a/lib/sw_apps/zynqmp_pmufw/src/xpfw_mod_ultra96.c b/lib/sw_apps/zynqmp_pmufw/src/xpfw_mod_ultra96.c
 new file mode 100644
-index 0000000..4fee0b1
+index 0000000..3b6284d
 --- /dev/null
 +++ b/lib/sw_apps/zynqmp_pmufw/src/xpfw_mod_ultra96.c
 @@ -0,0 +1,136 @@
@@ -108,11 +107,11 @@ index 0000000..4fee0b1
 +	if(!PmConfigObjectIsLoaded()) {
 +		return;
 +	}
-+	/* Check if WAKE pin has gone LOW */
-+	if((XPfw_Read32(PMU_IOMODULE_GPI1) & PMU_IOMODULE_GPI1_MIO_WAKE_0_MASK) == 0U) {
++	/* Check if WAKE pin has gone HIGH */
++	if((XPfw_Read32(PMU_IOMODULE_GPI1) & PMU_IOMODULE_GPI1_MIO_WAKE_0_MASK) == PMU_IOMODULE_GPI1_MIO_WAKE_0_MASK) {
 +
 +		/* Do a second check on the pin to mitigate sub-microsecond glitches, if any */
-+		if ((XPfw_Read32(PMU_IOMODULE_GPI1) & PMU_IOMODULE_GPI1_MIO_WAKE_0_MASK) != 0U) {
++		if ((XPfw_Read32(PMU_IOMODULE_GPI1) & PMU_IOMODULE_GPI1_MIO_WAKE_0_MASK) != PMU_IOMODULE_GPI1_MIO_WAKE_0_MASK) {
 +			/* If the pin is still not low, dont initiate a power down. Just return. */
 +			return;
 +		}
@@ -216,10 +215,10 @@ index 0000000..59e14aa
 +
 +#endif /* XPFW_MOD_ULTRA96_H_ */
 diff --git a/lib/sw_apps/zynqmp_pmufw/src/xpfw_user_startup.c b/lib/sw_apps/zynqmp_pmufw/src/xpfw_user_startup.c
-index 81db858..d084f54 100644
+index 2950976..f604199 100644
 --- a/lib/sw_apps/zynqmp_pmufw/src/xpfw_user_startup.c
 +++ b/lib/sw_apps/zynqmp_pmufw/src/xpfw_user_startup.c
-@@ -44,6 +44,7 @@
+@@ -40,6 +40,7 @@
  #include "xpfw_mod_sched.h"
  #include "xpfw_mod_stl.h"
  #include "xpfw_mod_wdt.h"
@@ -227,7 +226,7 @@ index 81db858..d084f54 100644
  
  #if defined (XPAR_LPD_IS_CACHE_COHERENT) || defined (XPAR_FPD_IS_CACHE_COHERENT) || defined (XPAR_PL_IS_CACHE_COHERENT)
  /*****************************************************************************
-@@ -82,4 +83,5 @@ void XPfw_UserStartUp(void)
+@@ -78,4 +79,5 @@ void XPfw_UserStartUp(void)
  	ModDapInit();
  	ModLegacyInit();
  	ModWdtInit();
