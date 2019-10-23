@@ -47,18 +47,20 @@
 #
 #  Revision:            Mar 26, 2016: 1.00 Initial version
 #                       Jun 16, 2016: 1.01 Updated for 2015.4 PetaLinux tools
-#                        Jul 20, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
-#                        Oct 10, 2017: 1.02 Updated for 2017.2 PetaLinux tools 
-#                        Mar 21, 2018: 1.03 Updated for 2017.4 PetaLinux tools 
+#                       Jul 20, 2016: 1.02 Updated for 2016.2 PetaLinux tools 
+#                       Oct 10, 2017: 1.03 Updated for 2017.2 PetaLinux tools 
+#                       Mar 21, 2018: 1.04 Updated for 2017.4 PetaLinux tools 
+#                       Aug 11, 2018: 1.05 Updated for 2018.2 PetaLinux tools 
+#                       Sep 26, 2019: 1.06 Updated for 2019.1 PetaLinux tools 
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2018.3-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2018.3
-PLNX_VER=2018_3
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.1-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.1
+PLNX_VER=2019_1
 BUILD_BOOT_QSPI_OPTION=yes
 
 
@@ -76,6 +78,8 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
+
+QSPI_KERNEL_START=0x520000
 
 PLNX_BUILD_SUCCESS=-1
 
@@ -406,11 +410,12 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
   # Import the hardware description into the PetaLinux project.
-  petalinux-config --oldconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+  petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
   # DEBUG
-  #echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
+  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
   #read -p "Press ENTER to continue" 
+  #read -t 10 -p "Pause here for 10 seconds"
 
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -431,6 +436,10 @@ create_petalinux_bsp ()
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
     patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+  # DEBUG
+  #read -p "Press ENTER to continue" 
+  read -t 10 -p "Pause here for 10 seconds"
+    
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
     echo " "
@@ -482,6 +491,11 @@ create_petalinux_bsp ()
     # Modify the project configuration for QSPI boot.
     petalinux_project_set_boot_config_qspi
 
+    # DEBUG
+    echo "Stop here and go check the platform-top.h file and make sure it is set for QSPI boot"
+    #read -p "Press ENTER to continue."
+    read -t 10 -p "Pause here for 10 seconds"
+
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -498,7 +512,7 @@ create_petalinux_bsp ()
     done
 
     # Create boot image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --kernel --offset 0x520000 --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
 
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -511,6 +525,7 @@ create_petalinux_bsp ()
     # Create script to program the QSPI Flash
     echo "#!/bin/sh" > program_boot_qspi.sh
     echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
+    echo "program_flash -f ./images/linux/image.ub -offset ${QSPI_KERNEL_START} -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"   >> program_boot_qspi.sh
     chmod 777 ./program_boot_qspi.sh
   fi
 
@@ -619,6 +634,7 @@ create_petalinux_bsp ()
 
 
 
+
   # If the SD no bit boot option is set, then perform the steps needed to  
   # build BOOT.BIN for booting from SD with the bistream loaded from a file
   # on the SD card instead of from the BOOT.BIN container image.
@@ -629,6 +645,11 @@ create_petalinux_bsp ()
 
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd_no_bit
+
+    # DEBUG
+    echo "Stop here and go check the platform-top.h file and make sure it is set for SD no bit boot"
+    #read -p "Press ENTER to continue."
+    read -t 10 -p "Pause here for 10 seconds"
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -659,7 +680,7 @@ create_petalinux_bsp ()
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
-    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 hw_platform/system_wrapper.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 images/linux/system.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
     
     # Launch vivado in batch mode to clean output products from the hardware platform.
     vivado -mode batch -source swap_bits.tcl
@@ -684,8 +705,9 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd
 
     # DEBUG
-    #echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
+    echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
     #read -p "Press enter to continue"
+    read -t 10 -p "Pause here for 10 seconds"
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -718,7 +740,7 @@ create_petalinux_bsp ()
     fi
 
     # Create boot image which DOES contain the bistream image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga images/linux/system.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_SD.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -745,12 +767,12 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
 
   # Package the bitstream within the PetaLinux pre-built folder.
-  petalinux-package --prebuilt --fpga hw_platform/system_wrapper.bit --force
+  petalinux-package --prebuilt --fpga images/linux/system.bit --force
 
   # Rename the pre-built bitstream file to download.bit so that the default 
   # format for the petalinux-boot command over jtag will not need the bit file 
   # specified explicitly.
-  mv -f pre-built/linux/implementation/system_wrapper.bit \
+  mv -f pre-built/linux/implementation/system.bit \
   pre-built/linux/implementation/download.bit
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
@@ -758,7 +780,7 @@ create_petalinux_bsp ()
   echo "rm -f ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
   echo "cp -f ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -f ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "petalinux-boot --jtag --fpga --bitstream ./hw_platform/system_wrapper.bit --u-boot" >> cptftp_jtag.sh
+  echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
   
   # Change to PetaLinux projects folder.

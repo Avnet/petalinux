@@ -46,6 +46,7 @@
 #  Dependencies:        None
 #
 #  Revision:            Aug 01, 2018: 1.00 Initial version
+#                       Oct 14, 2019: 1.01 Updated for PetaLinux 2019.1
 # 
 # ----------------------------------------------------------------------------
 
@@ -53,9 +54,9 @@
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2018.3-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2018.3
-PLNX_VER=2018_3
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.1-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.1
+PLNX_VER=2019_1
 
 
 
@@ -440,7 +441,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
   # Import the hardware description into the PetaLinux project.
-  petalinux-config --oldconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+  petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
   # DEBUG
   echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
@@ -490,7 +491,7 @@ create_petalinux_bsp ()
     echo "PetaLinux project config is not touched for this build ..."
     echo " "
   fi
-  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
+  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
   #read -p "Press ENTER to continue" 
   read -t 10 -p "Pause here for 10 seconds"
   
