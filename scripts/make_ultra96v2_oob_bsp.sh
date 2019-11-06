@@ -46,7 +46,8 @@
 #  Dependencies:        None
 #
 #  Revision:            Aug 01, 2018: 1.00 Initial version
-#                       Oct 14, 2019: 1.01 Updated for PetaLinux 2019.1
+#                       Aug 14, 2019: 1.01 Updated for PetaLinux 2018.3
+#                       Oct 14, 2019: 1.02 Updated for PetaLinux 2019.1
 # 
 # ----------------------------------------------------------------------------
 
@@ -683,7 +684,7 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd_no_bit
 
     # DEBUG
-    #echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC boot"
+    #echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
     #read -p "Press ENTER to continue."
  
     PLNX_BUILD_SUCCESS=-1
@@ -884,14 +885,14 @@ create_petalinux_bsp ()
 
   # Copy the rootfs archive to the pre-built folder.  This is needed for
   # systems that boot the rootfs from a ext4 partition on the micro SD card.
-  #cp -f ./images/linux/rootfs.tar.gz ./pre-built/linux/images/.
+  cp -f ./images/linux/rootfs.tar.gz ./pre-built/linux/images/.
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
   echo "#!/bin/sh" > cptftp_jtag.sh
   echo "rm -f ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
   echo "cp -f ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -f ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "petalinux-boot --jtag --fpga --bitstream ./hw_platform/system_wrapper.bit --u-boot" >> cptftp_jtag.sh
+  echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
   
   # Change to PetaLinux projects folder.

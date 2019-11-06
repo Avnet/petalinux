@@ -47,6 +47,7 @@
 //
 // Revision:            Nov 03, 2016: 1.00 Initial version
 //                      Aug 01, 2018: 1.1 Updated for Ultra96
+//                      Nov 01, 2019: 1.01 Update for PetaLinux 2019.1
 //
 //----------------------------------------------------------------------------
 
@@ -132,7 +133,7 @@ int set_next_blink_pattern(int user_led_mio)
         (test_result == (char_buf_size - 1)))
     {
         printf("Error formatting string, check the GPIO specified\r\n");
-        printf(formatted_file_name);
+        printf("%s", formatted_file_name);
         return -1;
     }
     fp_led = fopen(formatted_file_name, "r+");
@@ -276,7 +277,7 @@ int main(int arg_count, char* arg_variables[])
         (test_result == (char_buf_size - 1)))
     {
         printf("Error formatting string, check the GPIO specified\r\n");
-        printf(formatted_file_name);
+        printf("%s", formatted_file_name);
         return -1;
     }
 

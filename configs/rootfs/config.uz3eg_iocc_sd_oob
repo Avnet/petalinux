@@ -2,6 +2,7 @@
 # Automatically generated file; DO NOT EDIT.
 # Configuration
 #
+CONFIG_system-zynqmp=y
 
 #
 # Filesystem Packages 
@@ -2503,8 +2504,7 @@ CONFIG_coreutils=y
 # gcc-runtime 
 #
 # CONFIG_libstdcPLUSPLUS-dev is not set
-# CONFIG_libstdcPLUSPLUS is not set
-
+CONFIG_libstdcPLUSPLUS=y
 #
 # gcr 
 #
@@ -4373,6 +4373,8 @@ CONFIG_libdrm-kms=y
 #
 # apps 
 #
+CONFIG_blinky=y
+CONFIG_blinky-init=y
 # CONFIG_gpio-demo is not set
 CONFIG_mac-eeprom-config=y
 CONFIG_mac-eeprom-config-init=y

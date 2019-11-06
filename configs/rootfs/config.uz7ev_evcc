@@ -1247,14 +1247,14 @@ CONFIG_pciutils=y
 #
 # python3-dbus 
 #
-# CONFIG_python3-dbus is not set
+CONFIG_python3-dbus=y
 # CONFIG_python3-dbus-dev is not set
 # CONFIG_python3-dbus-dbg is not set
 
 #
 # python3-pygobject 
 #
-# CONFIG_python3-pygobject is not set
+CONFIG_python3-pygobject=y
 # CONFIG_python3-pygobject-dbg is not set
 # CONFIG_python3-pygobject-dev is not set
 
@@ -3037,7 +3037,7 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 #
 # python3 
 #
-# CONFIG_python3 is not set
+CONFIG_python3=y
 # CONFIG_python3-crypt is not set
 # CONFIG_python3-unixadmin is not set
 # CONFIG_python3-io is not set
@@ -3062,7 +3062,7 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 # CONFIG_python3-compression is not set
 # CONFIG_python3-gdbm is not set
 # CONFIG_python3-idle is not set
-# CONFIG_python3-core is not set
+CONFIG_python3-core=y
 # CONFIG_python3-smtpd is not set
 # CONFIG_python3-resource is not set
 # CONFIG_python3-terminal is not set
@@ -4430,6 +4430,10 @@ CONFIG_mac-eeprom-config-init=y
 # CONFIG_peekpoke is not set
 CONFIG_user-led-test=y
 CONFIG_user-switch-test=y
+CONFIG_performance-tests=y
+CONFIG_sds-lib=y
+CONFIG_python-webserver=y
+CONFIG_python-webserver-init=y
 
 #
 # user packages 

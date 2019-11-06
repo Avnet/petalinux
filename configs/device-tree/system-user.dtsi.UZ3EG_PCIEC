@@ -1,5 +1,8 @@
 /include/ "system-conf.dtsi"
 / {
+   xlnk {
+      compatible = "xlnx,xlnk-1.0";
+   };
 };
 
 &gem3 {
@@ -81,4 +84,13 @@
 	dr_mode = "host";
 	phy-names = "usb3-phy";
 };
+
+&amba {
+	usb1@ff9e0000 {
+		dwc3@fe300000 {
+		snps,enable_auto_retry;
+		};
+	};
+};
+
 

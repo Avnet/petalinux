@@ -1,5 +1,8 @@
 /include/ "system-conf.dtsi"
 / {
+   xlnk {
+      compatible = "xlnx,xlnk-1.0";
+   };
 };
 
 &gem3 {
@@ -87,6 +90,14 @@
 	phy-names = "usb3-phy";
     snps,usb3_lpm_capable;
     phys = <&lane2 4 0 2 52000000>;
+};
+
+&amba {
+	usb1@ff9e0000 {
+		dwc3@fe300000 {
+		snps,enable_auto_retry;
+		};
+	};
 };
 
 

@@ -137,7 +137,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led1 = fopen(formatted_file_name, "r+");
@@ -147,7 +147,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led2 = fopen(formatted_file_name, "r+");
@@ -157,7 +157,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led3 = fopen(formatted_file_name, "r+");
@@ -167,7 +167,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led4 = fopen(formatted_file_name, "r+");
@@ -177,7 +177,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led5 = fopen(formatted_file_name, "r+");
@@ -187,7 +187,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led6 = fopen(formatted_file_name, "r+");
@@ -197,7 +197,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led7 = fopen(formatted_file_name, "r+");
@@ -207,7 +207,7 @@ int set_next_count_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led8 = fopen(formatted_file_name, "r+");
@@ -601,7 +601,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led1 = fopen(formatted_file_name, "r+");
@@ -612,7 +612,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led2 = fopen(formatted_file_name, "r+");
@@ -623,7 +623,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led3 = fopen(formatted_file_name, "r+");
@@ -634,7 +634,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led4 = fopen(formatted_file_name, "r+");
@@ -645,7 +645,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led5 = fopen(formatted_file_name, "r+");
@@ -656,7 +656,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led6 = fopen(formatted_file_name, "r+");
@@ -667,7 +667,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led7 = fopen(formatted_file_name, "r+");
@@ -678,7 +678,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_led8 = fopen(formatted_file_name, "r+");
@@ -689,7 +689,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_pb1 = fopen(formatted_file_name, "r+");
@@ -700,7 +700,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_pb2 = fopen(formatted_file_name, "r+");
@@ -711,7 +711,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_pb3 = fopen(formatted_file_name, "r+");
@@ -723,7 +723,7 @@ int set_next_input_pattern(void)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp_pb4 = fopen(formatted_file_name, "r+");
@@ -938,7 +938,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -974,7 +974,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1010,7 +1010,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1047,7 +1047,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1084,7 +1084,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1120,7 +1120,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1156,7 +1156,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1192,7 +1192,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1228,7 +1228,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1264,7 +1264,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1300,7 +1300,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
@@ -1336,7 +1336,7 @@ int main()
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);;
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "r+");
