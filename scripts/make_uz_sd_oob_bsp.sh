@@ -471,7 +471,7 @@ create_petalinux_bsp ()
   # DEBUG
   echo "Stop here and check for WARNING messages."
   #read -p "Press ENTER to continue."
-  read -t 10 -p "Pause here for 10 seconds"
+  #read -t 10 -p "Pause here for 10 seconds"
 
   # If the QSPI boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI.
@@ -866,7 +866,7 @@ build_hw_platform ()
     ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}/${HDL_PROJECT_NAME}.runs/impl_1/
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME} found."
     echo "Will build the hardware platform now."
-    read -t 5 -p "Pause here for 5 seconds"
+    #read -t 5 -p "Pause here for 5 seconds"
     
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
@@ -875,7 +875,7 @@ build_hw_platform ()
   else
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}."
     echo "Will build the PetaLinux BSP now."
-    read -t 5 -p "Pause here for 5 seconds"
+    #read -t 5 -p "Pause here for 5 seconds"
   
   fi
 }
