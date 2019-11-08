@@ -396,14 +396,20 @@ create_petalinux_bsp ()
   echo "Importing hardware definition ${HDL_HARDWARE_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
+#TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
+#TC  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.sysdef \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
 
   echo " "
   echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+#TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+#TC  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
+
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -891,9 +897,11 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.  
   # If it hasn't then build it now.  
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+#TC  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.sysdef ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+#TC    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
     #read -t 5 -p "Pause here for 5 seconds"
@@ -943,21 +951,21 @@ main_make_function ()
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the UZ3EG_PCIEC target.
   #
-  HDL_BOARD_NAME=UZ3EG_PCIEC
-  PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=uz3eg_pciec
-  build_hw_platform
-  create_petalinux_bsp
+  #~ HDL_BOARD_NAME=UZ3EG_PCIEC
+  #~ PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
+  #~ PETALINUX_ROOTFS_NAME=uz3eg_pciec
+  #~ build_hw_platform
+  #~ create_petalinux_bsp
 
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the UZ7EV_EVCC target.
   #
-  #~ HDL_BOARD_NAME=UZ7EV_EVCC
-  #~ PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
-  #~ PETALINUX_ROOTFS_NAME=uz7ev_evcc
-  #~ build_hw_platform
-  #~ create_petalinux_bsp
+  HDL_BOARD_NAME=UZ7EV_EVCC
+  PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
+  PETALINUX_ROOTFS_NAME=uz7ev_evcc
+  build_hw_platform
+  create_petalinux_bsp
 }
 
 # First source any tools scripts to setup the environment needed to call both
