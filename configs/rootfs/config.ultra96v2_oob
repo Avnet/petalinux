@@ -4394,7 +4394,7 @@ CONFIG_wilc=y
 CONFIG_libftdi=y
 CONFIG_bonniePLUSPLUS=y
 CONFIG_cmake=y
-# CONFIG_iperf3 is not set
+CONFIG_iperf3=y
 CONFIG_iw=y
 CONFIG_lmsensors-sensorsdetect=y
 CONFIG_nano=y
@@ -4408,7 +4408,7 @@ CONFIG_ultra96-misc=y
 CONFIG_wilc-firmware-wilc3000=y
 CONFIG_ultra96-radio-leds=y
 CONFIG_ultra96-wpa=y
-
+CONFIG_sds-lib=y
 
 #
 # PetaLinux RootFS Settings

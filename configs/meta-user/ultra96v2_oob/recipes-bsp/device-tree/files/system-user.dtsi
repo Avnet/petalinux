@@ -15,6 +15,11 @@
 	aliases {
 		i2c0 = &i2c1;
    };
+   
+   xlnk {
+      compatible = "xlnx,xlnk-1.0";
+   };
+
 };
 
 &uart0 {
