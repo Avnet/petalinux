@@ -804,7 +804,7 @@ create_petalinux_bsp ()
 
     # DEBUG
     echo "Stop here and go check the platform-top.h and config files and make sure they are set for SD EXT4 boot"
-    read -p "Press enter to continue"
+    #read -p "Press enter to continue"
     #read -t 10 -p "Pause here for 10 seconds"
   
     PLNX_BUILD_SUCCESS=-1
