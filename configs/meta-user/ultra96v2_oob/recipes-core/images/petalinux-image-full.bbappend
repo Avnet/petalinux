@@ -16,6 +16,7 @@ IMAGE_INSTALL_append = " packagegroup-petalinux-x11"
 IMAGE_INSTALL_append = " packagegroup-petalinux-matchbox"
 IMAGE_INSTALL_append = " ultra96-ap-setup"
 IMAGE_INSTALL_append = " nano"
+IMAGE_INSTALL_append = " sds-lib"
 
 IMAGE_INSTALL_append = " iperf3"
 IMAGE_INSTALL_append = " bonnie++"
