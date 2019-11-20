@@ -55,8 +55,8 @@
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.1-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.1
+APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.1-final
+APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.1
 PLNX_VER=2019_1
 
 

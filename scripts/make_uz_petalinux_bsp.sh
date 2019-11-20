@@ -57,9 +57,14 @@
 
 #!/bin/bash
 
+# Set images to create
+BUILD_UZ3EG_IOCC=yes
+BUILD_UZ3EG_PCIEC=no
+BUILD_UZ7EV_EVCC=no
+
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.1-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.1
+APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.1-final
+APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.1
 PLNX_VER=2019_1
 BUILD_BOOT_QSPI_OPTION=no
 BUILD_BOOT_EMMC_OPTION=yes
@@ -940,32 +945,41 @@ main_make_function ()
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the UZ3EG_IOCC target.
-  #
-  #~ HDL_BOARD_NAME=UZ3EG_IOCC
-  #~ PETALINUX_PROJECT_NAME=uz3eg_iocc_${PLNX_VER}
-  #~ PETALINUX_ROOTFS_NAME=uz3eg_iocc
-  #~ build_hw_platform
-  #~ create_petalinux_bsp
-
-  #
+  
+  if [ "$BUILD_UZ3EG_IOCC" == "yes" ]
+  then
+    HDL_BOARD_NAME=UZ3EG_IOCC
+    PETALINUX_PROJECT_NAME=uz3eg_iocc_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=uz3eg_iocc
+    build_hw_platform
+    create_petalinux_bsp
+  fi
+  
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the UZ3EG_PCIEC target.
-  #
-  #~ HDL_BOARD_NAME=UZ3EG_PCIEC
-  #~ PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
-  #~ PETALINUX_ROOTFS_NAME=uz3eg_pciec
-  #~ build_hw_platform
-  #~ create_petalinux_bsp
 
+  if [ "$BUILD_UZ3EG_PCIEC" == "yes" ]
+  then
+    HDL_BOARD_NAME=UZ3EG_PCIEC
+    PETALINUX_PROJECT_NAME=uz3eg_pciec_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=uz3eg_pciec
+    build_hw_platform
+    create_petalinux_bsp
+  fi
+  
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the UZ7EV_EVCC target.
-  #
-  HDL_BOARD_NAME=UZ7EV_EVCC
-  PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=uz7ev_evcc
-  build_hw_platform
-  create_petalinux_bsp
+  
+  if [ "BUILD_$UZ7EV_EVCC" == "yes" ]
+  then
+    HDL_BOARD_NAME=UZ7EV_EVCC
+    PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=uz7ev_evcc
+    build_hw_platform
+    create_petalinux_bsp
+  fi
+
 }
 
 # First source any tools scripts to setup the environment needed to call both
