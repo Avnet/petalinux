@@ -971,7 +971,7 @@ main_make_function ()
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the UZ7EV_EVCC target.
   
-  if [ "BUILD_$UZ7EV_EVCC" == "yes" ]
+  if [ "$BUILD_UZ7EV_EVCC" == "yes" ]
   then
     HDL_BOARD_NAME=UZ7EV_EVCC
     PETALINUX_PROJECT_NAME=uz7ev_evcc_${PLNX_VER}
