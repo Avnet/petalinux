@@ -58,9 +58,9 @@
 #!/bin/bash
 
 # Set images to create
-BUILD_UZ3EG_IOCC=yes
+BUILD_UZ3EG_IOCC=no
 BUILD_UZ3EG_PCIEC=no
-BUILD_UZ7EV_EVCC=no
+BUILD_UZ7EV_EVCC=yes
 
 # Set global variables here.
 APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.1-final
