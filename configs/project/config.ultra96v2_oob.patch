@@ -1,6 +1,6 @@
---- config
-+++ config
-@@ -54,19 +54,19 @@ CONFIG_SUBSYSTEM_MEMORY_IP_NAME="PSU_DDR_0"
+--- config	2019-11-27 22:04:35.678232289 +0100
++++ config	2019-11-27 21:59:44.307741961 +0100
+@@ -54,19 +54,19 @@
  # Serial Settings
  #
  # CONFIG_SUBSYSTEM_SERIAL_PSU_UART_1_SELECT is not set
@@ -24,7 +24,7 @@
  
  #
  # Ethernet Settings
-@@ -135,7 +135,7 @@ CONFIG_SUBSYSTEM_ENDIAN_LITTLE=y
+@@ -135,7 +135,7 @@
  #
  # DTG Settings
  #
@@ -33,7 +33,7 @@
  
  #
  # Kernel Bootargs
-@@ -166,7 +166,7 @@ CONFIG_SUBSYSTEM_PRELOADED_BL33_BASE=0x8000000
+@@ -166,7 +166,7 @@
  #
  CONFIG_SUBSYSTEM_UBOOT_CONFIG_PETALINUX=y
  # CONFIG_SUBSYSTEM_UBOOT_CONFIG_OTHER is not set
@@ -42,7 +42,7 @@
  CONFIG_SUBSYSTEM_NETBOOT_OFFSET=0x10000000
  CONFIG_SUBSYSTEM_U__BOOT_TFTPSERVER_IP="AUTO"
  
-@@ -188,14 +188,14 @@ CONFIG_SUBSYSTEM_TFTPBOOT_DIR="/tftpboot"
+@@ -188,14 +188,14 @@
  #
  # Firmware Version Configuration
  #
@@ -59,6 +59,3 @@
  
  #
  # TMPDIR Location
--- 
-2.17.1
-
