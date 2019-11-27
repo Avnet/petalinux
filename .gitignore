@@ -1,0 +1,8 @@
+# ignore vim swaps
+*.swp
+*.swo
+
+
+projects/
+vivado.jou
+vivado.log
