@@ -1,0 +1,11 @@
+--- config	2019-09-12 16:57:08.104603999 -0400
++++ config	2019-09-12 16:53:25.929572000 -0400
+@@ -207,7 +207,7 @@
+ #
+ # Firmware Version Configuration
+ #
+-CONFIG_SUBSYSTEM_HOSTNAME="minized_emmc_enhanced_2019_1"
++CONFIG_SUBSYSTEM_HOSTNAME="minized-emmc-enhanced-2019-1"
+ CONFIG_SUBSYSTEM_PRODUCT="minized_emmc_enhanced_2019_1"
+ CONFIG_SUBSYSTEM_FW_VERSION="1.00"
+ 

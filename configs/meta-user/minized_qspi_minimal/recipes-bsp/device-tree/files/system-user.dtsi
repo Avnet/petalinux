@@ -1,0 +1,132 @@
+/include/ "system-conf.dtsi"
+/ {
+
+	aliases {
+		serial0 = &uart1;
+		serial1 = &uart0;
+	};
+	
+	/* WiFi Module:  WL_REG_ON GPIO Control */	
+	wlreg_on: wlreg-on {
+		compatible = "regulator-fixed";
+		regulator-name = "wlreg_on";
+		enable-active-high;
+		gpio = <&gpio0 56 0>;
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		startup-delay-us = <100>;	
+	};
+
+	/***** Uncomment this to use bcmdhd driver instead of brcmfmac driver
+	bcmdhd_wlan_0: bcmdhd_wlan@0 { 
+		compatible = "android,bcmdhd_wlan";
+		wlreg_on-supply = <&wlreg_on>; 	
+	}; 	
+		/* gpios = <&gpio0 0 4>; */ /* OOB interrupts */
+};
+
+&flash0 {
+	compatible = "micron,n25q128", "jedec,spi-nor";
+};
+
+/{
+	usb_phy0: usb_phy@0 {
+		compatible = "ulpi-phy";
+		#phy-cells = <0>;
+		reg = <0xe0002000 0x1000>;
+		view-port = <0x0170>;
+		drv-vbus;
+	};
+};
+
+&usb0 {
+	dr_mode = "otg";
+	usb-phy = <&usb_phy0>;
+} ;
+
+/* QSPI addresses are defined with petalinux-config, but here they are overwritten so that one can program the flash internally */
+&qspi {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	flash0: flash@0 {
+		compatible = "micron,m25p80";
+		reg = <0x0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <50000000>;
+		partition@0x00000000 {
+			label = "boot";
+			reg = <0x00000000 0x00ff0000>;
+		};
+	};
+};
+
+/* SD Interface for Wi-Fi Module */
+&sdhci0 {
+	status = "okay"; 
+	bus-width= <4>;
+	xlnx,has-cd = <0x0>;
+	xlnx,has-power = <0x0>;
+	xlnx,has-wp = <0x0>;
+	non-removeable;
+	broken-cd;
+	vmmc-supply = <&wlreg_on>;  /* Uncomment for brcmfmac */
+	/* wifi-host; */ /* uncomment for bcmdhd */
+
+	
+        brcmf: brcmf@1 {
+		status = "okay";
+                reg = <1>; 
+                compatible = "brcm,bcm43430-fmac";
+		/* interrupt-parent = <&gpio0>; */ /* For WL_HOST_WAKE OOB Interrupt */
+		/* interrupts = <0 29 8>; */  /* PL-PS direct interrupt, Low Level */
+		/* interrupts = <57 8>; */ /* GPIO EMIO 3, Low Level */
+		/* interrupt-names = "host-wake"; */
+	}; 
+};
+
+/* SD Interface for eMMC */
+&sdhci1 {
+	status = "okay"; 
+	non-removeable;
+	bus-width= <4>;
+	xlnx,has-cd = <0x0>;
+	xlnx,has-power = <0x0>;
+	xlnx,has-wp = <0x0>;
+
+	mmccard: mmccard@0 {
+		reg = <0>;
+		compatible = "mmc-card";
+		broken-hpi;
+	};
+};
+
+/* Console UART.  UART1 is tied to the USB serial port on the Zedboard */
+&uart1 {
+   	status = "okay";
+	current-speed = <115200>;
+	port-number = <0>;
+};
+
+/* Bluetooth UART.  Goes through EMIO to the 1DX */
+&bluetooth_uart {
+   	status = "okay";
+	current-speed = <115200>;
+	port-number = <2>;
+};
+
+/* AXI IIC.  Interfaces with the ST LIS2DS12 accelerometer */
+&axi_iic_0 {
+	status = "okay";
+
+	/* MiniZed doesn't support interrupts from the accelerometer */
+    	accel0: lis2ds12@1d {
+        	compatible = "st,lis2ds12";
+        	reg = <0x1d>;
+    	};
+
+};
+
+/ {
+
+};
