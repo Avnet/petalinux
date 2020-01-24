@@ -48,6 +48,7 @@
 #  Revision:            Aug 01, 2018: 1.00 Initial version
 #                       Aug 14, 2019: 1.01 Updated for PetaLinux 2018.3
 #                       Oct 14, 2019: 1.02 Updated for PetaLinux 2019.1
+#                       Jan 22, 2020: 1.03 Updated for PetaLinux 2019.2
 # 
 # ----------------------------------------------------------------------------
 
@@ -55,9 +56,9 @@
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.1-final
-APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.1
-PLNX_VER=2019_1
+APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.2-final
+APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.2
+PLNX_VER=2019_2
 
 
 
@@ -76,6 +77,8 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
+
+DEBUG=yes
 
 PLNX_BUILD_SUCCESS=-1
 
@@ -423,17 +426,17 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
   echo " "
-  echo "Importing hardware definition ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware definition ${HDL_PROJECT_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
   echo " "
-  echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware bitstream ${HDL_PROJECT_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -445,10 +448,13 @@ create_petalinux_bsp ()
   petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
   # DEBUG
-  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
-  #read -p "Press ENTER to continue" 
-  read -t 10 -p "Pause here for 10 seconds"
-  
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
+    #read -p "Press ENTER to continue" 
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
   
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -492,10 +498,14 @@ create_petalinux_bsp ()
     echo "PetaLinux project config is not touched for this build ..."
     echo " "
   fi
-  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
-  #read -p "Press ENTER to continue" 
-  read -t 10 -p "Pause here for 10 seconds"
-  
+
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
+    #read -p "Press ENTER to continue" 
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi  
 
   # Configure the device-tree.
   petalinux_project_configure_devicetree
@@ -513,10 +523,13 @@ create_petalinux_bsp ()
   petalinux-build -x mrproper
 
   # DEBUG
-  echo "Stop here and check for WARNING messages."
-  #read -p "Press ENTER to continue."
-  read -t 10 -p "Pause here for 10 seconds"
-
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Stop here and check for WARNING messages."
+    #read -p "Press ENTER to continue."
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
 
 
 
@@ -740,11 +753,15 @@ create_petalinux_bsp ()
     # Modify the project configuration for sd boot.
     petalinux_project_set_boot_config_sd
 
-    # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
-    #read -p "Press enter to continue"
-    read -t 10 -p "Pause here for 10 seconds"
-
+    if [ "$DEBUG" == "yes" ];
+    then
+      # DEBUG
+      echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
+      #read -p "Press enter to continue"
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
+    
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -998,22 +1015,33 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.  
   # If it hasn't then build it now.  
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}/
+    echo " "
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
-    read -t 5 -p "Pause here for 5 seconds"
-    
+    echo " "
+    if [ "$DEBUG" == "yes" ];
+    then
+      read -t 5 -p "Pause here for 5 seconds"
+      echo " "
+    fi
+      
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
     vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
+    echo " "
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
     echo "Will build the PetaLinux BSP now."
-    read -t 5 -p "Pause here for 5 seconds"
-  
+    echo " "
+    if [ "$DEBUG" == "yes" ];
+    then
+      read -t 5 -p "Pause here for 5 seconds"
+      echo " "
+    fi  
   fi
 }
 
