@@ -1,0 +1,46 @@
+#Note: Mention Each package in individual line
+#These packages will get added into rootfs menu entry
+
+CONFIG_gpio-demo
+CONFIG_peekpoke
+
+CONFIG_packagegroup-base-extended
+CONFIG_cmake
+CONFIG_lmsensors-sensorsdetect
+CONFIG_python-pyserial
+CONFIG_libftdi
+CONFIG_python3-pip
+CONFIG_iperf3
+CONFIG_packagegroup-petalinux-ultra96-webapp
+CONFIG_packagegroup-petalinux-v4lutils
+CONFIG_packagegroup-petalinux-96boards-sensors
+CONFIG_packagegroup-petalinux-x11
+CONFIG_packagegroup-petalinux-matchbox
+CONFIG_ultra96-ap-setup
+CONFIG_nano
+CONFIG_sds-lib
+
+CONFIG_iperf3
+CONFIG_bonnie++
+
+CONFIG_ultra96-misc
+
+# Bluetooth stack
+CONFIG_bluez5
+
+# Wi-Fi driver firmware and utilities
+CONFIG_iw
+CONFIG_wpa-supplicant
+CONFIG_wilc3000-fw
+CONFIG_wilc
+CONFIG_ultra96-wpa
+CONFIG_ultra96-radio-leds
+
+# Vitis & XRT additions
+CONFIG_xrt
+CONFIG_xrt-dev
+CONFIG_zocl
+CONFIG_opencl-clhpp-dev
+CONFIG_opencl-headers-dev
+CONFIG_packagegroup-petalinux-opencv
+CONFIG_json-c

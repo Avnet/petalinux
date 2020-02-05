@@ -115,7 +115,7 @@ petalinux_project_configure_devicetree ()
   else
     echo " "
     echo "WARNING: No board specific devicetree file found, "
-    echo "PetaLinux devicetree config is not touched for this build ..."
+    echo "PetaLinux devicetree config is not touched for this build..."
     echo " "
   fi
 }
@@ -165,7 +165,7 @@ petalinux_project_configure_kernel ()
   else
     echo " "
     echo "WARNING: No board specific kernel user configuration files found, "
-    echo "PetaLinux kernel user config recipe is not touched for this build ..."
+    echo "PetaLinux kernel user config recipe is not touched for this build..."
     echo " "
   fi
 }
@@ -190,7 +190,7 @@ petalinux_project_configure_rootfs ()
   else
     echo " "
     echo "WARNING: No board specific rootfs configuration files found, "
-    echo "PetaLinux rootfs config is not touched for this build ..."
+    echo "PetaLinux rootfs config is not touched for this build..."
     echo " "
   fi
 
@@ -198,7 +198,7 @@ petalinux_project_configure_rootfs ()
     then
     # Copy the meta-user rootfs folder to the PetaLinux project.
     echo " "
-    echo "Adding custom rootfs ..."
+    echo "Adding custom rootfs..."
     echo " "
     cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${PETALINUX_ROOTFS_NAME}/* \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/.
@@ -215,9 +215,70 @@ petalinux_project_configure_rootfs ()
   else
     echo " "
     echo "WARNING: No custom rootfs found and no rootfs bbappend files found, "
-    echo "PetaLinux rootfs is not touched for this build ..."
+    echo "PetaLinux rootfs is not touched for this build..."
     echo " "
   fi
+}
+
+petalinux_project_set_sstate_paths ()
+{
+  # Add the following paths to the end of ${CONF_FILE}
+  # If the sstate cache has been downloaded and extracted into the PetaLinux
+  # install folder this will significantly accelerate the build time
+  # For more information see Xilinx AR #71240
+  # https://www.xilinx.com/support/answers/71240.html
+  
+  PRJ_CFG_FILE=./project-spec/configs/config
+  CONF_FILE=./project-spec/meta-user/conf/petalinuxbsp.conf
+  
+  #CACHE_DOWNLOADS=sstate-rel-v${PETALINUX_VER}/downloads
+  CACHE_DOWNLOADS=downloads_${PETALINUX_VER}/downloads
+  
+  #CACHE_AARCH64=sstate-rel-v${PETALINUX_VER}/aarch64
+  CACHE_AARCH64=sstate_aarch64_${PETALINUX_VER}/aarch64
+
+
+  if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ]
+  then
+    echo " "
+    echo "Appending sstate cache paths to ${CONF_FILE}..."
+    echo " "
+
+    echo "PREMIRRORS_prepend = \" git://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "ftp://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "http://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "https://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n\"" >> ${CONF_FILE}
+  else
+    echo " "
+    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
+    echo "Not appending ${CONF_FILE} with sstate cache paths..."
+    echo " "
+  fi
+
+  if [ -d ${PETALINUX}/${CACHE_AARCH64} ]
+  then
+    echo " "
+    echo "Setting local sstate cache paths in project config file..."
+    echo " "
+
+    sed -i 's,http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads,file://'"${PETALINUX}"'/'"${CACHE_DOWNLOADS}"',g' ${PRJ_CFG_FILE}
+    sed -i 's!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL=""!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="'"${PETALINUX}"'/'"${CACHE_AARCH64}"'"!g' ${PRJ_CFG_FILE}
+  else
+    echo " "
+    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
+    echo "Not setting local sstate cache paths in project config file..."
+    echo " "
+  fi
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Verify sstate cache paths have been added to ${CONF_FILE}"
+    #read -p "Press ENTER to continue" 
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
+
 }
 
 petalinux_project_restore_boot_config ()
@@ -227,7 +288,7 @@ petalinux_project_restore_boot_config ()
   # point before this function gets called, otherwise there probably is
   # nothing there to restore.
   echo " "
-  echo "Restoring original PetaLinux project config ..."
+  echo "Restoring original PetaLinux project config..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
   cp config.orig config
@@ -246,7 +307,7 @@ petalinux_project_save_boot_config ()
 {
   # Save original PetaLinux project config.
   echo " "
-  echo "Saving original PetaLinux project config ..."
+  echo "Saving original PetaLinux project config..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
   cp config config.orig
@@ -331,7 +392,7 @@ petalinux_project_set_boot_config_sd_no_bit ()
   # allows for bistream to be loaded from SD file instead of the BOOT.BIN 
   # container file.
   echo " "
-  echo "Applying patch to add SD bitstream load support in U-Boot ..."
+  echo "Applying patch to add SD bitstream load support in U-Boot..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
   cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96v2_sd_boot_no_bit ./platform-top.h
@@ -352,7 +413,7 @@ petalinux_project_set_boot_config_sd ()
   #  
   # project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h
   echo " "
-  echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot ..."
+  echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
   cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96v2_sd_boot ./platform-top.h
@@ -382,7 +443,7 @@ petalinux_project_set_boot_config_sd_ext4 ()
   #  
   # project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h
   echo " "
-  echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot ..."
+  echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
   cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.ultra96v1_sd_boot ./platform-top.h
@@ -426,14 +487,14 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
   echo " "
-  echo "Importing hardware definition ${HDL_PROJECT_NAME} from impl_1 folder ..."
+  echo "Importing hardware definition ${HDL_PROJECT_NAME} from impl_1 folder..."
   echo " "
 
   cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
   echo " "
-  echo "Importing hardware bitstream ${HDL_PROJECT_NAME} from impl_1 folder ..."
+  echo "Importing hardware bitstream ${HDL_PROJECT_NAME} from impl_1 folder..."
   echo " "
 
   cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
@@ -470,7 +531,7 @@ create_petalinux_bsp ()
   if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch ] 
     then
     echo " "
-    echo "Patching PetaLinux project config ..."
+    echo "Patching PetaLinux project config..."
     echo " "
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
     patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch
@@ -481,21 +542,21 @@ create_petalinux_bsp ()
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME} ] 
     then
     echo " "
-    echo "Overwriting PetaLinux project config ..."
+    echo "Overwriting PetaLinux project config..."
     echo " "
     cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.generic ]
     then
     echo " "
-    echo "WARNING: Using generic PetaLinux project config ..."
+    echo "WARNING: Using generic PetaLinux project config..."
     echo " "
     cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.generic \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config    
   else
     echo " "
     echo "WARNING: No board specific PetaLinux project configuration files found, "
-    echo "PetaLinux project config is not touched for this build ..."
+    echo "PetaLinux project config is not touched for this build..."
     echo " "
   fi
 
@@ -516,6 +577,9 @@ create_petalinux_bsp ()
   # Configure the kernel.
   petalinux_project_configure_kernel
 
+  # Add sstate cache paths to the project config and petalinuxbsp.conf files.
+  petalinux_project_set_sstate_paths
+  
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
 
