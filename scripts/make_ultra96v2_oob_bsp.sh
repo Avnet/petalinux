@@ -231,10 +231,7 @@ petalinux_project_set_sstate_paths ()
   CONF_FILE=./project-spec/meta-user/conf/petalinuxbsp.conf
   
   CACHE_DOWNLOADS=sstate-rel-v${PETALINUX_VER}/downloads
-  #CACHE_DOWNLOADS=downloads_${PETALINUX_VER}/downloads
-  
   CACHE_AARCH64=sstate-rel-v${PETALINUX_VER}/aarch64
-  #CACHE_AARCH64=sstate_aarch64_${PETALINUX_VER}/aarch64
 
   if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ]
   then
