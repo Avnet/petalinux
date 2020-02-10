@@ -77,6 +77,8 @@ PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
 
+DEBUG=yes
+
 PLNX_BUILD_SUCCESS=-1
 
 source_tools_settings ()
@@ -213,6 +215,65 @@ petalinux_project_configure_rootfs ()
     echo " "
     echo "WARNING: No custom rootfs found and no rootfs bbappend files found, "
     echo "PetaLinux rootfs is not touched for this build ..."
+    echo " "
+  fi
+}
+
+petalinux_project_set_sstate_paths ()
+{
+  # Add the following paths to the end of ${CONF_FILE}
+  # If the sstate cache has been downloaded and extracted into the PetaLinux
+  # install folder this will significantly accelerate the build time
+  # For more information see Xilinx AR #71240
+  # https://www.xilinx.com/support/answers/71240.html
+  
+  PRJ_CFG_FILE=./project-spec/configs/config
+  CONF_FILE=./project-spec/meta-user/conf/petalinuxbsp.conf
+  
+  CACHE_DOWNLOADS=sstate-rel-v${PETALINUX_VER}/downloads
+  #CACHE_DOWNLOADS=downloads_${PETALINUX_VER}/downloads
+  
+  CACHE_AARCH64=sstate-rel-v${PETALINUX_VER}/aarch64
+  #CACHE_AARCH64=sstate_aarch64_${PETALINUX_VER}/aarch64
+
+  if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ]
+  then
+    echo " "
+    echo "Appending sstate cache paths to ${CONF_FILE}..."
+    echo " "
+
+    echo "PREMIRRORS_prepend = \" git://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "ftp://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "http://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "https://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n\"" >> ${CONF_FILE}
+  else
+    echo " "
+    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
+    echo "Not appending ${CONF_FILE} with sstate cache paths..."
+    echo " "
+  fi
+
+  if [ -d ${PETALINUX}/${CACHE_AARCH64} ]
+  then
+    echo " "
+    echo "Setting local sstate cache paths in project config file..."
+    echo " "
+
+    sed -i 's,http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads,file://'"${PETALINUX}"'/'"${CACHE_DOWNLOADS}"',g' ${PRJ_CFG_FILE}
+    sed -i 's!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL=""!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="'"${PETALINUX}"'/'"${CACHE_AARCH64}"'"!g' ${PRJ_CFG_FILE}
+  else
+    echo " "
+    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
+    echo "Not setting local sstate cache paths in project config file..."
+    echo " "
+  fi
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Verify sstate cache paths have been added to ${CONF_FILE} and ${PRJ_CFG_FILE}"
+    read -p "Press ENTER to continue" 
+    #read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
 }
@@ -423,17 +484,17 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
   echo " "
-  echo "Importing hardware definition ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware definition ${HDL_PROJECT_NAME} from HDL project folder..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.dsa \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
   echo " "
-  echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware bitstream ${HDL_PROJECT_NAME} from HDL project folder..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -444,11 +505,6 @@ create_petalinux_bsp ()
   # Import the hardware description into the PetaLinux project.
   petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
-  # DEBUG
-  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
-  #read -p "Press ENTER to continue" 
-  read -t 10 -p "Pause here for 10 seconds"
-  
   
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -469,9 +525,6 @@ create_petalinux_bsp ()
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
     patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-  #read -p "Press ENTER to continue" 
-  #read -t 10 -p "Pause here for 10 seconds"
-
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME} ] 
     then
     echo " "
@@ -492,10 +545,14 @@ create_petalinux_bsp ()
     echo "PetaLinux project config is not touched for this build ..."
     echo " "
   fi
-  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
-  #read -p "Press ENTER to continue" 
-  read -t 10 -p "Pause here for 10 seconds"
-  
+
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
+    #read -p "Press ENTER to continue" 
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi  
 
   # Configure the device-tree.
   petalinux_project_configure_devicetree
@@ -506,6 +563,9 @@ create_petalinux_bsp ()
   # Configure the kernel.
   petalinux_project_configure_kernel
 
+  # Add sstate cache paths to the project config and petalinuxbsp.conf files.
+  petalinux_project_set_sstate_paths
+
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
 
@@ -513,9 +573,13 @@ create_petalinux_bsp ()
   petalinux-build -x mrproper
 
   # DEBUG
-  echo "Stop here and check for WARNING messages."
-  #read -p "Press ENTER to continue."
-  read -t 10 -p "Pause here for 10 seconds"
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo "Stop here and check for WARNING messages."
+    #read -p "Press ENTER to continue."
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
 
 
 
@@ -684,9 +748,14 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd_no_bit
 
     # DEBUG
-    #echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
-    #read -p "Press ENTER to continue."
- 
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
+      #read -p "Press enter to continue"
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
+
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -741,9 +810,13 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
-    #read -p "Press enter to continue"
-    read -t 10 -p "Pause here for 10 seconds"
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
+      #read -p "Press enter to continue"
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -803,15 +876,19 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd_ext4
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h and config files and make sure they are set for SD EXT4 boot"
-    #read -p "Press enter to continue"
-    #read -t 10 -p "Pause here for 10 seconds"
-  
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo "Stop here and go check the platform-top.h and config files and make sure they are set for SD EXT4 boot"
+      #read -p "Press enter to continue"
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
+
     PLNX_BUILD_SUCCESS=-1
 
-#    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
-#    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
-#    do
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
       # Make sure that intermediary files get cleaned up.  This will also force
       # the rootfs to get rebuilt and generate a new image.ub file.
       petalinux-build -x distclean
@@ -820,7 +897,7 @@ create_petalinux_bsp ()
       petalinux-build 
       
       PLNX_BUILD_SUCCESS=$?
-#    done
+    done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
     # build BOOT.BIN for booting from SD without any bistream loaded from 
@@ -998,22 +1075,37 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.  
   # If it hasn't then build it now.  
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.dsa ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}/
+    echo " "
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
-    read -t 5 -p "Pause here for 5 seconds"
-    
+    echo " "
+
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      read -t 5 -p "Pause here for 5 seconds"
+      echo " "
+    fi
+      
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
     vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
+    echo " "
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
     echo "Will build the PetaLinux BSP now."
-    read -t 5 -p "Pause here for 5 seconds"
-  
+    echo " "
+
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      read -t 5 -p "Pause here for 5 seconds"
+      echo " "
+    fi  
   fi
 }
 
