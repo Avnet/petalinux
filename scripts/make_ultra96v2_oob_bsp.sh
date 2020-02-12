@@ -77,7 +77,7 @@ PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
 
-DEBUG=yes
+DEBUG=no
 
 PLNX_BUILD_SUCCESS=-1
 
