@@ -2,6 +2,7 @@
 # Automatically generated file; DO NOT EDIT.
 # Configuration
 #
+CONFIG_system-zynqmp=y
 
 #
 # Filesystem Packages 
@@ -64,7 +65,6 @@ CONFIG_bc=y
 # CONFIG_busybox-syslog is not set
 # CONFIG_busybox-hwclock is not set
 # CONFIG_busybox-httpd is not set
-# CONFIG_busybox-mdev is not set
 # CONFIG_busybox-dev is not set
 # CONFIG_busybox-udhcpc is not set
 # CONFIG_busybox-udhcpd is not set
@@ -109,6 +109,11 @@ CONFIG_bc=y
 # CONFIG_diffutils-dev is not set
 
 #
+# dnf
+#
+# CONFIG_dnf is not set
+
+#
 # e2fsprogs 
 #
 # CONFIG_e2fsprogs is not set
@@ -148,6 +153,11 @@ CONFIG_bc=y
 # CONFIG_formfactor is not set
 # CONFIG_formfactor-dbg is not set
 # CONFIG_formfactor-dev is not set
+
+#
+# haveged 
+#
+# CONFIG_haveged is not set
 
 #
 # i2c-tools 
@@ -240,7 +250,6 @@ CONFIG_mtd-utils=y
 #
 # CONFIG_opkg-utils is not set
 # CONFIG_opkg-utils-dbg is not set
-# CONFIG_opkg-utils-dev is not set
 # CONFIG_update-alternatives-opkg is not set
 
 #
@@ -370,7 +379,6 @@ CONFIG_usbutils=y
 # CONFIG_util-linux-fdisk is not set
 # CONFIG_util-linux-lscpu is not set
 # CONFIG_util-linux-dbg is not set
-# CONFIG_util-linux-reset is not set
 # CONFIG_util-linux-uuidd is not set
 # CONFIG_util-linux-mkfs.cramfs is not set
 
@@ -474,7 +482,6 @@ CONFIG_canutils=y
 #
 # CONFIG_dropbear is not set
 # CONFIG_dropbear-dev is not set
-# CONFIG_dropbear-openssh-sftp-server is not set
 # CONFIG_dropbear-dbg is not set
 
 #
@@ -527,14 +534,6 @@ CONFIG_openssh-sftp-server=y
 # CONFIG_openssh-misc is not set
 # CONFIG_openssh-sshd is not set
 # CONFIG_openssh-scp is not set
-
-#
-# portmap 
-#
-# CONFIG_portmap is not set
-# CONFIG_portmap-dev is not set
-# CONFIG_portmap-dbg is not set
-# CONFIG_portmap-utils is not set
 
 #
 # ppp 
@@ -606,13 +605,6 @@ CONFIG_openssh-sftp-server=y
 # CONFIG_parted-dbg is not set
 
 #
-# protobuf 
-#
-# CONFIG_protobuf is not set
-# CONFIG_protobuf-dbg is not set
-# CONFIG_protobuf-dev is not set
-
-#
 # xen 
 #
 # CONFIG_xen-libxengnttab-dev is not set
@@ -620,14 +612,12 @@ CONFIG_openssh-sftp-server=y
 # CONFIG_xen-libxenstat is not set
 # CONFIG_xen-base is not set
 # CONFIG_xen-libxenevtchn-dev is not set
-# CONFIG_xen-libblktapctl-dev is not set
 # CONFIG_xen-efi is not set
 # CONFIG_xen-hypervisor is not set
 # CONFIG_xen-xenstat is not set
 # CONFIG_xen-xl-examples is not set
 # CONFIG_xen-scripts-block is not set
 # CONFIG_xen-libxlutil-dev is not set
-# CONFIG_xen-libvhd-dev is not set
 # CONFIG_xen-libxenstat-dev is not set
 # CONFIG_xen-scripts-common is not set
 # CONFIG_xen-xenmon is not set
@@ -651,15 +641,12 @@ CONFIG_openssh-sftp-server=y
 # CONFIG_xen-xl is not set
 # CONFIG_xen-libxenvchan-dev is not set
 # CONFIG_xen-libxentoollog-dev is not set
-# CONFIG_xen-libvhd is not set
 # CONFIG_xen-fsimage is not set
-# CONFIG_xen-libblktapctl is not set
 # CONFIG_xen-libxentoollog is not set
 # CONFIG_xen-libxenforeignmemory-dev is not set
 # CONFIG_xen-libxengnttab is not set
 # CONFIG_xen-xentrace is not set
 # CONFIG_xen-libxenctrl is not set
-# CONFIG_xen-blktap is not set
 # CONFIG_xen-libfsimage is not set
 # CONFIG_xen-libxenforeignmemory is not set
 # CONFIG_xen-xendomains is not set
@@ -814,8 +801,6 @@ CONFIG_hdparm=y
 # man 
 #
 # CONFIG_man is not set
-# CONFIG_man-dbg is not set
-# CONFIG_man-dev is not set
 
 #
 # man-pages 
@@ -829,18 +814,10 @@ CONFIG_hdparm=y
 #
 # CONFIG_mc is not set
 # CONFIG_mc-fish is not set
-# CONFIG_mc-helpers-python is not set
 # CONFIG_mc-dev is not set
 # CONFIG_mc-dbg is not set
 # CONFIG_mc-helpers is not set
 # CONFIG_mc-helpers-perl is not set
-
-#
-# mktemp 
-#
-# CONFIG_mktemp is not set
-# CONFIG_mktemp-dev is not set
-# CONFIG_mktemp-dbg is not set
 
 #
 # pciutils 
@@ -885,13 +862,6 @@ CONFIG_pciutils=y
 # CONFIG_smartmontools is not set
 # CONFIG_smartmontools-dev is not set
 # CONFIG_smartmontools-dbg is not set
-
-#
-# stat 
-#
-# CONFIG_stat is not set
-# CONFIG_stat-dev is not set
-# CONFIG_stat-dbg is not set
 
 #
 # strace 
@@ -1011,13 +981,6 @@ CONFIG_pciutils=y
 # CONFIG_flex-dev is not set
 
 #
-# fstests 
-#
-# CONFIG_fstests is not set
-# CONFIG_fstests-dbg is not set
-# CONFIG_fstests-dev is not set
-
-#
 # gmp 
 #
 # CONFIG_gmp is not set
@@ -1124,7 +1087,6 @@ CONFIG_pciutils=y
 # CONFIG_python-mime is not set
 # CONFIG_python-netclient is not set
 # CONFIG_python-netserver is not set
-# CONFIG_python-readline is not set
 # CONFIG_python-image is not set
 # CONFIG_python-unixadmin is not set
 # CONFIG_python-sqlite3 is not set
@@ -1153,7 +1115,6 @@ CONFIG_pciutils=y
 # CONFIG_python-lang is not set
 # CONFIG_python-compiler is not set
 # CONFIG_python-shell is not set
-# CONFIG_python-sqlite3-tests is not set
 # CONFIG_python-datetime is not set
 # CONFIG_python-email is not set
 # CONFIG_python-misc is not set
@@ -1162,10 +1123,8 @@ CONFIG_pciutils=y
 # CONFIG_python-syslog is not set
 # CONFIG_python-2to3 is not set
 # CONFIG_python-pydoc is not set
-# CONFIG_python-importlib is not set
 # CONFIG_python-tests is not set
 # CONFIG_python-modules is not set
-# CONFIG_python-man is not set
 # CONFIG_python-db is not set
 # CONFIG_python-ctypes is not set
 # CONFIG_python-re is not set
@@ -1184,27 +1143,6 @@ CONFIG_pciutils=y
 # CONFIG_python-plistlib is not set
 # CONFIG_python-gdbm is not set
 # CONFIG_python-textutils is not set
-
-#
-# python-async 
-#
-# CONFIG_python-async is not set
-# CONFIG_python-async-dbg is not set
-# CONFIG_python-async-dev is not set
-
-#
-# python-git 
-#
-# CONFIG_python-git is not set
-# CONFIG_python-git-dbg is not set
-# CONFIG_python-git-dev is not set
-
-#
-# python-gitdb 
-#
-# CONFIG_python-gitdb is not set
-# CONFIG_python-gitdb-dbg is not set
-# CONFIG_python-gitdb-dev is not set
 
 #
 # python-nose 
@@ -1226,23 +1164,6 @@ CONFIG_pciutils=y
 # CONFIG_python-scons is not set
 # CONFIG_python-scons-dev is not set
 # CONFIG_python-scons-dbg is not set
-
-#
-# python-smartpm 
-#
-# CONFIG_python-smartpm is not set
-# CONFIG_python-smartpm-interface-images is not set
-# CONFIG_smartpm is not set
-# CONFIG_python-smartpm-dbg is not set
-# CONFIG_python-smartpm-dev is not set
-# CONFIG_python-smartpm-backend-rpm is not set
-
-#
-# python-smmap 
-#
-# CONFIG_python-smmap is not set
-# CONFIG_python-smmap-dev is not set
-# CONFIG_python-smmap-dbg is not set
 
 #
 # python3-dbus 
@@ -1357,7 +1278,6 @@ CONFIG_run-postinsts=y
 #
 # CONFIG_apr is not set
 # CONFIG_apr-dev is not set
-# CONFIG_apr-bin is not set
 # CONFIG_apr-dbg is not set
 
 #
@@ -1365,7 +1285,6 @@ CONFIG_run-postinsts=y
 #
 # CONFIG_apr-util is not set
 # CONFIG_apr-util-dev is not set
-# CONFIG_apr-util-bin is not set
 # CONFIG_apr-util-dbg is not set
 
 #
@@ -1382,7 +1301,6 @@ CONFIG_run-postinsts=y
 # CONFIG_bluez5 is not set
 # CONFIG_bluez5-obex is not set
 # CONFIG_bluez5-dev is not set
-# CONFIG_libasound-module-bluez is not set
 # CONFIG_bluez5-dbg is not set
 # CONFIG_bluez5-noinst-tools is not set
 # CONFIG_bluez5-testtools is not set
@@ -1447,7 +1365,6 @@ CONFIG_run-postinsts=y
 #
 # CONFIG_flac is not set
 # CONFIG_libflac is not set
-# CONFIG_liboggflacPLUSPLUS is not set
 # CONFIG_flac-dev is not set
 # CONFIG_libflacPLUSPLUS is not set
 # CONFIG_flac-dbg is not set
@@ -1574,7 +1491,6 @@ CONFIG_run-postinsts=y
 #
 # libeigen 
 #
-# CONFIG_libeigen is not set
 # CONFIG_libeigen-dev is not set
 # CONFIG_libeigen-dbg is not set
 
@@ -1629,6 +1545,13 @@ CONFIG_run-postinsts=y
 # CONFIG_libgcrypt-dev is not set
 
 #
+# libgcc 
+#
+# CONFIG_libgcc is not set
+# CONFIG_libgcc-dbg is not set
+# CONFIG_libgcc-dev is not set
+
+#
 # libgpg-error 
 #
 # CONFIG_libgpg-error is not set
@@ -1646,6 +1569,13 @@ CONFIG_run-postinsts=y
 # CONFIG_libgphotoport is not set
 
 #
+# libgpiod
+#
+# CONFIG_libgpiod is not set
+# CONFIG_libgpiod-dev is not set
+# CONFIG_libgpiod-dbg is not set
+
+#
 # libgudev 
 #
 # CONFIG_libgudev is not set
@@ -1659,7 +1589,6 @@ CONFIG_run-postinsts=y
 # CONFIG_libhugetlbfs-tests is not set
 # CONFIG_libhugetlbfs-dbg is not set
 # CONFIG_libhugetlbfs-dev is not set
-# CONFIG_libhugetlbfs-perl is not set
 
 #
 # libical 
@@ -1742,13 +1671,6 @@ CONFIG_run-postinsts=y
 # CONFIG_libnewt-dev is not set
 # CONFIG_libnewt-dbg is not set
 # CONFIG_whiptail is not set
-
-#
-# libnfsidmap 
-#
-# CONFIG_libnfsidmap is not set
-# CONFIG_libnfsidmap-dev is not set
-# CONFIG_libnfsidmap-dbg is not set
 
 #
 # libnotify 
@@ -1856,7 +1778,6 @@ CONFIG_run-postinsts=y
 #
 # CONFIG_libusb-compat is not set
 # CONFIG_libusb-compat-dbg is not set
-# CONFIG_libusb-compat-bin is not set
 # CONFIG_libusb-compat-dev is not set
 
 #
@@ -1895,13 +1816,6 @@ CONFIG_run-postinsts=y
 # CONFIG_libxau is not set
 # CONFIG_libxau-dbg is not set
 # CONFIG_libxau-dev is not set
-
-#
-# libxcalibrate 
-#
-# CONFIG_libxcalibrate is not set
-# CONFIG_libxcalibrate-dbg is not set
-# CONFIG_libxcalibrate-dev is not set
 
 #
 # libxcomposite 
@@ -2109,6 +2023,7 @@ CONFIG_run-postinsts=y
 # CONFIG_alsa-lib-dbg is not set
 # CONFIG_alsa-conf-base is not set
 # CONFIG_alsa-lib-dev is not set
+# CONFIG_alsa-oss is not set
 
 #
 # libsndfile1 
@@ -2158,7 +2073,6 @@ CONFIG_run-postinsts=y
 # CONFIG_neon is not set
 # CONFIG_neon-dbg is not set
 # CONFIG_neon-dev is not set
-# CONFIG_neon-bin is not set
 
 #
 # nettle 
@@ -2232,17 +2146,7 @@ CONFIG_run-postinsts=y
 # CONFIG_opencv-dbg is not set
 # CONFIG_opencv-apps is not set
 # CONFIG_opencv-dev is not set
-# CONFIG_python-opencv is not set
 # CONFIG_opencv-samples is not set
-# CONFIG_opencv-samples-dbg is not set
-
-#
-# ossp-uuid 
-#
-# CONFIG_ossp-uuid is not set
-# CONFIG_ossp-uuid-dev is not set
-# CONFIG_uuid is not set
-# CONFIG_ossp-uuid-dbg is not set
 
 #
 # pango 
@@ -2285,7 +2189,6 @@ CONFIG_run-postinsts=y
 # CONFIG_speex is not set
 # CONFIG_speex-dev is not set
 # CONFIG_speex-dbg is not set
-# CONFIG_speex-bin is not set
 
 #
 # speexdsp 
@@ -2324,6 +2227,20 @@ CONFIG_run-postinsts=y
 # CONFIG_which-dbg is not set
 
 #
+# xrt
+#
+CONFIG_xrt=y
+CONFIG_xrt-dev=y
+# CONFIG_xrt-dbg is not set
+
+#
+# zocl
+#
+CONFIG_zocl=y
+# CONFIG_zocl-dev is not set
+# CONFIG_zocl-dbg is not set
+
+#
 # zlib 
 #
 # CONFIG_zlib is not set
@@ -2346,6 +2263,13 @@ CONFIG_run-postinsts=y
 # alsa-utils-scripts 
 #
 # CONFIG_alsa-utils-scripts is not set
+
+#
+# apache2
+#
+# CONFIG_apache2 is not set
+# CONFIG_apache2-dbg is not set
+# CONFIG_apache2-dev is not set
 
 #
 # at-spi2-atk 
@@ -2420,9 +2344,7 @@ CONFIG_run-postinsts=y
 #
 # connman-conf 
 #
-# CONFIG_connman-conf is not set
 # CONFIG_connman-conf-dbg is not set
-# CONFIG_connman-conf-dev is not set
 
 #
 # consolekit 
@@ -2481,7 +2403,7 @@ CONFIG_coreutils=y
 # CONFIG_eudev-hwdb is not set
 # CONFIG_eudev-dev is not set
 # CONFIG_eudev-dbg is not set
-# CONFIG_udev-cache is not set
+# CONFIG_udev-extraconf is not set
 
 #
 # fbset 
@@ -2508,7 +2430,7 @@ CONFIG_coreutils=y
 # gcc-runtime 
 #
 # CONFIG_libstdcPLUSPLUS-dev is not set
-# CONFIG_libstdcPLUSPLUS is not set
+CONFIG_libstdcPLUSPLUS=y
 
 #
 # gcr 
@@ -2538,6 +2460,9 @@ CONFIG_coreutils=y
 #
 # glibc 
 #
+# CONFIG_glibc is not set
+# CONFIG_glibc-dev is not set
+# CONFIG_glibc-dbg is not set
 # CONFIG_ldd is not set
 
 #
@@ -2568,8 +2493,6 @@ CONFIG_coreutils=y
 # gst-player 
 #
 # CONFIG_gst-player is not set
-# CONFIG_gst-player-dev is not set
-# CONFIG_gst-player-dbg is not set
 
 #
 # gst-plugins-base 
@@ -2584,9 +2507,7 @@ CONFIG_coreutils=y
 # gst-plugins-good 
 #
 # CONFIG_gst-plugins-good is not set
-# CONFIG_gst-plugins-good-apps is not set
 # CONFIG_gst-plugins-good-dev is not set
-# CONFIG_gst-plugins-good-glib is not set
 # CONFIG_gst-plugins-good-dbg is not set
 # CONFIG_gst-plugins-good-meta is not set
 
@@ -2631,7 +2552,6 @@ CONFIG_coreutils=y
 #
 # CONFIG_gstreamer1.0-plugins-good is not set
 # CONFIG_gstreamer1.0-plugins-good-dev is not set
-# CONFIG_gstreamer1.0-plugins-good-apps is not set
 # CONFIG_gstreamer1.0-plugins-good-dbg is not set
 # CONFIG_gstreamer1.0-plugins-good-meta is not set
 
@@ -2643,18 +2563,21 @@ CONFIG_coreutils=y
 # CONFIG_hicolor-icon-theme-dbg is not set
 
 #
+# hdmi-module
+#
+# CONFIG_kernel-module-hdmi is not set
+
+#
 # icu 
 #
 # CONFIG_icu is not set
 # CONFIG_icu-dbg is not set
-# CONFIG_libicule is not set
 # CONFIG_icu-dev is not set
 # CONFIG_libicudata is not set
 # CONFIG_libicuio is not set
 # CONFIG_libicui18n is not set
 # CONFIG_libicuuc is not set
 # CONFIG_libicutu is not set
-# CONFIG_libiculx is not set
 
 #
 # iotop 
@@ -2674,8 +2597,6 @@ CONFIG_coreutils=y
 # iptraf 
 #
 # CONFIG_iptraf is not set
-# CONFIG_iptraf-dbg is not set
-# CONFIG_iptraf-dev is not set
 
 #
 # iso-codes 
@@ -2687,7 +2608,7 @@ CONFIG_coreutils=y
 #
 # json-c 
 #
-# CONFIG_json-c is not set
+CONFIG_json-c=y
 # CONFIG_json-c-dev is not set
 # CONFIG_json-c-dbg is not set
 
@@ -2697,13 +2618,6 @@ CONFIG_coreutils=y
 # CONFIG_l3afpad is not set
 # CONFIG_l3afpad-dev is not set
 # CONFIG_l3afpad-dbg is not set
-
-#
-# latencytop 
-#
-# CONFIG_latencytop is not set
-# CONFIG_latencytop-dev is not set
-# CONFIG_latencytop-dbg is not set
 
 #
 # lttng-ust 
@@ -2746,7 +2660,6 @@ CONFIG_coreutils=y
 #
 # CONFIG_mesa-gl is not set
 # CONFIG_mesa-gl-dev is not set
-# CONFIG_libgles3-mesa is not set
 # CONFIG_libgl-mesa is not set
 # CONFIG_mesa-megadriver is not set
 # CONFIG_libglapi-dev is not set
@@ -2913,76 +2826,6 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 # CONFIG_packagegroup-core-x11-xserver-dbg is not set
 
 #
-# packagegroup-petalinux 
-#
-# CONFIG_packagegroup-petalinux is not set
-# CONFIG_packagegroup-petalinux-dbg is not set
-# CONFIG_packagegroup-petalinux-dev is not set
-
-#
-# packagegroup-petalinux-audio 
-#
-# CONFIG_packagegroup-petalinux-audio is not set
-# CONFIG_packagegroup-petalinux-audio-dbg is not set
-# CONFIG_packagegroup-petalinux-audio-dev is not set
-
-#
-# packagegroup-petalinux-benchmarks 
-#
-# CONFIG_packagegroup-petalinux-benchmarks is not set
-# CONFIG_packagegroup-petalinux-benchmarks-dbg is not set
-# CONFIG_packagegroup-petalinux-benchmarks-dev is not set
-
-#
-# packagegroup-petalinux-gstreamer 
-#
-# CONFIG_packagegroup-petalinux-gstreamer is not set
-# CONFIG_packagegroup-petalinux-gstreamer-dev is not set
-# CONFIG_packagegroup-petalinux-gstreamer-dbg is not set
-
-#
-# packagegroup-petalinux-openamp 
-#
-# CONFIG_packagegroup-petalinux-openamp is not set
-# CONFIG_packagegroup-petalinux-openamp-dev is not set
-# CONFIG_packagegroup-petalinux-openamp-dbg is not set
-
-#
-# packagegroup-petalinux-opencv 
-#
-# CONFIG_packagegroup-petalinux-opencv is not set
-# CONFIG_packagegroup-petalinux-opencv-dev is not set
-# CONFIG_packagegroup-petalinux-opencv-dbg is not set
-
-#
-# packagegroup-petalinux-qt 
-#
-# CONFIG_packagegroup-petalinux-qt is not set
-# CONFIG_packagegroup-petalinux-qt-dev is not set
-# CONFIG_packagegroup-petalinux-qt-dbg is not set
-
-#
-# packagegroup-petalinux-self-hosted 
-#
-# CONFIG_packagegroup-petalinux-self-hosted is not set
-# CONFIG_packagegroup-petalinux-self-hosted-dbg is not set
-# CONFIG_packagegroup-petalinux-self-hosted-dev is not set
-
-#
-# packagegroup-petalinux-x11 
-#
-# CONFIG_packagegroup-petalinux-x11 is not set
-# CONFIG_packagegroup-petalinux-x11-dev is not set
-# CONFIG_packagegroup-petalinux-x11-dbg is not set
-
-#
-# packagegroup-petalinux-xen 
-#
-# CONFIG_packagegroup-petalinux-xen is not set
-# CONFIG_packagegroup-petalinux-xen-dev is not set
-# CONFIG_packagegroup-petalinux-xen-dbg is not set
-
-#
 # packagegroup-self-hosted 
 #
 # CONFIG_packagegroup-self-hosted is not set
@@ -3042,7 +2885,6 @@ CONFIG_python3=y
 # CONFIG_python3-unixadmin is not set
 # CONFIG_python3-io is not set
 # CONFIG_python3-pydoc is not set
-# CONFIG_python3-readline is not set
 # CONFIG_python3-codecs is not set
 # CONFIG_python3-pprint is not set
 # CONFIG_python3-datetime is not set
@@ -3051,14 +2893,12 @@ CONFIG_python3=y
 # CONFIG_python3-xml is not set
 # CONFIG_python3-numbers is not set
 # CONFIG_python3-pyvenv is not set
-# CONFIG_python3-sqlite3-tests is not set
 # CONFIG_python3-tests is not set
 # CONFIG_python3-netclient is not set
 # CONFIG_python3-netserver is not set
 # CONFIG_python3-math is not set
 # CONFIG_python3-asyncio is not set
 # CONFIG_python3-tkinter is not set
-# CONFIG_python3-subprocess is not set
 # CONFIG_python3-compression is not set
 # CONFIG_python3-gdbm is not set
 # CONFIG_python3-idle is not set
@@ -3068,32 +2908,24 @@ CONFIG_python3-core=y
 # CONFIG_python3-terminal is not set
 # CONFIG_python3-shell is not set
 # CONFIG_python3-db is not set
-# CONFIG_python3-reprlib is not set
 # CONFIG_python3-threading is not set
 # CONFIG_python3-email is not set
 # CONFIG_python3-stringold is not set
 # CONFIG_python3-unittest is not set
 # CONFIG_python3-misc is not set
-# CONFIG_python3-textutils is not set
 # CONFIG_python3-mailbox is not set
 # CONFIG_python3-pkgutil is not set
-# CONFIG_python3-importlib is not set
 # CONFIG_python3-mmap is not set
 # CONFIG_python3-json is not set
 # CONFIG_python3-audio is not set
-# CONFIG_python3-argparse is not set
 # CONFIG_python3-distutils is not set
 # CONFIG_python3-mime is not set
 # CONFIG_python3-multiprocessing is not set
-# CONFIG_python3-re is not set
 # CONFIG_python3-html is not set
-# CONFIG_python3-enum is not set
 # CONFIG_python3-image is not set
 # CONFIG_python3-difflib is not set
 # CONFIG_python3-dev is not set
-# CONFIG_python3-signal is not set
 # CONFIG_python3-syslog is not set
-# CONFIG_python3-man is not set
 # CONFIG_python3-curses is not set
 # CONFIG_libpython3 is not set
 # CONFIG_python3-logging is not set
@@ -3101,13 +2933,11 @@ CONFIG_python3-core=y
 # CONFIG_python3-xmlrpc is not set
 # CONFIG_python3-ctypes is not set
 # CONFIG_python3-sqlite3 is not set
-# CONFIG_python3-selectors is not set
 # CONFIG_python3-fcntl is not set
 # CONFIG_python3-compile is not set
 # CONFIG_python3-pickle is not set
 # CONFIG_python3-dbg is not set
 # CONFIG_python3-debugger is not set
-# CONFIG_python3-lang is not set
 
 #
 # python3-async 
@@ -3159,7 +2989,6 @@ CONFIG_python3-core=y
 # CONFIG_qtbase-dev is not set
 # CONFIG_qtbase-dbg is not set
 # CONFIG_qtbase-tools is not set
-# CONFIG_qtbase-examples-dev is not set
 # CONFIG_qtbase-examples is not set
 # CONFIG_qtbase-mkspecs is not set
 
@@ -3168,18 +2997,11 @@ CONFIG_python3-core=y
 #
 # CONFIG_qtcharts is not set
 # CONFIG_qtcharts-qmlplugins is not set
-# CONFIG_qtcharts-examples-dev is not set
 # CONFIG_qtcharts-mkspecs is not set
 # CONFIG_qtcharts-dbg is not set
-# CONFIG_qtcharts-plugins is not set
-# CONFIG_qtcharts-tools is not set
 # CONFIG_qtcharts-examples is not set
 # CONFIG_qtcharts-dev is not set
-# CONFIG_qtcharts-qmlplugins-dbg is not set
-# CONFIG_qtcharts-plugins-dbg is not set
 # CONFIG_qtcharts-qmldesigner is not set
-# CONFIG_qtcharts-examples-dbg is not set
-# CONFIG_qtcharts-tools-dbg is not set
 
 #
 # qtconnectivity 
@@ -3197,8 +3019,6 @@ CONFIG_python3-core=y
 #
 # CONFIG_qtdeclarative is not set
 # CONFIG_qtdeclarative-tools is not set
-# CONFIG_qtdeclarative-examples-dev is not set
-# CONFIG_qtdeclarative-plugins is not set
 # CONFIG_qtdeclarative-examples is not set
 # CONFIG_qtdeclarative-mkspecs is not set
 # CONFIG_qtdeclarative-dbg is not set
@@ -3209,19 +3029,11 @@ CONFIG_python3-core=y
 # qtenginio 
 #
 # CONFIG_qtenginio is not set
-# CONFIG_qtenginio-tools is not set
 # CONFIG_qtenginio-qmlplugins is not set
 # CONFIG_qtenginio-dev is not set
 # CONFIG_qtenginio-dbg is not set
 # CONFIG_qtenginio-examples is not set
-# CONFIG_qtenginio-plugins-dbg is not set
-# CONFIG_qtenginio-plugins is not set
-# CONFIG_qtenginio-tools-dbg is not set
-# CONFIG_qtenginio-qmldesigner is not set
 # CONFIG_qtenginio-mkspecs is not set
-# CONFIG_qtenginio-qmlplugins-dbg is not set
-# CONFIG_qtenginio-examples-dev is not set
-# CONFIG_qtenginio-examples-dbg is not set
 
 #
 # qtimageformats 
@@ -3252,32 +3064,12 @@ CONFIG_python3-core=y
 # CONFIG_qtmultimedia-dev is not set
 # CONFIG_qtmultimedia-examples is not set
 # CONFIG_qtmultimedia-qmlplugins is not set
-# CONFIG_qtmultimedia-examples-dev is not set
-
-#
-# qtquick1 
-#
-# CONFIG_qtquick1 is not set
-# CONFIG_qtquick1-examples-dbg is not set
-# CONFIG_qtquick1-dbg is not set
-# CONFIG_qtquick1-dev is not set
-# CONFIG_qtquick1-examples is not set
-# CONFIG_qtquick1-tools is not set
-# CONFIG_qtquick1-qmldesigner is not set
-# CONFIG_qtquick1-qmlplugins is not set
-# CONFIG_qtquick1-qmlplugins-dbg is not set
-# CONFIG_qtquick1-tools-dbg is not set
-# CONFIG_qtquick1-examples-dev is not set
-# CONFIG_qtquick1-mkspecs is not set
-# CONFIG_qtquick1-plugins is not set
-# CONFIG_qtquick1-plugins-dbg is not set
 
 #
 # qtquickcontrols 
 #
 # CONFIG_qtquickcontrols is not set
 # CONFIG_qtquickcontrols-dev is not set
-# CONFIG_qtquickcontrols-qmlplugins-dbg is not set
 # CONFIG_qtquickcontrols-examples is not set
 # CONFIG_qtquickcontrols-qmldesigner is not set
 # CONFIG_qtquickcontrols-qmlplugins is not set
@@ -3297,17 +3089,10 @@ CONFIG_python3-core=y
 #
 # CONFIG_qtsensors is not set
 # CONFIG_qtsensors-examples is not set
-# CONFIG_qtsensors-examples-dbg is not set
-# CONFIG_qtsensors-qmlplugins-dbg is not set
 # CONFIG_qtsensors-qmlplugins is not set
 # CONFIG_qtsensors-mkspecs is not set
-# CONFIG_qtsensors-qmldesigner is not set
-# CONFIG_qtsensors-tools-dbg is not set
 # CONFIG_qtsensors-plugins is not set
 # CONFIG_qtsensors-dbg is not set
-# CONFIG_qtsensors-tools is not set
-# CONFIG_qtsensors-plugins-dbg is not set
-# CONFIG_qtsensors-examples-dev is not set
 # CONFIG_qtsensors-dev is not set
 
 #
@@ -3316,35 +3101,18 @@ CONFIG_python3-core=y
 # CONFIG_qtserialport is not set
 # CONFIG_qtserialport-mkspecs is not set
 # CONFIG_qtserialport-dev is not set
-# CONFIG_qtserialport-examples-dbg is not set
-# CONFIG_qtserialport-examples-dev is not set
-# CONFIG_qtserialport-qmlplugins is not set
-# CONFIG_qtserialport-qmlplugins-dbg is not set
-# CONFIG_qtserialport-tools-dbg is not set
 # CONFIG_qtserialport-dbg is not set
-# CONFIG_qtserialport-plugins is not set
-# CONFIG_qtserialport-tools is not set
-# CONFIG_qtserialport-plugins-dbg is not set
-# CONFIG_qtserialport-qmldesigner is not set
 # CONFIG_qtserialport-examples is not set
 
 #
 # qtsvg 
 #
 # CONFIG_qtsvg is not set
-# CONFIG_qtsvg-qmlplugins-dbg is not set
-# CONFIG_qtsvg-tools-dbg is not set
 # CONFIG_qtsvg-dev is not set
-# CONFIG_qtsvg-plugins-dbg is not set
 # CONFIG_qtsvg-dbg is not set
 # CONFIG_qtsvg-examples is not set
-# CONFIG_qtsvg-tools is not set
 # CONFIG_qtsvg-mkspecs is not set
 # CONFIG_qtsvg-plugins is not set
-# CONFIG_qtsvg-qmlplugins is not set
-# CONFIG_qtsvg-qmldesigner is not set
-# CONFIG_qtsvg-examples-dbg is not set
-# CONFIG_qtsvg-examples-dev is not set
 
 #
 # qtsystems 
@@ -3362,7 +3130,6 @@ CONFIG_python3-core=y
 #
 # CONFIG_qttools is not set
 # CONFIG_qttools-dbg is not set
-# CONFIG_qttools-qmlplugins is not set
 # CONFIG_qttools-dev is not set
 # CONFIG_qttools-examples is not set
 # CONFIG_qttools-tools is not set
@@ -3373,22 +3140,18 @@ CONFIG_python3-core=y
 # qttranslations 
 #
 # CONFIG_qttranslations is not set
-# CONFIG_qttranslations-qtconfig is not set
 # CONFIG_qttranslations-qtwebengine is not set
-# CONFIG_qttranslations-qtquick1 is not set
 # CONFIG_qttranslations-qthelp is not set
 # CONFIG_qttranslations-qtbase is not set
 # CONFIG_qttranslations-dbg is not set
 # CONFIG_qttranslations-dev is not set
 # CONFIG_qttranslations-qtscript is not set
 # CONFIG_qttranslations-qtdeclarative is not set
-# CONFIG_qttranslations-tools-dbg is not set
 # CONFIG_qttranslations-assistant is not set
 # CONFIG_qttranslations-qtwebsockets is not set
 # CONFIG_qttranslations-linguist is not set
 # CONFIG_qttranslations-qtserialport is not set
 # CONFIG_qttranslations-qtmultimedia is not set
-# CONFIG_qttranslations-qt is not set
 # CONFIG_qttranslations-qtconnectivity is not set
 # CONFIG_qttranslations-qtlocation is not set
 # CONFIG_qttranslations-qtxmlpatterns is not set
@@ -3402,18 +3165,10 @@ CONFIG_python3-core=y
 #
 # CONFIG_qtwebchannel is not set
 # CONFIG_qtwebchannel-mkspecs is not set
-# CONFIG_qtwebchannel-plugins is not set
-# CONFIG_qtwebchannel-plugins-dbg is not set
 # CONFIG_qtwebchannel-dbg is not set
 # CONFIG_qtwebchannel-examples is not set
-# CONFIG_qtwebchannel-examples-dev is not set
-# CONFIG_qtwebchannel-tools is not set
-# CONFIG_qtwebchannel-qmldesigner is not set
 # CONFIG_qtwebchannel-qmlplugins is not set
-# CONFIG_qtwebchannel-tools-dbg is not set
 # CONFIG_qtwebchannel-dev is not set
-# CONFIG_qtwebchannel-examples-dbg is not set
-# CONFIG_qtwebchannel-qmlplugins-dbg is not set
 
 #
 # qtwebkit 
@@ -3428,61 +3183,21 @@ CONFIG_python3-core=y
 # qtwebsockets 
 #
 # CONFIG_qtwebsockets is not set
-# CONFIG_qtwebsockets-examples-dbg is not set
-# CONFIG_qtwebsockets-examples-dev is not set
-# CONFIG_qtwebsockets-qmldesigner is not set
 # CONFIG_qtwebsockets-examples is not set
 # CONFIG_qtwebsockets-qmlplugins is not set
-# CONFIG_qtwebsockets-tools-dbg is not set
-# CONFIG_qtwebsockets-qmlplugins-dbg is not set
 # CONFIG_qtwebsockets-dbg is not set
-# CONFIG_qtwebsockets-tools is not set
-# CONFIG_qtwebsockets-plugins-dbg is not set
 # CONFIG_qtwebsockets-dev is not set
 # CONFIG_qtwebsockets-mkspecs is not set
-# CONFIG_qtwebsockets-plugins is not set
 
 #
 # qtxmlpatterns 
 #
 # CONFIG_qtxmlpatterns is not set
-# CONFIG_qtxmlpatterns-plugins is not set
 # CONFIG_qtxmlpatterns-dev is not set
 # CONFIG_qtxmlpatterns-mkspecs is not set
-# CONFIG_qtxmlpatterns-qmldesigner is not set
-# CONFIG_qtxmlpatterns-examples-dbg is not set
-# CONFIG_qtxmlpatterns-qmlplugins is not set
 # CONFIG_qtxmlpatterns-examples is not set
 # CONFIG_qtxmlpatterns-dbg is not set
-# CONFIG_qtxmlpatterns-plugins-dbg is not set
-# CONFIG_qtxmlpatterns-qmlplugins-dbg is not set
-# CONFIG_qtxmlpatterns-tools-dbg is not set
 # CONFIG_qtxmlpatterns-tools is not set
-# CONFIG_qtxmlpatterns-examples-dev is not set
-
-#
-# randrproto 
-#
-# CONFIG_randrproto-dbg is not set
-# CONFIG_randrproto-dev is not set
-
-#
-# recordproto 
-#
-# CONFIG_recordproto-dbg is not set
-# CONFIG_recordproto-dev is not set
-
-#
-# renderproto 
-#
-# CONFIG_renderproto-dbg is not set
-# CONFIG_renderproto-dev is not set
-
-#
-# resourceproto 
-#
-# CONFIG_resourceproto-dbg is not set
-# CONFIG_resourceproto-dev is not set
 
 #
 # rgb 
@@ -3495,9 +3210,6 @@ CONFIG_python3-core=y
 # rpm 
 #
 # CONFIG_rpm is not set
-# CONFIG_rpm-common is not set
-# CONFIG_rpm-libs is not set
-# CONFIG_python-rpm is not set
 # CONFIG_rpm-build is not set
 # CONFIG_rpm-dbg is not set
 # CONFIG_rpm-dev is not set
@@ -3522,26 +3234,6 @@ CONFIG_python3-core=y
 # CONFIG_rpmsg-proxy-app is not set
 # CONFIG_rpmsg-proxy-app-dbg is not set
 # CONFIG_rpmsg-proxy-app-dev is not set
-
-#
-# rpmsg-proxy-module 
-#
-# CONFIG_rpmsg-proxy-module is not set
-# CONFIG_rpmsg-proxy-module-dev is not set
-# CONFIG_rpmsg-proxy-module-dbg is not set
-
-#
-# rpmsg-user-module 
-#
-# CONFIG_rpmsg-user-module is not set
-# CONFIG_rpmsg-user-module-dbg is not set
-# CONFIG_rpmsg-user-module-dev is not set
-
-#
-# scrnsaverproto 
-#
-# CONFIG_scrnsaverproto-dev is not set
-# CONFIG_scrnsaverproto-dbg is not set
 
 #
 # serf 
@@ -3596,13 +3288,6 @@ CONFIG_tcf-agent=y
 # CONFIG_tiff-dev is not set
 
 #
-# trace-cmd 
-#
-# CONFIG_trace-cmd is not set
-# CONFIG_trace-cmd-dbg is not set
-# CONFIG_trace-cmd-dev is not set
-
-#
 # util-macros 
 #
 # CONFIG_util-macros is not set
@@ -3622,10 +3307,11 @@ CONFIG_media-ctl=y
 # CONFIG_libv4l-dev is not set
 
 #
-# videoproto 
+# valgrind
 #
-# CONFIG_videoproto-dev is not set
-# CONFIG_videoproto-dbg is not set
+# CONFIG_valgrind is not set
+# CONFIG_valgrind-dbg is not set
+# CONFIG_valgrind-dev is not set
 
 #
 # vte 
@@ -3649,6 +3335,11 @@ CONFIG_media-ctl=y
 # CONFIG_watchdog-config is not set
 # CONFIG_watchdog-config-dbg is not set
 # CONFIG_watchdog-config-dev is not set
+
+#
+# watchdog-init
+#
+# CONFIG_watchdog-init is not set
 
 #
 # webkitgtk 
@@ -3708,12 +3399,6 @@ CONFIG_media-ctl=y
 # CONFIG_xcb-util-wm-dev is not set
 
 #
-# xcmiscproto 
-#
-# CONFIG_xcmiscproto-dev is not set
-# CONFIG_xcmiscproto-dbg is not set
-
-#
 # xdg-utils 
 #
 # CONFIG_xdg-utils is not set
@@ -3726,12 +3411,6 @@ CONFIG_media-ctl=y
 # CONFIG_xdpyinfo is not set
 # CONFIG_xdpyinfo-dev is not set
 # CONFIG_xdpyinfo-dbg is not set
-
-#
-# xextproto 
-#
-# CONFIG_xextproto-dev is not set
-# CONFIG_xextproto-dbg is not set
 
 #
 # xf86-input-evdev 
@@ -3769,41 +3448,11 @@ CONFIG_media-ctl=y
 # CONFIG_xf86-video-fbdev-dev is not set
 
 #
-# xf86dgaproto 
-#
-# CONFIG_xf86dgaproto-dbg is not set
-# CONFIG_xf86dgaproto-dev is not set
-
-#
-# xf86driproto 
-#
-# CONFIG_xf86driproto-dbg is not set
-# CONFIG_xf86driproto-dev is not set
-
-#
-# xf86miscproto 
-#
-# CONFIG_xf86miscproto-dbg is not set
-# CONFIG_xf86miscproto-dev is not set
-
-#
-# xf86vidmodeproto 
-#
-# CONFIG_xf86vidmodeproto-dbg is not set
-# CONFIG_xf86vidmodeproto-dev is not set
-
-#
 # xhost 
 #
 # CONFIG_xhost is not set
 # CONFIG_xhost-dbg is not set
 # CONFIG_xhost-dev is not set
-
-#
-# xineramaproto 
-#
-# CONFIG_xineramaproto-dbg is not set
-# CONFIG_xineramaproto-dev is not set
 
 #
 # xinetd 
@@ -3853,12 +3502,6 @@ CONFIG_media-ctl=y
 # CONFIG_xprop is not set
 # CONFIG_xprop-dbg is not set
 # CONFIG_xprop-dev is not set
-
-#
-# xproto 
-#
-# CONFIG_xproto-dbg is not set
-# CONFIG_xproto-dev is not set
 
 #
 # xrandr 
@@ -3956,7 +3599,6 @@ CONFIG_yavta=y
 # CONFIG_gstreamer1.0-rtsp-server is not set
 # CONFIG_gstreamer1.0-rtsp-server-dbg is not set
 # CONFIG_gstreamer1.0-rtsp-server-dev is not set
-# CONFIG_gstreamer1.0-rtsp-server-glib is not set
 # CONFIG_gstreamer1.0-rtsp-server-meta is not set
 
 #
@@ -4051,6 +3693,11 @@ CONFIG_bridge-utils=y
 # CONFIG_mtools-dbg is not set
 
 #
+# power management 
+#
+# CONFIG_hellopm is not set
+
+#
 # utils 
 #
 
@@ -4118,13 +3765,6 @@ CONFIG_libdrm-kms=y
 # CONFIG_xserver-xorg-extension-extmod is not set
 
 #
-# xtscal 
-#
-# CONFIG_xtscal is not set
-# CONFIG_xtscal-dev is not set
-# CONFIG_xtscal-dbg is not set
-
-#
 # builder 
 #
 # CONFIG_builder is not set
@@ -4186,11 +3826,9 @@ CONFIG_libdrm-kms=y
 #
 # gnome-themes-standard 
 #
-# CONFIG_gnome-theme-adwaita-dev is not set
 # CONFIG_gnome-themes-standard-dev is not set
 # CONFIG_gnome-themes-standard-dbg is not set
 # CONFIG_gnome-theme-adwaita is not set
-# CONFIG_gnome-theme-adwaita-dbg is not set
 
 #
 # libsoup-2.4 
@@ -4242,7 +3880,6 @@ CONFIG_libdrm-kms=y
 #
 # libpthread-stubs 
 #
-# CONFIG_libpthread-stubs is not set
 # CONFIG_libpthread-stubs-dbg is not set
 # CONFIG_libpthread-stubs-dev is not set
 
@@ -4406,18 +4043,179 @@ CONFIG_libdrm-kms=y
 # CONFIG_matchbox-wm-dbg is not set
 
 #
-# x11-common 
-#
-# CONFIG_x11-common is not set
-# CONFIG_x11-common-dev is not set
-# CONFIG_x11-common-dbg is not set
-
-#
 # xserver-nodm-init 
 #
 # CONFIG_xserver-nodm-init is not set
 # CONFIG_xserver-nodm-init-dbg is not set
 # CONFIG_xserver-nodm-init-dev is not set
+
+#
+# Petalinux Package Groups
+#
+
+#
+# packagegroup-petalinux 
+#
+# CONFIG_packagegroup-petalinux is not set
+# CONFIG_packagegroup-petalinux-dbg is not set
+# CONFIG_packagegroup-petalinux-dev is not set
+
+#
+# packagegroup-petalinux-audio 
+#
+# CONFIG_packagegroup-petalinux-audio is not set
+# CONFIG_packagegroup-petalinux-audio-dbg is not set
+# CONFIG_packagegroup-petalinux-audio-dev is not set
+
+#
+# packagegroup-petalinux-benchmarks 
+#
+# CONFIG_packagegroup-petalinux-benchmarks is not set
+# CONFIG_packagegroup-petalinux-benchmarks-dbg is not set
+# CONFIG_packagegroup-petalinux-benchmarks-dev is not set
+
+#
+# packagegroup-petalinux-display-debug 
+#
+# CONFIG_packagegroup-petalinux-display-debug is not set
+# CONFIG_packagegroup-petalinux-display-debug-dbg is not set
+# CONFIG_packagegroup-petalinux-display-debug-dev is not set
+
+#
+# packagegroup-petalinux-gstreamer 
+#
+# CONFIG_packagegroup-petalinux-gstreamer is not set
+# CONFIG_packagegroup-petalinux-gstreamer-dev is not set
+# CONFIG_packagegroup-petalinux-gstreamer-dbg is not set
+
+#
+# packagegroup-petalinux-lmsensors 
+#
+# CONFIG_packagegroup-petalinux-lmsensors is not set
+# CONFIG_packagegroup-petalinux-lmsensors-dbg is not set
+# CONFIG_packagegroup-petalinux-lmsensors-dev is not set
+
+#
+# packagegroup-petalinux-matchbox 
+#
+# CONFIG_packagegroup-petalinux-matchbox is not set
+# CONFIG_packagegroup-petalinux-matchbox-dbg is not set
+# CONFIG_packagegroup-petalinux-matchbox-dev is not set
+
+#
+# packagegroup-petalinux-mraa 
+#
+# CONFIG_packagegroup-petalinux-mraa is not set
+# CONFIG_packagegroup-petalinux-mraa-dbg is not set
+# CONFIG_packagegroup-petalinux-mraa-dev is not set
+
+#
+# packagegroup-petalinux-multimedia 
+#
+# CONFIG_packagegroup-petalinux-multimedia is not set
+# CONFIG_packagegroup-petalinux-multimedia-dbg is not set
+# CONFIG_packagegroup-petalinux-multimedia-dev is not set
+
+#
+# packagegroup-petalinux-networking-debug
+#
+# CONFIG_packagegroup-petalinux-networking-debug is not set
+# CONFIG_packagegroup-petalinux-networking-debug-dbg is not set
+# CONFIG_packagegroup-petalinux-networking-debug-dev is not set
+
+#
+# packagegroup-petalinux-networking-stack 
+#
+# CONFIG_packagegroup-petalinux-networking-stack is not set
+# CONFIG_packagegroup-petalinux-networking-stack-dbg is not set
+# CONFIG_packagegroup-petalinux-networking-stack-dev is not set
+
+#
+# packagegroup-petalinux-openamp 
+#
+# CONFIG_packagegroup-petalinux-openamp is not set
+# CONFIG_packagegroup-petalinux-openamp-dev is not set
+# CONFIG_packagegroup-petalinux-openamp-dbg is not set
+
+#
+# packagegroup-petalinux-opencv 
+#
+CONFIG_packagegroup-petalinux-opencv=y
+# CONFIG_packagegroup-petalinux-opencv-dev is not set
+# CONFIG_packagegroup-petalinux-opencv-dbg is not set
+
+#
+# packagegroup-petalinux-python-modules 
+#
+# CONFIG_packagegroup-petalinux-python-modules is not set
+# CONFIG_packagegroup-petalinux-python-modules-dbg is not set
+# CONFIG_packagegroup-petalinux-python-modules-dev is not set
+
+#
+# packagegroup-petalinux-qt 
+#
+# CONFIG_packagegroup-petalinux-qt is not set
+# CONFIG_packagegroup-petalinux-qt-dev is not set
+# CONFIG_packagegroup-petalinux-qt-dbg is not set
+# CONFIG_inherit-populate-sdk-qt5 is not set
+
+#
+# packagegroup-petalinux-qt-extended 
+#
+# CONFIG_packagegroup-petalinux-qt-extended is not set
+# CONFIG_packagegroup-petalinux-qt-extended-dbg is not set
+# CONFIG_packagegroup-petalinux-qt-extended-dev is not set
+
+#
+# packagegroup-petalinux-self-hosted 
+#
+# CONFIG_packagegroup-petalinux-self-hosted is not set
+# CONFIG_packagegroup-petalinux-self-hosted-dbg is not set
+# CONFIG_packagegroup-petalinux-self-hosted-dev is not set
+
+#
+# packagegroup-petalinux-utils 
+#
+# CONFIG_packagegroup-petalinux-utils is not set
+# CONFIG_packagegroup-petalinux-utils-dbg is not set
+# CONFIG_packagegroup-petalinux-utils-dev is not set
+
+#
+# packagegroup-petalinux-v4lutils 
+#
+# CONFIG_packagegroup-petalinux-v4lutils is not set
+# CONFIG_packagegroup-petalinux-v4lutils-dbg is not set
+# CONFIG_packagegroup-petalinux-v4lutils-dev is not set
+
+#
+# packagegroup-petalinux-weston 
+#
+# CONFIG_packagegroup-petalinux-weston is not set
+# CONFIG_packagegroup-petalinux-weston-dbg is not set
+# CONFIG_packagegroup-petalinux-weston-dev is not set
+
+#
+# packagegroup-petalinux-x11 
+#
+# CONFIG_packagegroup-petalinux-x11 is not set
+# CONFIG_packagegroup-petalinux-x11-dev is not set
+# CONFIG_packagegroup-petalinux-x11-dbg is not set
+
+#
+# packagegroup-petalinux-xen 
+#
+# CONFIG_packagegroup-petalinux-xen is not set
+# CONFIG_packagegroup-petalinux-xen-dev is not set
+# CONFIG_packagegroup-petalinux-xen-dbg is not set
+
+#
+# Image Features
+#
+CONFIG_imagefeature-ssh-server-dropbear=y
+# CONFIG_imagefeature-ssh-server-openssh is not set
+# CONFIG_imagefeature-hwcodecs is not set
+# CONFIG_imagefeature-package-management is not set
+# CONFIG_imagefeature-debug-tweaks is not set
 
 #
 # apps 
@@ -4428,18 +4226,22 @@ CONFIG_blinky-init=y
 CONFIG_mac-eeprom-config=y
 CONFIG_mac-eeprom-config-init=y
 # CONFIG_peekpoke is not set
-CONFIG_sds-lib=y
 CONFIG_performance-tests=y
 CONFIG_python-webserver=y
 CONFIG_python-webserver-init=y
+CONFIG_sds-lib=y
 
 #
 # user packages 
 #
 CONFIG_bonniePLUSPLUS=y
 CONFIG_iperf3=y
+CONFIG_nano=y
+CONFIG_opencl-clhpp-dev=y
+CONFIG_opencl-headers-dev=y
 
 #
 # PetaLinux RootFS Settings
 #
 CONFIG_ROOTFS_ROOT_PASSWD="root"
+CONFIG_ADD_EXTRA_USERS=""

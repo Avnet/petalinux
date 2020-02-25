@@ -1,0 +1,39 @@
+#Note: Mention Each package in individual line
+#These packages will get added into rootfs menu entry
+
+CONFIG_gpio-demo
+CONFIG_peekpoke
+
+CONFIG_blinky
+CONFIG_blinky-init
+
+CONFIG_mac-eeprom-config
+CONFIG_mac-eeprom-config-init
+
+CONFIG_user-led-test
+CONFIG_user-switch-test
+
+CONFIG_performance-tests
+
+CONFIG_sds-lib
+
+CONFIG_nano
+CONFIG_iperf3
+CONFIG_bonnie++
+
+CONFIG_python3
+CONFIG_python3-core
+CONFIG_python3-dbus
+CONFIG_python3-pygobject
+
+CONFIG_python-webserver
+CONFIG_python-webserver-init
+
+# Vitis & XRT additions
+CONFIG_xrt
+CONFIG_xrt-dev
+CONFIG_zocl
+CONFIG_opencl-clhpp-dev
+CONFIG_opencl-headers-dev
+CONFIG_packagegroup-petalinux-opencv
+CONFIG_json-c
