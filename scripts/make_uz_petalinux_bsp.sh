@@ -58,12 +58,14 @@
 
 #!/bin/bash
 
-# Set images to create
+# Set global variables here.
+# Specify images to create
 BUILD_UZ3EG_IOCC=yes
 BUILD_UZ3EG_PCIEC=yes
-BUILD_UZ7EV_EVCC=no
+BUILD_UZ7EV_EVCC=yes
 
-# Set global variables here.
+DEBUG=yes
+
 APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.2-final
 APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.2
 PLNX_VER=2019_2
@@ -85,8 +87,6 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
-
-DEBUG=yes
 
 PLNX_BUILD_SUCCESS=-1
 
@@ -449,7 +449,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
 
   # Create the PetaLinux project.
-  petalinux-create --type project --template zynqMP --name ${PETALINUX_PROJECT_NAME}
+  petalinux-create --type project --template zynqMP --name ${PETALINUX_PROJECT_NAME} --force
 
   # Create the hardware definition folder.
   mkdir -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform
@@ -562,60 +562,56 @@ create_petalinux_bsp ()
   # Do an initial project clean 
   petalinux-build -x mrproper
 
-  # DEBUG
-  if [ "$DEBUG" == "yes" ];
+  # If the QSPI boot option is set, then perform the steps needed to build 
+  # BOOT.BIN for booting from QSPI.
+  if [ "$BUILD_BOOT_QSPI_OPTION" == "yes" ]
   then
-    echo "Stop here and check for WARNING messages."
-    #read -p "Press ENTER to continue."
-    read -t 10 -p "Pause here for 10 seconds"
-    echo " "
-  fi
+    # Restore project configurations and wipe out any changes made for special boot options.
+    petalinux_project_restore_boot_config
 
-  # Restore project configurations and wipe out any changes made for special boot options.
-  petalinux_project_restore_boot_config
+    # Modify the project configuration for EMMC boot.
+    petalinux_project_set_boot_config_qspi
 
-  # Modify the project configuration for QSPI boot.
-  petalinux_project_set_boot_config_qspi
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo "Stop here and go check the platform-top.h file and make sure it is set for QSPI boot"
+      #read -p "Press ENTER to continue."
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
-  # DEBUG
-  if [ "$DEBUG" == "yes" ];
-  then
-    echo "Stop here and go check the platform-top.h file and make sure it is set for QSPI boot"
-    #read -p "Press ENTER to continue."
-    read -t 10 -p "Pause here for 10 seconds"
-    echo " "
-  fi
+    PLNX_BUILD_SUCCESS=-1
 
-  PLNX_BUILD_SUCCESS=-1
+    echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
+    while [ $PLNX_BUILD_SUCCESS -ne 0 ];
+    do
+      # Make sure that intermediary files get cleaned up.  This will also force
+      # the rootfs to get rebuilt and generate a new image.ub file.
+      petalinux-build -x distclean
 
-  echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
-  while [ $PLNX_BUILD_SUCCESS -ne 0 ];
-  do
-    # Make sure that intermediary files get cleaned up.  This will also force
-    # the rootfs to get rebuilt and generate a new image.ub file.
-    petalinux-build -x distclean
-
-    # Build PetaLinux project.
-    petalinux-build 
+      # Build PetaLinux project.
+      petalinux-build 
       
-    PLNX_BUILD_SUCCESS=$?
-  done
+      PLNX_BUILD_SUCCESS=$?
+    done
 
-  # Create QSPI boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
-  petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --kernel --offset 0x13A0000 --force
+    # Create QSPI boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga hw_platform/system_wrapper.bit --uboot --kernel --offset 0x13A0000 --force
     
-  # Copy the boot.bin file and name the new file BOOT_QSPI.bin
-  cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_QSPI.bin
+    # Copy the boot.bin file and name the new file BOOT_QSPI.bin
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_QSPI.bin
 
-  # Copy the u-boot.elf file and name the new file u-boot_QSPI.elf
-  cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf
+    # Copy the u-boot.elf file and name the new file u-boot_QSPI.elf
+    cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf
 
-  # Create script to program the QSPI Flash
-  echo "#!/bin/sh" > program_boot_qspi.sh
-  echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
-  chmod 777 ./program_boot_qspi.sh
+    # Create script to program the QSPI Flash
+    echo "#!/bin/sh" > program_boot_qspi.sh
+    echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
+    chmod 777 ./program_boot_qspi.sh
+  fi
 
   # If the EMMC boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI + eMMC.

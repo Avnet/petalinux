@@ -55,6 +55,8 @@
 #!/bin/bash
 
 # Set global variables here.
+DEBUG=no
+
 APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.2-final
 APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.2
 PLNX_VER=2019_2
@@ -77,8 +79,6 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
-
-DEBUG=no
 
 PLNX_BUILD_SUCCESS=-1
 
@@ -471,7 +471,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
 
   # Create the PetaLinux project.
-  petalinux-create --type project --template zynqMP --name ${PETALINUX_PROJECT_NAME}
+  petalinux-create --type project --template zynqMP --name ${PETALINUX_PROJECT_NAME} --force
 
   # Create the hardware definition folder.
   mkdir -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform
