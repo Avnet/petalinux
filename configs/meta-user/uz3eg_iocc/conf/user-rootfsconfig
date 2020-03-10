@@ -12,6 +12,7 @@ CONFIG_mac-eeprom-config-init
 
 CONFIG_sds-lib
 
+CONFIG_nano
 CONFIG_iperf3
 CONFIG_bonnie++
 
@@ -24,3 +25,11 @@ CONFIG_python-webserver
 CONFIG_python-webserver-init
 CONFIG_performance-tests
 
+# Vitis & XRT additions
+CONFIG_xrt
+CONFIG_xrt-dev
+CONFIG_zocl
+CONFIG_opencl-clhpp-dev
+CONFIG_opencl-headers-dev
+CONFIG_packagegroup-petalinux-opencv
+CONFIG_json-c

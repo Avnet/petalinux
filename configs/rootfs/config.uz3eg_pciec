@@ -157,7 +157,7 @@ CONFIG_bc=y
 #
 # haveged 
 #
-# CONFIG_haveged is not set
+CONFIG_haveged=y
 
 #
 # i2c-tools 
@@ -2403,7 +2403,7 @@ CONFIG_coreutils=y
 # CONFIG_eudev-hwdb is not set
 # CONFIG_eudev-dev is not set
 # CONFIG_eudev-dbg is not set
-# CONFIG_udev-extraconf is not set
+CONFIG_udev-extraconf=y
 
 #
 # fbset 
@@ -3339,7 +3339,7 @@ CONFIG_media-ctl=y
 #
 # watchdog-init
 #
-# CONFIG_watchdog-init is not set
+CONFIG_watchdog-init=y
 
 #
 # webkitgtk 
@@ -3695,7 +3695,7 @@ CONFIG_bridge-utils=y
 #
 # power management 
 #
-# CONFIG_hellopm is not set
+CONFIG_hellopm=y
 
 #
 # utils 
@@ -4084,7 +4084,7 @@ CONFIG_libdrm-kms=y
 #
 # packagegroup-petalinux-gstreamer 
 #
-# CONFIG_packagegroup-petalinux-gstreamer is not set
+CONFIG_packagegroup-petalinux-gstreamer=y
 # CONFIG_packagegroup-petalinux-gstreamer-dev is not set
 # CONFIG_packagegroup-petalinux-gstreamer-dbg is not set
 
@@ -4098,7 +4098,7 @@ CONFIG_libdrm-kms=y
 #
 # packagegroup-petalinux-matchbox 
 #
-# CONFIG_packagegroup-petalinux-matchbox is not set
+CONFIG_packagegroup-petalinux-matchbox=y
 # CONFIG_packagegroup-petalinux-matchbox-dbg is not set
 # CONFIG_packagegroup-petalinux-matchbox-dev is not set
 
@@ -4183,7 +4183,7 @@ CONFIG_packagegroup-petalinux-opencv=y
 #
 # packagegroup-petalinux-v4lutils 
 #
-# CONFIG_packagegroup-petalinux-v4lutils is not set
+CONFIG_packagegroup-petalinux-v4lutils=y
 # CONFIG_packagegroup-petalinux-v4lutils-dbg is not set
 # CONFIG_packagegroup-petalinux-v4lutils-dev is not set
 
@@ -4197,7 +4197,7 @@ CONFIG_packagegroup-petalinux-opencv=y
 #
 # packagegroup-petalinux-x11 
 #
-# CONFIG_packagegroup-petalinux-x11 is not set
+CONFIG_packagegroup-petalinux-x11=y
 # CONFIG_packagegroup-petalinux-x11-dev is not set
 # CONFIG_packagegroup-petalinux-x11-dbg is not set
 
@@ -4213,7 +4213,7 @@ CONFIG_packagegroup-petalinux-opencv=y
 #
 CONFIG_imagefeature-ssh-server-dropbear=y
 # CONFIG_imagefeature-ssh-server-openssh is not set
-# CONFIG_imagefeature-hwcodecs is not set
+CONFIG_imagefeature-hwcodecs=y
 # CONFIG_imagefeature-package-management is not set
 # CONFIG_imagefeature-debug-tweaks is not set
 

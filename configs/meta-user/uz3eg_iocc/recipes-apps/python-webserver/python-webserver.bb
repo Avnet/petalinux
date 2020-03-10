@@ -28,7 +28,7 @@ SRC_URI = "file://cgi.py \
        file://images/board.jpg \
        file://images/ultrazed.png \
        file://pdfs/5043-PB-AES-ZU3EG-1-SOM-G-V3.pdf \
-       file://pdfs/5080-PB-AES-ZU-IOCC-G-V2e.pdf \
+       file://pdfs/5081-PB-AES-ZU-PCIECC-G-V2d.pdf \
        file://pdfs/Delkin_Devices_Product_Line.pdf \
 		  "
 
@@ -55,7 +55,7 @@ do_install() {
          install -m 0755 ${S}/images/favicon.ico ${D}/home/root/webserver/images
          install -m 0755 ${S}/images/ultrazed.png ${D}/home/root/webserver/images
          install -m 0755 ${S}/pdfs/5043-PB-AES-ZU3EG-1-SOM-G-V3.pdf ${D}/home/root/webserver/pdfs
-         install -m 0755 ${S}/pdfs/5080-PB-AES-ZU-IOCC-G-V2e.pdf ${D}/home/root/webserver/pdfs
+         install -m 0755 ${S}/pdfs/5081-PB-AES-ZU-PCIECC-G-V2d.pdf ${D}/home/root/webserver/pdfs
          install -m 0755 ${S}/pdfs/Delkin_Devices_Product_Line.pdf ${D}/home/root/webserver/pdfs
 }
 
@@ -74,6 +74,6 @@ FILES_${PN} += "/home/root/webserver/cgi.py \
            /home/root/webserver/images/favicon.ico \
            /home/root/webserver/images/ultrazed.png \
            /home/root/webserver/pdfs/5043-PB-AES-ZU3EG-1-SOM-G-V3.pdf \
-           /home/root/webserver/pdfs/5080-PB-AES-ZU-IOCC-G-V2e.pdf \
+           /home/root/webserver/pdfs/5081-PB-AES-ZU-PCIECC-G-V2d.pdf \
            /home/root/webserver/pdfs/Delkin_Devices_Product_Line.pdf \
                "

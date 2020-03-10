@@ -60,11 +60,48 @@
 
 # Set global variables here.
 # Specify images to create
-BUILD_UZ3EG_IOCC=yes
-BUILD_UZ3EG_PCIEC=yes
-BUILD_UZ7EV_EVCC=yes
+# Light Green (Avnet color)
+LGRN='\033[1;32m'
+# Red 
+LRED='\033[1;31m'
+# BLUE
+LBLU='\033[1;34m'
+# Yellow
+LYEL='\033[1;33m'
+# No Color
+NC='\033[0m' 
 
-DEBUG=yes
+BUILD_UZ3EG_IOCC=no
+BUILD_UZ3EG_PCIEC=no
+BUILD_UZ7EV_EVCC=no
+
+  if [ "$1" == "UZ3EG_IOCC" ]
+    then
+      BUILD_UZ3EG_IOCC=yes
+  elif [ "$1" == "UZ3EG_PCIEC" ]
+    then
+      BUILD_UZ3EG_PCIEC=yes
+  elif [ "$1" == "UZ7EV_EVCC" ]
+    then
+      BUILD_UZ7EV_EVCC=yes
+  elif [ "$1" == "" ]
+	then
+      echo ""
+      echo ""
+      echo -e ${LGRN}"+*******************************************************************+"
+      echo -e ${LGRN}"*${LRED} This make script defaults to building NO project, use arguments:  ${LGRN}*"
+      echo -e ${LGRN}"* UZ3EG_IOCC  ${LBLU}- builds UltraZed-EG with IO Carrier Card             ${LGRN}*"
+      echo -e ${LGRN}"* UZ3EG_PCIEC ${LBLU}- builds UltraZed-EG with PCIe Carrier Card           ${LGRN}*"
+      echo -e ${LGRN}"* UZ7EV_EVCC  ${LBLU}- builds UltraZed-EV with Carrier Card                ${LGRN}*"
+      echo -e        "*${NC} Example: ${LYEL}./make_uz_petalinux_bsp.sh UZ7EV_EVCC                    ${LGRN}*"
+      echo -e ${LGRN}"*${NC}     will produce the UltraZed-EV with Original Carrier Card       ${LGRN}*"
+      echo -e ${LGRN}"+*******************************************************************+${NC}"
+      echo ""
+      echo ""
+      exit 1
+  fi
+
+DEBUG=no
 
 APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.2-final
 APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2019.2
@@ -489,7 +526,7 @@ create_petalinux_bsp ()
   # DEBUG
   if [ "$DEBUG" == "yes" ];
   then
-    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
+    echo "Pause here to check for any messages about importing the hardware platform."
     #read -p "Press ENTER to continue" 
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
@@ -897,7 +934,8 @@ create_petalinux_bsp ()
   echo "rm -rf ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
   echo "cp -rf ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -rf ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "sync ; sync" >> cptftp_jtag.sh
+  echo "sync&&sync" >> cptftp_jtag.sh
+  echo "echo \"petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot\"" >> cptftp_jtag.sh
   echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
   
@@ -1018,7 +1056,10 @@ build_hw_platform ()
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
-    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+    # NOTE that at this time, the argv make assist script is responsible for adding board= and project=
+    # this script is responsible for putting them in the correct order (board, then project)
+    vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME} 
+    #vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
     echo " "
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."

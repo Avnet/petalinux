@@ -90,7 +90,7 @@
 		dwc3@fe300000 {
 		snps,enable_auto_retry;
 		};
-	};
+   };
 };
 
 &amba_pl {
@@ -126,7 +126,6 @@
 	};
 
 };
-
 
 
 
