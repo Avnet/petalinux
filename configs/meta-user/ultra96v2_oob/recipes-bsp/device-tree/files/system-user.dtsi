@@ -36,8 +36,8 @@
 		xlnx,kind-of-intr = <0x0>;
 		xlnx,num-intr-inputs = <0x20>;
 		interrupt-parent = <&gic>;
-		// connected at PS interrupt offset [5] (89+5=94) 
-		interrupts = <0 94 4>;
+		// connected at PS interrupt offset [6] (89+6=95) 
+		interrupts = <0 95 4>;
 	};
 
 	zyxclmm_drm {
