@@ -1,6 +1,10 @@
 /include/ "system-conf.dtsi"
 /include/ "openamp.dtsi"
 / {
+	chosen {
+		bootargs = "earlycon console=ttyPS0,115200 clk_ignore_unused root=/dev/mmcblk0p2 rw rootwait cma=512M";
+	};
+
    sdio_pwrseq: sdio_pwrseq {  /* This needs to be able to manipulate the chip_en and the resetn properly */
       compatible = "mmc-pwrseq-simple";
       /* post-power-on-delay-ms = <10>; */
