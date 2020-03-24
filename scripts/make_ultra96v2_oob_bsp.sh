@@ -54,7 +54,6 @@
 
 #!/bin/bash
 
-# Set global variables here.
 DEBUG=no
 
 APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2019.2-final
@@ -505,7 +504,7 @@ create_petalinux_bsp ()
   # DEBUG
   if [ "$DEBUG" == "yes" ];
   then
-    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
+    echo "Pause here to check for any messages about importing the hardware platform."
     #read -p "Press ENTER to continue" 
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
@@ -971,8 +970,9 @@ create_petalinux_bsp ()
   echo "rm -rf ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
   echo "cp -rf ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -rf ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "sync ; sync" >> cptftp_jtag.sh
-  echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
+  echo "echo \"petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot\"" >> cptftp_jtag.sh
+  echo "sync&&sync&&petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
+#  echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
   
   # Change to PetaLinux projects folder.
@@ -1096,7 +1096,10 @@ build_hw_platform ()
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
-    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+    # NOTE that at this time, the argv make assist script is responsible for adding board= and project=
+    # this script is responsible for putting them in the correct order (board, then project)
+    vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME} 
+    #vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
     echo " "
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
