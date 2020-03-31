@@ -934,9 +934,9 @@ create_petalinux_bsp ()
   echo "rm -rf ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
   echo "cp -rf ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
   echo "cp -rf ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "sync&&sync" >> cptftp_jtag.sh
+  #echo "sync&&sync" >> cptftp_jtag.sh
   echo "echo \"petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot\"" >> cptftp_jtag.sh
-  echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
+  echo "sync && sync && petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
   
   # Change to PetaLinux projects folder.
