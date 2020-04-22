@@ -106,12 +106,12 @@ petalinux_project_configure_devicetree ()
   #
   # If available, overwrite the board specific top level devicetree source 
   # with the revision controlled source files.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_PROJECT_NAME} ]
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} ]
     then
     echo " "
     echo "Overwriting system-user level devicetree source include file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_PROJECT_NAME} \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
   else
     echo " "
@@ -131,7 +131,7 @@ petalinux_project_configure_kernel ()
   #
   # If available, copy the kernel user configuration file to the meta-user
   # kernel recipes folder.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.mz_fmccc ]
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.${HDL_BOARD_NAME} ]
     then
 
     # Create the meta-user kernel recipes folder structure if it does not 
@@ -153,7 +153,7 @@ petalinux_project_configure_kernel ()
     echo " "
     echo "Overwriting kernel user configuration file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.mz_fmccc \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-kernel/linux/linux-xlnx/user_${HDL_BOARD_NAME}.cfg
     
     # Create the kernel user config .bbappend file if it does not already exist.
@@ -391,17 +391,24 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
   echo " "
-  echo "Importing hardware definition ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware definition ${HDL_BOARD_NAME}.xsa from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+#TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
+#TC  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
+
 
   echo " "
   echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+#TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+#TC  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
+
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -415,7 +422,7 @@ create_petalinux_bsp ()
   # DEBUG
   echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
   #read -p "Press ENTER to continue" 
-  #read -t 10 -p "Pause here for 10 seconds"
+  read -t 10 -p "Pause here for 10 seconds"
 
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -439,7 +446,7 @@ create_petalinux_bsp ()
   # DEBUG
   #read -p "Press ENTER to continue" 
   read -t 10 -p "Pause here for 10 seconds"
-    
+
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
     echo " "
@@ -447,7 +454,7 @@ create_petalinux_bsp ()
     echo " "
     cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ]
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.generic ]
     then
     echo " "
     echo "WARNING: Using generic PetaLinux project config ..."
@@ -460,7 +467,11 @@ create_petalinux_bsp ()
     echo "PetaLinux project config is not touched for this build ..."
     echo " "
   fi
-
+  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
+  #read -p "Press ENTER to continue" 
+  read -t 10 -p "Pause here for 10 seconds"
+  
+  
   # Configure the device-tree.
   petalinux_project_configure_devicetree
 
@@ -472,7 +483,7 @@ create_petalinux_bsp ()
 
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
-  
+
   # Do an initial project clean
   petalinux-build -x mrproper
 
@@ -511,8 +522,8 @@ create_petalinux_bsp ()
       PLNX_BUILD_SUCCESS=$?
     done
 
-    # Create boot image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
+    # Create boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
 
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -776,6 +787,7 @@ create_petalinux_bsp ()
   pre-built/linux/implementation/download.bit
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
+  # This will boot to u-boot, then the user can use tftpboot (run netboot) to boot the Linux image
   echo "#!/bin/sh" > cptftp_jtag.sh
   echo "rm -f ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
   echo "cp -f ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
@@ -882,9 +894,9 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.  
   # If it hasn't then build it now.  
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}/
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
     read -t 5 -p "Pause here for 5 seconds"

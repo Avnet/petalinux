@@ -144,6 +144,11 @@ CONFIG_system-zynq=y
 # CONFIG_formfactor-dev is not set
 
 #
+# haveged 
+#
+CONFIG_haveged=y
+
+#
 # i2c-tools 
 #
 CONFIG_i2c-tools=y
@@ -1908,7 +1913,7 @@ CONFIG_libpulsecommon=y
 CONFIG_libpulsecore=y
 CONFIG_libpulse=y
 # CONFIG_pulseaudio-dev is not set
-# CONFIG_pulseaudio-server is not set
+CONFIG_pulseaudio-server=y
 
 #
 # taglib 
@@ -2871,7 +2876,6 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 #
 # CONFIG_qtsensors is not set
 # CONFIG_qtsensors-dbg is not set
-# CONFIG_qtsensors-examples-dev is not set
 # CONFIG_qtsensors-mkspecs is not set
 # CONFIG_qtsensors-examples is not set
 # CONFIG_qtsensors-dev is not set
@@ -2927,12 +2931,10 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 # CONFIG_qttranslations-assistant is not set
 # CONFIG_qttranslations-qtwebsockets is not set
 # CONFIG_qttranslations-qtquickcontrols2 is not set
-# CONFIG_qttranslations-qtquick1 is not set
 # CONFIG_qttranslations-qtdeclarative is not set
 # CONFIG_qttranslations-qtxmlpatterns is not set
 # CONFIG_qttranslations-qtmultimedia is not set
 # CONFIG_qttranslations-qtconnectivity is not set
-# CONFIG_qttranslations-qt is not set
 # CONFIG_qttranslations-qtbase is not set
 # CONFIG_qttranslations-qtserialport is not set
 # CONFIG_qttranslations-linguist is not set
@@ -3626,7 +3628,6 @@ CONFIG_wpa-supplicant=y
 #
 # libpthread-stubs 
 #
-# CONFIG_libpthread-stubs is not set
 # CONFIG_libpthread-stubs-dev is not set
 # CONFIG_libpthread-stubs-dbg is not set
 
@@ -3930,38 +3931,39 @@ CONFIG_wpa-supplicant=y
 #
 # Image Features
 #
-# CONFIG_imagefeature-ssh-server-dropbear is not set
+CONFIG_imagefeature-ssh-server-dropbear=y
 # CONFIG_imagefeature-ssh-server-openssh is not set
-# CONFIG_imagefeature-hwcodecs is not set
+CONFIG_imagefeature-hwcodecs=y
 # CONFIG_imagefeature-package-management is not set
 # CONFIG_imagefeature-debug-tweaks is not set
 
 #
 # apps 
 #
-# CONFIG_dialog-control  is not set
-# CONFIG_get-gpio-offsets is not set
+CONFIG_dialog-control=y
+CONFIG_get-gpio-offsets=y
 # CONFIG_gpio-demo is not set
-# CONFIG_i2csensor is not set
+CONFIG_i2csensor=y
 # CONFIG_peekpoke is not set
+
+#
+# modules 
+#
+CONFIG_lis2ds=y
 
 #
 # user packages 
 #
+
+#
+# userland 
+#
 CONFIG_bluez5-doc=y
-# CONFIG_gflags is not set
-# CONFIG_gstreamer1.0-meta-audio is not set
-# CONFIG_gstreamer1.0-meta-base is not set
-# CONFIG_gstreamer1.0-plugins-ugly is not set
-# CONFIG_hostap-conf is not set
-# CONFIG_hostap-utils is not set
 CONFIG_hostapd=y
 CONFIG_iperf3=y
 CONFIG_iw=y
 CONFIG_minized-misc=y
 CONFIG_minized-wireless=y
-CONFIG_minized-wireless-mfgtest=y
-CONFIG_mpg123=y
 CONFIG_nano=y
 CONFIG_pulseaudio-module-bluetooth-discover=y
 CONFIG_pulseaudio-module-bluetooth-policy=y
@@ -3973,4 +3975,5 @@ CONFIG_pulseaudio-module-switch-on-connect=y
 # PetaLinux RootFS Settings
 #
 CONFIG_ROOTFS_ROOT_PASSWD="root"
+CONFIG_ADD_EXTRA_USERS=""
 

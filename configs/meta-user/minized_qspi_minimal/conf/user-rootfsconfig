@@ -1,0 +1,14 @@
+# Add modules, apps, and packages not in the default rootfs config
+
+# Local to project
+CONFIG_peekpoke
+CONFIG_gpio-demo
+
+# Minized specific customizations
+CONFIG_minized-misc
+CONFIG_minized-wireless
+
+# Extra packages
+CONFIG_iperf3
+CONFIG_hostapd
+CONFIG_iw

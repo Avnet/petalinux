@@ -389,7 +389,7 @@ int configure_gpio(int gpio_offset, unsigned char gpio_direction)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+      printf("%s", formatted_file_name);
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "w");
@@ -445,7 +445,7 @@ int set_gpio_value(int gpio_offset, unsigned char gpio_value)
         (test_result == (char_buf_size - 1)))
     {
         printf("Error formatting string, check the GPIO specified\r\n");
-        printf(formatted_file_name);
+        printf("%s", formatted_file_name);
         return -1;
     }
     fp_led = fopen(formatted_file_name, "r+");
@@ -471,7 +471,7 @@ int check_if_gpiochip_exists(int gpio_offset)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);
 		return -1;
 	}
 	DIR * d = opendir(formatted_file_name); // Open the path
@@ -557,7 +557,7 @@ int get_gpio_value(int gpio_offset)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);
 		return -1;
 	}
 	fp_sw1 = fopen(formatted_file_name, "r+");
@@ -601,6 +601,7 @@ int get_gpio_base(void)
     int iOffset;
     int chipindex = 0;
     int index;
+    int retval;
     FILE  *fp;
 
 	//(1) Do a directory of /sys/class/gpio and put all the "gpiochip" entries into a list
@@ -639,11 +640,11 @@ int get_gpio_base(void)
 			(test_result == (char_buf_size - 1)))
 		{
 			printf("Error formatting string, check the GPIO specified\r\n");
-			printf(formatted_file_name);
+			printf("%s", formatted_file_name);
 			return -1;
 		}
 		fp = fopen(formatted_file_name, "r");
-		fscanf(fp, "%s", gpio_setting); //read "label" sub-directory
+		retval=fscanf(fp, "%s", gpio_setting); //read "label" sub-directory
 		printf("%s = %s\r\n", formatted_file_name, gpio_setting);
 		strncpy(OffsetString, &chiplist[index][8],4); //Length of gpiochip=8
 		OffsetString[4] = 0; //null terminate

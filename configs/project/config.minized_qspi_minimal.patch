@@ -1,11 +1,11 @@
---- config	2019-09-12 16:57:08.104603999 -0400
-+++ config	2019-09-12 16:53:25.929572000 -0400
-@@ -207,7 +207,7 @@
+--- config	2020-04-20 08:13:47.697873000 -0400
++++ config	2020-04-20 08:42:30.246717000 -0400
+@@ -209,7 +209,7 @@
  #
  # Firmware Version Configuration
  #
--CONFIG_SUBSYSTEM_HOSTNAME="minized_qspi_minimal_2019_1"
-+CONFIG_SUBSYSTEM_HOSTNAME="minized-qspi-minimal-2019-1"
- CONFIG_SUBSYSTEM_PRODUCT="minized_qspi_minimal_2019_1"
+-CONFIG_SUBSYSTEM_HOSTNAME="minized_qspi_minimal_2019_2"
++CONFIG_SUBSYSTEM_HOSTNAME="minized-qspi-minimal-2019-2"
+ CONFIG_SUBSYSTEM_PRODUCT="minized_qspi_minimal_2019_2"
  CONFIG_SUBSYSTEM_FW_VERSION="1.00"
  

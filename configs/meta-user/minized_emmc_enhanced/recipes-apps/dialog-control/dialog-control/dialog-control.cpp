@@ -482,6 +482,7 @@ int configure_gpio(int gpio_offset, unsigned char gpio_direction)
 	int test_result = 0;
 	const int char_buf_size = 80;
 	char formatted_file_name[char_buf_size];
+   int retval;
 	FILE  *fp;
 
 	// Open the export file and write the PSGPIO number for each Pmod GPIO
@@ -507,7 +508,7 @@ int configure_gpio(int gpio_offset, unsigned char gpio_direction)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);
 		return -1;
 	}
 	fp = fopen(formatted_file_name, "w");
@@ -540,7 +541,7 @@ int configure_gpio(int gpio_offset, unsigned char gpio_direction)
 	}
 	else
 	{
-		fscanf(fp, "%s", gpio_setting);
+		retval=fscanf(fp, "%s", gpio_setting);
 		printf("gpio%d set as %s\n", gpio_offset, gpio_setting);
 		fflush(fp);
 		fclose(fp);
@@ -563,7 +564,7 @@ int set_gpio_value(int gpio_offset, unsigned char gpio_value)
         (test_result == (char_buf_size - 1)))
     {
         printf("Error formatting string, check the GPIO specified\r\n");
-        printf(formatted_file_name);
+        printf("%s", formatted_file_name);
         return -1;
     }
     fp_led = fopen(formatted_file_name, "r+");
@@ -647,7 +648,7 @@ int get_gpio_value(int gpio_offset)
 		(test_result == (char_buf_size - 1)))
 	{
 		printf("Error formatting string, check the GPIO specified\r\n");
-		printf(formatted_file_name);
+		printf("%s", formatted_file_name);
 		return -1;
 	}
 	fp_sw1 = fopen(formatted_file_name, "r+");
@@ -729,7 +730,7 @@ int get_gpio_base(void)
 			(test_result == (char_buf_size - 1)))
 		{
 			printf("Error formatting string, check the GPIO specified\r\n");
-			printf(formatted_file_name);
+			printf("%s", formatted_file_name);
 			return -1;
 		}
 		fp = fopen(formatted_file_name, "r");

@@ -9,3 +9,6 @@ build: $(APP)
 
 $(APP): $(APP_OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(APP_OBJS) $(LDLIBS)
+
+clean:
+	-rm -f $(APP) *.elf *.gdb *.o

@@ -4,8 +4,8 @@
  #
  # Firmware Version Configuration
  #
--CONFIG_SUBSYSTEM_HOSTNAME="minized_emmc_enhanced_2019_1"
-+CONFIG_SUBSYSTEM_HOSTNAME="minized-emmc-enhanced-2019-1"
- CONFIG_SUBSYSTEM_PRODUCT="minized_emmc_enhanced_2019_1"
+-CONFIG_SUBSYSTEM_HOSTNAME="minized_emmc_enhanced_2019_2"
++CONFIG_SUBSYSTEM_HOSTNAME="minized-emmc-enhanced-2019-2"
+ CONFIG_SUBSYSTEM_PRODUCT="minized_emmc_enhanced_2019_2"
  CONFIG_SUBSYSTEM_FW_VERSION="1.00"
  
