@@ -41,7 +41,7 @@
 #                       carriers such as the FMC Carrier (FMCCC) and the
 #                       I/O Carrier (IOCCC)
 # 
-#  Tool versions:       Xilinx Vivado 2017.2
+#  Tool versions:       Xilinx Vivado 2019.2
 # 
 #  Description:         Clean Script for MicroZed PetaLinux BSPs and related 
 #                       HW Platforms
@@ -49,14 +49,15 @@
 #  Dependencies:        None
 #
 #  Revision:            Nov 03, 2017: 1.00 Initial version
-#                       Mar 21, 2018: 1.02 Updated for Petalinux 2017.4
+#                       Mar 21, 2018: 1.01 Updated for Petalinux 2017.4
+#                       May 14, 2020: 1.02 Updated for Petalinux 2019.2
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-PLNX_VER=2017_4
+PLNX_VER=2019_2
 HDL_HARDWARE_NAME=mz_petalinux_hw
 HDL_PROJECT_NAME=mz_petalinux
 HDL_PROJECTS_FOLDER=../../hdl/Projects
@@ -69,7 +70,7 @@ START_FOLDER=`pwd`
 clean_hw_project ()
 { 
   # Remove the hardware platform project.
-  rm -rf ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}
+  rm -rf ${START_FOLDER}/${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}
 }
 
 clean_petalinux_bsp ()
