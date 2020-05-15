@@ -2,4 +2,5 @@
 #These packages will get added into rootfs menu entry
 
 CONFIG_gpio-demo
+CONFIG_iperf3
 CONFIG_peekpoke
