@@ -44,8 +44,8 @@
    "sd_update_jffs2=echo Updating jffs2 from SD; mmcinfo && fatload mmc 0:1 ${clobstart} ${jffs2_img} && run install_jffs2\0" \ 
    "install_jffs2=sf probe 0 && sf erase ${jffs2start} ${jffs2size} && " \ 
       "sf write ${clobstart} ${jffs2start} ${filesize}\0" \ 
-   "kernelsize=0x9A0000\0" \
-   "kernelstart=0x660000\0" \
+   "kernelsize=0xA80000\0" \
+   "kernelstart=0x520000\0" \
    "kernel_img=image.ub\0" \ 
    "load_kernel=tftpboot ${clobstart} ${kernel_img}\0" \ 
    "update_kernel=setenv img kernel; setenv psize ${kernelsize}; setenv installcmd \"install_kernel\"; run load_kernel test_crc; setenv img; setenv psize; setenv installcmd\0" \
