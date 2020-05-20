@@ -39,7 +39,7 @@
 #  Target Devices:      Xilinx Zynq-7000
 #  Hardware Boards:     PicooZed SOM
 # 
-#  Tool versions:       Xilinx Vivado 2016.2
+#  Tool versions:       Xilinx Vivado 2019.2
 # 
 #  Description:         Build Script for PicoZed PetaLinux BSP HW Platform
 # 
@@ -52,15 +52,16 @@
 #                       Mar 21, 2018: 1.04 Updated for 2017.4 PetaLinux tools 
 #                       Aug 11, 2018: 1.05 Updated for 2018.2 PetaLinux tools 
 #                       Sep 26, 2019: 1.06 Updated for 2019.1 PetaLinux tools 
+#                       May 14, 2020: 1.07 Updated for 2019.2 PetaLinux tools
 # 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
 
 # Set global variables here.
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.1-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.1
-PLNX_VER=2019_1
+APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.2-final
+APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.2
+PLNX_VER=2019_2
 BUILD_BOOT_QSPI_OPTION=yes
 BUILD_BOOT_EMMC_OPTION=yes
 BUILD_BOOT_EMMC_NO_BIT_OPTION=no
@@ -79,7 +80,9 @@ PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
 
-QSPI_KERNEL_START=0x660000
+DEBUG=yes
+
+QSPI_KERNEL_START=0x520000
 
 PLNX_BUILD_SUCCESS=-1
 
@@ -106,12 +109,12 @@ petalinux_project_configure_devicetree ()
   #
   # If available, overwrite the board specific top level devicetree source 
   # with the revision controlled source files.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_PROJECT_NAME} ]
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} ]
     then
     echo " "
     echo "Overwriting system-user level devicetree source include file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_PROJECT_NAME} \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/device-tree/files/system-user.dtsi
   else
     echo " "
@@ -131,7 +134,7 @@ petalinux_project_configure_kernel ()
   #
   # If available, copy the kernel user configuration file to the meta-user
   # kernel recipes folder.
-  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.pz_fmc2 ]
+  if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.${HDL_BOARD_NAME} ]
     then
 
     # Create the meta-user kernel recipes folder structure if it does not 
@@ -153,7 +156,7 @@ petalinux_project_configure_kernel ()
     echo " "
     echo "Overwriting kernel user configuration file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.pz_fmc2 \
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/kernel/user.cfg.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-kernel/linux/linux-xlnx/user_${HDL_BOARD_NAME}.cfg
     
     # Create the kernel user config .bbappend file if it does not already exist.
@@ -391,17 +394,24 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
   echo " "
-  echo "Importing hardware definition ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware definition ${HDL_BOARD_NAME}.xsa from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+#TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
+#TC  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/${HDL_HARDWARE_NAME}.hdf
+
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
+
 
   echo " "
   echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
   echo " "
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+#TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
+#TC  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
+
+  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -413,9 +423,14 @@ create_petalinux_bsp ()
   petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
  
   # DEBUG
-  echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
-  #read -p "Press ENTER to continue" 
-  #read -t 10 -p "Pause here for 10 seconds"
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Pause here to check for any messages about importing the hardware platform."
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
 
   # Overwrite the PetaLinux project config with some sort of revision 
   # controlled source file.
@@ -436,10 +451,16 @@ create_petalinux_bsp ()
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
     patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-  # DEBUG
-  #read -p "Press ENTER to continue" 
-  read -t 10 -p "Pause here for 10 seconds"
-  
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Pause here to check for any messages about patching the project config file."
+      #read -p "Press ENTER to continue"
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
+
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
     echo " "
@@ -447,7 +468,7 @@ create_petalinux_bsp ()
     echo " "
     cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ]
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.generic ]
     then
     echo " "
     echo "WARNING: Using generic PetaLinux project config ..."
@@ -458,6 +479,16 @@ create_petalinux_bsp ()
     echo " "
     echo "WARNING: No board specific PetaLinux project configuration files found, "
     echo "PetaLinux project config is not touched for this build ..."
+    echo " "
+  fi
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
 
@@ -477,9 +508,14 @@ create_petalinux_bsp ()
   petalinux-build -x mrproper
 
   # DEBUG
-  echo "Stop here and check for WARNING messages."
-  #read -p "Press ENTER to continue."
-  read -t 10 -p "Pause here for 10 seconds"
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Pause here to check for any messages."
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
 
   # If the QSPI boot option is set, then perform the steps needed to build 
   # BOOT.BIN for booting from QSPI.
@@ -492,9 +528,14 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_qspi
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for QSPI boot"
-    #read -p "Press ENTER to continue."
-    read -t 10 -p "Pause here for 10 seconds"
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Stop here and go check the platform-top.h file and make sure it is set for QSPI boot"
+      #read -p "Press ENTER to continue."
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -588,9 +629,15 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_emmc_no_bit
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC no bit boot"
-    #read -p "Press ENTER to continue."
-    read -t 10 -p "Pause here for 10 seconds"
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC no bit boot"
+      #read -p "Press ENTER to continue."
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
+
     
     PLNX_BUILD_SUCCESS=-1
 
@@ -646,9 +693,14 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd_no_bit
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for SD no bit boot"
-    #read -p "Press ENTER to continue."
-    read -t 10 -p "Pause here for 10 seconds"
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Stop here and go check the platform-top.h file and make sure it is set for SD no bit boot"
+      #read -p "Press ENTER to continue."
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -704,9 +756,14 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_sd
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
-    #read -p "Press enter to continue"
-    read -t 10 -p "Pause here for 10 seconds"
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Stop here and go check the platform-top.h file and make sure it is set for SD boot"
+      #read -p "Press ENTER to continue."
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -881,24 +938,39 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.  
   # If it hasn't then build it now.  
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef ]
+  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/
+    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}/
+    echo " "
     echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo "Will build the hardware platform now."
-    read -t 5 -p "Pause here for 5 seconds"
     echo " "
-    
+
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      read -t 5 -p "Pause here for 5 seconds"
+      echo " "
+    fi
+
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
     vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
+    echo " "
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
     echo "Will build the PetaLinux BSP now."
-    read -t 5 -p "Pause here for 5 seconds"
     echo " "
-  
+
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      read -t 5 -p "Pause here for 5 seconds"
+      echo " "
+    fi
   fi
 }
 
