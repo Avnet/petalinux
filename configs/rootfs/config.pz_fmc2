@@ -40,7 +40,7 @@
 #
 # bc 
 #
-# CONFIG_bc is not set
+CONFIG_bc=y
 # CONFIG_bc-dev is not set
 # CONFIG_bc-dbg is not set
 
@@ -141,10 +141,10 @@
 #
 # i2c-tools 
 #
-# CONFIG_i2c-tools is not set
+CONFIG_i2c-tools=y
 # CONFIG_i2c-tools-dev is not set
 # CONFIG_i2c-tools-dbg is not set
-# CONFIG_i2c-tools-misc is not set
+CONFIG_i2c-tools-misc=y
 
 #
 # init-ifupdown 
@@ -324,7 +324,7 @@ CONFIG_mtd-utils=y
 #
 # usbutils 
 #
-# CONFIG_usbutils is not set
+CONFIG_usbutils=y
 # CONFIG_usbutils-dbg is not set
 # CONFIG_usbutils-dev is not set
 
@@ -428,7 +428,7 @@ CONFIG_canutils=y
 #
 # ethtool 
 #
-# CONFIG_ethtool is not set
+CONFIG_ethtool=y
 # CONFIG_ethtool-dbg is not set
 # CONFIG_ethtool-dev is not set
 
@@ -655,7 +655,7 @@ CONFIG_openssh-sftp-server=y
 #
 # hdparm 
 #
-# CONFIG_hdparm is not set
+CONFIG_hdparm=y
 # CONFIG_wiper is not set
 # CONFIG_hdparm-dbg is not set
 # CONFIG_hdparm-dev is not set
@@ -1111,14 +1111,14 @@ CONFIG_pciutils=y
 #
 # python3-dbus 
 #
-# CONFIG_python3-dbus is not set
+CONFIG_python3-dbus=y
 # CONFIG_python3-dbus-dbg is not set
 # CONFIG_python3-dbus-dev is not set
 
 #
 # python3-pygobject 
 #
-# CONFIG_python3-pygobject is not set
+CONFIG_python3-pygobject=y
 # CONFIG_python3-pygobject-dbg is not set
 # CONFIG_python3-pygobject-dev is not set
 
@@ -2297,7 +2297,7 @@ CONFIG_run-postinsts=y
 #
 # coreutils 
 #
-# CONFIG_coreutils is not set
+CONFIG_coreutils=y
 # CONFIG_coreutils-dev is not set
 # CONFIG_coreutils-dbg is not set
 
@@ -2826,7 +2826,7 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 #
 # python3 
 #
-# CONFIG_python3 is not set
+CONFIG_python3=y
 # CONFIG_python3-smtpd is not set
 # CONFIG_python3-syslog is not set
 # CONFIG_python3-subprocess is not set
@@ -2836,7 +2836,7 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 # CONFIG_python3-fcntl is not set
 # CONFIG_python3-html is not set
 # CONFIG_python3-re is not set
-# CONFIG_python3-core is not set
+CONFIG_python3-core=y
 # CONFIG_python3-distutils is not set
 # CONFIG_python3-man is not set
 # CONFIG_python3-sqlite3-tests is not set
@@ -4212,12 +4212,20 @@ CONFIG_bridge-utils=y
 # apps 
 #
 # CONFIG_gpio-demo is not set
+CONFIG_mac-eeprom-config=y
+CONFIG_mac-eeprom-config-init=y
 # CONFIG_peekpoke is not set
+CONFIG_performance-tests=y
+CONFIG_python-webserver=y
+CONFIG_python-webserver-init=y
+CONFIG_blinky=y
+CONFIG_blinky-init=y
 
 #
 # user packages 
 #
 CONFIG_iperf3=y
+CONFIG_bonniePLUSPLUS=y
 
 #
 # PetaLinux RootFS Settings
