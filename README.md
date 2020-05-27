@@ -26,7 +26,7 @@ Where can I get support?
 
 For design support please contact your local Avnet FAE or visit one of our support forums:
 
-- For design-in product support for MicroZed, PicoZed, UltraZed, Zynq Mini Module Plus, and Zynq Mini-ITX please access the community support forums at [Zed Community Support Forums].
+- For design-in product support for MicroZed, PicoZed, UltraZed, Zynq Mini Module Plus, and Zynq Mini-ITX please access the community support forums at the [Zedboard Community Support Forums](https://www.element14.com/community/community/designcenter/zedboardcommunity/zedboard-forums?ICID=zedboardCMTY-board-topbanner) on Element14.
 
 - Please access the [Avnet Technical Community] forums for all other board support inquiries.
 
