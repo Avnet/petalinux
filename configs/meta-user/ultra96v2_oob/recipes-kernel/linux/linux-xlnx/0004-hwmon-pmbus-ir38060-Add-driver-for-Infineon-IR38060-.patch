@@ -1,0 +1,199 @@
+From 7c2cfbf6395eae5c8518577a2f4d2786c3e39d02 Mon Sep 17 00:00:00 2001
+From: tnizan-witekio <tnizan@witekio.com>
+Date: Mon, 1 Jun 2020 10:59:10 -0700
+Subject: [PATCH] hwmon: (pmbus/ir38060) Add driver for Infineon IR38060
+ Voltage Regulator
+
+Add the pmbus driver for the Infineon ir38060 voltage regulator.
+
+VOUT_MODE is not supported by the device.  The driver fakes linear16
+mode with exponent value -8.
+
+The device supports VOUT_PEAK, IOUT_PEAK, and TEMPERATURE_PEAK, however
+this driver does not enable them.
+
+Created from IR38064 driver
+---
+ Documentation/hwmon/ir38064.rst | 65 +++++++++++++++++++++++++++++++++
+ drivers/hwmon/pmbus/Kconfig     | 10 +++++
+ drivers/hwmon/pmbus/Makefile    |  1 +
+ drivers/hwmon/pmbus/ir38060.c   | 65 +++++++++++++++++++++++++++++++++
+ 4 files changed, 141 insertions(+)
+ create mode 100644 Documentation/hwmon/ir38064.rst
+ create mode 100644 drivers/hwmon/pmbus/ir38060.c
+
+diff --git a/Documentation/hwmon/ir38064.rst b/Documentation/hwmon/ir38064.rst
+new file mode 100644
+index 000000000000..811a155bddff
+--- /dev/null
++++ b/Documentation/hwmon/ir38064.rst
+@@ -0,0 +1,65 @@
++Kernel driver ir38060
++=====================
++
++Supported chips:
++
++  * Infineon IR38060
++
++    Prefix: 'ir38060'
++    Addresses scanned: -
++
++    Datasheet: Publicly available at the Infineon webiste
++      https://www.infineon.com/dgdl/Infineon-IR38060M-DS-v03_16-EN.pdf?fileId=5546d4625c167129015c3291ea9a4cee
++
++Authors:
++      - Thomas Nizan <tnizan@witekio.com>
++
++Description
++-----------
++
++IR38060 is a Single-input Voltage, Synchronous Buck Regulator, DC-DC Converter.
++
++Usage Notes
++-----------
++
++This driver does not probe for PMBus devices. You will have to instantiate
++devices explicitly.
++
++Sysfs attributes
++----------------
++
++======================= ===========================
++curr1_label		"iout1"
++curr1_input		Measured output current
++curr1_crit		Critical maximum current
++curr1_crit_alarm	Current critical high alarm
++curr1_max		Maximum current
++curr1_max_alarm		Current high alarm
++
++in1_label		"vin"
++in1_input		Measured input voltage
++in1_crit		Critical maximum input voltage
++in1_crit_alarm		Input voltage critical high alarm
++in1_min			Minimum input voltage
++in1_min_alarm		Input voltage low alarm
++
++in2_label		"vout1"
++in2_input		Measured output voltage
++in2_lcrit		Critical minimum output voltage
++in2_lcrit_alarm		Output voltage critical low alarm
++in2_crit		Critical maximum output voltage
++in2_crit_alarm		Output voltage critical high alarm
++in2_max			Maximum output voltage
++in2_max_alarm		Output voltage high alarm
++in2_min			Minimum output voltage
++in2_min_alarm		Output voltage low alarm
++
++power1_label		"pout1"
++power1_input		Measured output power
++
++temp1_input		Measured temperature
++temp1_crit		Critical high temperature
++temp1_crit_alarm	Chip temperature critical high alarm
++temp1_max		Maximum temperature
++temp1_max_alarm		Chip temperature high alarm
++======================= ===========================
+diff --git a/drivers/hwmon/pmbus/Kconfig b/drivers/hwmon/pmbus/Kconfig
+index 8d79f7d2827e..e5dbff08cf92 100644
+--- a/drivers/hwmon/pmbus/Kconfig
++++ b/drivers/hwmon/pmbus/Kconfig
+@@ -57,6 +57,16 @@ config SENSORS_IR35221
+ 	  This driver can also be built as a module. If so, the module will
+ 	  be called ir35521.
+ 
++config SENSORS_IR38060
++	tristate "Infineon IR38060"
++	default n
++	help
++	  If you say yes here you get hardware monitoring support for the
++	  Infineon IR38060 controller.
++
++	  This driver can also be built as a module. If so, the module will
++	  be called IR38060.
++
+ config SENSORS_IRPS5401
+ 	tristate "Infineon IRPS5401"
+ 	help
+diff --git a/drivers/hwmon/pmbus/Makefile b/drivers/hwmon/pmbus/Makefile
+index 73b6424b6553..736d3803f9b6 100644
+--- a/drivers/hwmon/pmbus/Makefile
++++ b/drivers/hwmon/pmbus/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_SENSORS_PMBUS)	+= pmbus.o
+ obj-$(CONFIG_SENSORS_ADM1275)	+= adm1275.o
+ obj-$(CONFIG_SENSORS_IBM_CFFPS)	+= ibm-cffps.o
+ obj-$(CONFIG_SENSORS_IR35221)	+= ir35221.o
++obj-$(CONFIG_SENSORS_IR38060)	+= ir38060.o
+ obj-$(CONFIG_SENSORS_IRPS5401)	+= irps5401.o
+ obj-$(CONFIG_SENSORS_LM25066)	+= lm25066.o
+ obj-$(CONFIG_SENSORS_LTC2978)	+= ltc2978.o
+diff --git a/drivers/hwmon/pmbus/ir38060.c b/drivers/hwmon/pmbus/ir38060.c
+new file mode 100644
+index 000000000000..26742e0ae3a5
+--- /dev/null
++++ b/drivers/hwmon/pmbus/ir38060.c
+@@ -0,0 +1,65 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Hardware monitoring driver for Infineon IR38060
++ *
++ * Copyright (c) 2017 Google Inc
++ *
++ * VOUT_MODE is not supported by the device. The driver fakes VOUT linear16
++ * mode with exponent value -8 as direct mode with m=256/b=0/R=0.
++ *          
++ * The device supports VOUT_PEAK, IOUT_PEAK, and TEMPERATURE_PEAK, however
++ * this driver does not currently support them.
++ */
++
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include "pmbus.h"
++
++static struct pmbus_driver_info ir38060_info = {
++	.pages = 1,
++	.format[PSC_VOLTAGE_IN] = linear,
++	.format[PSC_VOLTAGE_OUT] = direct,
++	.format[PSC_CURRENT_OUT] = linear,
++	.format[PSC_POWER] = linear,
++	.format[PSC_TEMPERATURE] = linear,
++	.m[PSC_VOLTAGE_OUT] = 256,
++	.b[PSC_VOLTAGE_OUT] = 0,
++	.R[PSC_VOLTAGE_OUT] = 0,
++	.func[0] = PMBUS_HAVE_VIN | PMBUS_HAVE_STATUS_INPUT
++	    | PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP
++	    | PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT
++	    | PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT
++	    | PMBUS_HAVE_POUT,
++};
++
++static int ir38060_probe(struct i2c_client *client,
++			 const struct i2c_device_id *id)
++{
++	return pmbus_do_probe(client, id, &ir38060_info);
++}
++
++static const struct i2c_device_id ir38060_id[] = {
++	{"ir38060", 0},
++	{}
++};
++
++MODULE_DEVICE_TABLE(i2c, ir38060_id);
++
++/* This is the driver that will be inserted */
++static struct i2c_driver ir38060_driver = {
++	.driver = {
++		   .name = "ir38060",
++		   },
++	.probe = ir38060_probe,
++	.remove = pmbus_do_remove,
++	.id_table = ir38060_id,
++};
++
++module_i2c_driver(ir38060_driver);
++
++MODULE_AUTHOR("Thomas Nizan <tnizan@witekio.com>");
++MODULE_DESCRIPTION("PMBus driver for Infineon IR38060");
++MODULE_LICENSE("GPL");
