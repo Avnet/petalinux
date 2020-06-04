@@ -34,14 +34,14 @@
 # 
 #  Create Date:         Mar 26, 2016
 #  Design Name:         PicoZed PetaLinux BSP Generator
-#  Module Name:         make_pz_petalinux_bsp.tcl
+#  Module Name:         make_pz_petalinux_bsp.sh
 #  Project Name:        PicoZed PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq-7000
-#  Hardware Boards:     PicooZed SOM
+#  Hardware Boards:     PicoZed SOM
 # 
 #  Tool versions:       Xilinx Vivado 2019.2
 # 
-#  Description:         Build Script for PicoZed PetaLinux BSP HW Platform
+#  Description:         Build Script for PicoZed PetaLinux BSP
 # 
 #  Dependencies:        None
 #
@@ -59,6 +59,26 @@
 #!/bin/bash
 
 # Set global variables here.
+DEBUG=no
+
+# Specify images to create
+# Light Green (Avnet color)
+LGRN='\033[1;32m'
+# Red 
+LRED='\033[1;31m'
+# BLUE
+LBLU='\033[1;34m'
+# Yellow
+LYEL='\033[1;33m'
+# No Color
+NC='\033[0m' 
+
+BUILD_PZ7010_FMC2=no
+BUILD_PZ7015_FMC2=no
+BUILD_PZ7020_FMC2=no
+BUILD_PZ7030_FMC2=no
+SELECTION=$1
+
 APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.2-final
 APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.2
 PLNX_VER=2019_2
@@ -79,12 +99,45 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
-
-DEBUG=yes
+# CACHE_ARCH 'arm' for Zynq, 'aarch64' for ZynqMP
+CACHE_ARCH=arm
 
 QSPI_KERNEL_START=0x520000
 
 PLNX_BUILD_SUCCESS=-1
+
+show_menu ()
+{
+  if [ "$SELECTION" == "PZ7010_FMC2" ]
+  then
+    BUILD_PZ7010_FMC2=yes
+  elif [ "$SELECTION" == "PZ7015_FMC2" ]
+  then
+    BUILD_PZ7015_FMC2=yes
+  elif [ "$SELECTION" == "PZ7020_FMC2" ]
+  then
+    BUILD_PZ7020_FMC2=yes
+  elif [ "$SELECTION" == "PZ7030_FMC2" ]
+  then
+    BUILD_PZ7030_FMC2=yes
+  elif [ "$SELECTION" == "" ]
+  then
+    echo ""
+    echo ""
+    echo -e ${LGRN}"+*******************************************************************+"
+    echo -e ${LGRN}"*${LRED} This make script defaults to building NO project, use arguments:  ${LGRN}*"
+    echo -e ${LGRN}"* PZ7010_FMC2 ${LBLU}- builds PicoZed 7010 with FMC2 Carrier Card          ${LGRN}*"
+    echo -e ${LGRN}"* PZ7015_FMC2 ${LBLU}- builds PicoZed 7015 with FMC2 Carrier Card          ${LGRN}*"
+    echo -e ${LGRN}"* PZ7020_FMC2 ${LBLU}- builds PicoZed 7020 with FMC2 Carrier Card          ${LGRN}*"
+    echo -e ${LGRN}"* PZ7030_FMC2 ${LBLU}- builds PicoZed 7030 with FMC2 Carrier Card          ${LGRN}*"
+    echo -e        "*${NC} Example: ${LYEL}./make_pz_petalinux_bsp.sh PZ7010_FMC2                   ${LGRN}*"
+    echo -e ${LGRN}"*${NC}     will produce the PicoZed 7010 with FMC2 Carrier Card          ${LGRN}*"
+    echo -e ${LGRN}"+*******************************************************************+${NC}"
+    echo ""
+    echo ""
+    exit 1
+  fi
+}
 
 source_tools_settings ()
 {
@@ -110,7 +163,7 @@ petalinux_project_configure_devicetree ()
   # If available, overwrite the board specific top level devicetree source 
   # with the revision controlled source files.
   if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} ]
-    then
+  then
     echo " "
     echo "Overwriting system-user level devicetree source include file..."
     echo " "
@@ -120,6 +173,16 @@ petalinux_project_configure_devicetree ()
     echo " "
     echo "WARNING: No board specific devicetree file found, "
     echo "PetaLinux devicetree config is not touched for this build ..."
+    echo " "
+  fi
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Pause here to check for any messages about copying the devicetree file."
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
 }
@@ -189,12 +252,22 @@ petalinux_project_configure_rootfs ()
     echo " "
     echo "Overwriting rootfs configuration file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.${PETALINUX_ROOTFS_NAME} \
+    cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/config.${PETALINUX_ROOTFS_NAME} \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/rootfs_config
   else
     echo " "
-    echo "WARNING: No board specific rootfs configuration files found, "
+    echo "WARNING: No rootfs configuration file found. "
     echo "PetaLinux rootfs config is not touched for this build ..."
+    echo " "
+  fi
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Pause here to check for any messages about copying the rootfs configuration file."
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
 
@@ -209,17 +282,114 @@ petalinux_project_configure_rootfs ()
     # If the meta-user folder does not exist, then look for a bbappend file
     # Not every PetaLinux scripted build will have a custom rootfs with user applications, etc. and will instead 
     # use a bbappend file to specify PetaLinux-supplied applications
-  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/bbappend.${PETALINUX_ROOTFS_NAME} ]
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/user-rootfsconfig.${PETALINUX_ROOTFS_NAME} ]
     then
     echo " "
-    echo "Overwriting rootfs bbappend file..."
+    echo "Overwriting user-rootfsconfig file..."
     echo " "
-    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/bbappend.${PETALINUX_ROOTFS_NAME} \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-core/images/petalinux-image.bbappend
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/user-rootfsconfig.${PETALINUX_ROOTFS_NAME} \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/user-rootfsconfig
   else
     echo " "
-    echo "WARNING: No custom rootfs found and no rootfs bbappend files found, "
+    echo "WARNING: No custom rootfs found."
     echo "PetaLinux rootfs is not touched for this build ..."
+    echo " "
+  fi
+}
+
+petalinux_project_set_sstate_paths ()
+{
+  # Add the following paths to the end of ${CONF_FILE}
+  # If the sstate cache has been downloaded and extracted into the PetaLinux
+  # install folder this will significantly accelerate the build time
+  # For more information see Xilinx AR #71240
+  # https://www.xilinx.com/support/answers/71240.html
+  # More info also at the Xilinx wiki:
+  # https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842475/PetaLinux+Yocto+Tips#PetaLinuxYoctoTips-HowtoreducebuildtimeusingSSTATECACHE
+  
+  PRJ_CFG_FILE=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
+  CONF_FILE=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/petalinuxbsp.conf
+  CACHE_DOWNLOADS=downloads_${PETALINUX_VER}/downloads
+  SSTATE_PATH=sstate_${CACHE_ARCH}_${PETALINUX_VER}/${CACHE_ARCH}
+
+  if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ];
+  then
+    echo " "
+    printf "Appending sstate cache paths to <>/"
+    # Shorten the path and file to something that can be displayed nicely
+    # https://stackoverflow.com/questions/10986794/remove-part-of-path-on-unix
+    echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
+
+    echo " " >> ${CONF_FILE}
+    echo "PREMIRRORS_prepend = \" git://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "ftp://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "http://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
+    echo "https://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n\"" >> ${CONF_FILE}
+  else
+    echo " "
+    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
+    echo "Not appending ${CONF_FILE} with sstate cache paths..."
+  fi
+
+  if [ -d ${PETALINUX}/${SSTATE_PATH} ];
+  then
+    echo " "
+    echo "Setting local sstate cache paths in project config file..."
+    sed -i 's,http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads,file://'"${PETALINUX}"'/'"${CACHE_DOWNLOADS}"',g' ${PRJ_CFG_FILE}
+    sed -i 's!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL=""!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="'"${PETALINUX}"'/'"${SSTATE_PATH}"'"!g' ${PRJ_CFG_FILE}
+  else
+    echo " "
+    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
+    echo "Not setting local sstate cache paths in project config file..."
+  fi
+
+  if [ ! -d ${START_FOLDER}/../cache/${PLNX_VER}/downloads ];
+  then
+    echo " "
+    echo "Create the folder to store package downloads at build time"
+    mkdir -p ${START_FOLDER}/../cache/${PLNX_VER}/downloads
+  else
+    echo " "
+    echo "The <>petalinux/cache/${PLNX_VER}/downloads directory already exists.  Not creating."
+  fi
+
+  if [ ! -d ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH} ];
+  then
+    echo " "
+    echo "Create the folder to store sstate downloads at build time"
+    mkdir -p ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}
+  else
+    echo " "
+    echo "The <>petalinux/cache/${PLNX_VER}/sstate_${CACHE_ARCH} directory already exists.  Not creating."
+  fi
+
+  # By the time we get here we have determined that download and sstate 
+  # cache folders exist or have been created, so we can add the paths
+  # to these folders to the petalinuxbsp.conf file
+  echo " "
+  #echo -e "Appending local download and sstate cache paths \nto ${CONF_FILE}"
+  printf "Appending local download and sstate cache paths to <>/"
+  echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
+  echo " " >> ${CONF_FILE}
+  #FOO=$(realpath ${START_FOLDER}/../cache/${PLNX_VER}/downloads/)
+  #echo "DL_DIR = \"$FOO\"" >> ${CONF_FILE}
+  echo "DL_DIR = \"${START_FOLDER}/../cache/${PLNX_VER}/downloads\"" >> ${CONF_FILE}
+  #FOO=$(realpath ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}/)
+  #echo "SSTATE_DIR = \"$FOO\"" >> ${CONF_FILE}
+  echo "SSTATE_DIR = \"${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}\"" >> ${CONF_FILE}
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    #echo -e "Verify sstate and download cache paths have been added to \n${CONF_FILE}\n and ${PRJ_CFG_FILE}"
+    printf "Verify sstate and download cache paths have been added to <>/"
+    echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
+    printf "and <>/"
+    echo ${PRJ_CFG_FILE} | rev | cut -d'/' -f-4 | rev
+    printf "\n"
+    #read -p "Press ENTER to continue" 
+    read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
 }
@@ -285,7 +455,7 @@ petalinux_project_set_boot_config_qspi ()
   echo "Overriding meta-user BSP platform-top.h to add QSPI boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_qspi_boot ./platform-top.h
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_qspi_boot ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -304,7 +474,7 @@ petalinux_project_set_boot_config_emmc ()
   echo "Applying patch to add QSPI + eMMC boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_emmc_boot ./platform-top.h
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_emmc_boot ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -325,7 +495,7 @@ petalinux_project_set_boot_config_emmc_no_bit ()
   echo "Applying patch to add eMMC bitstream load support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_emmc_boot_no_bit ./platform-top.h
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_emmc_boot_no_bit ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -338,7 +508,7 @@ petalinux_project_set_boot_config_sd_no_bit ()
   echo "Applying patch to add SD bitstream load support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_sd_boot_no_bit ./platform-top.h
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_sd_boot_no_bit ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -359,7 +529,7 @@ petalinux_project_set_boot_config_sd ()
   echo "Overriding meta-user BSP platform-top.h to add SD boot support in U-Boot ..."
   echo " "
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/recipes-bsp/u-boot/files/
-  cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_sd_boot ./platform-top.h
+  cp -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/u-boot/platform-top.h.pz_sd_boot ./platform-top.h
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 }
 
@@ -384,7 +554,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
 
   # Create the PetaLinux project.
-  petalinux-create --type project --template zynq --name ${PETALINUX_PROJECT_NAME}
+  petalinux-create --type project --template zynq --name ${PETALINUX_PROJECT_NAME} --force
 
   # Create the hardware definition folder.
   mkdir -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform
@@ -394,7 +564,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
   echo " "
-  echo "Importing hardware definition ${HDL_BOARD_NAME}.xsa from impl_1 folder ..."
+  echo "Importing hardware definition ${HDL_BOARD_NAME}.xsa from HDL project folder ..."
   echo " "
 
 #TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.sysdef \
@@ -403,9 +573,8 @@ create_petalinux_bsp ()
   cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
   ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
-
   echo " "
-  echo "Importing hardware bitstream ${HDL_HARDWARE_NAME} from impl_1 folder ..."
+  echo "Importing hardware bitstream ${HDL_BOARD_NAME}_wrapper.bit from impl_1 folder ..."
   echo " "
 
 #TC  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_PROJECT_NAME}.runs/impl_1/${HDL_PROJECT_NAME}_wrapper.bit \
@@ -486,7 +655,7 @@ create_petalinux_bsp ()
   if [ "$DEBUG" == "yes" ];
   then
     echo " "
-    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
+    echo "Compare <>/${PETALINUX_PROJECT_NAME}/project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME}.patch file"
     #read -p "Press ENTER to continue"
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
@@ -500,6 +669,9 @@ create_petalinux_bsp ()
 
   # Configure the kernel.
   petalinux_project_configure_kernel
+
+  # Add sstate cache paths to the project config and petalinuxbsp.conf files.
+  petalinux_project_set_sstate_paths
 
   # Prepare to modify project configurations.
   petalinux_project_save_boot_config
@@ -552,8 +724,11 @@ create_petalinux_bsp ()
       PLNX_BUILD_SUCCESS=$?
     done
 
-    # Create boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
+    # Create QSPI boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
+    # This creates a boot.bin that includes the kernel (image.ub) that is placed in QSPI at offset after the u-boot, fsbl, and bitstream
+    #petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
+    # This creates a boot.bin that does not include the kernel
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_QSPI.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -562,11 +737,13 @@ create_petalinux_bsp ()
     # Copy the u-boot.elf file and name the new file u-boot_QSPI.elf
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/u-boot.elf \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf
-    
+
     # Create script to program the QSPI Flash
     echo "#!/bin/sh" > program_boot_qspi.sh
     echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
-    echo "program_flash -f ./images/linux/image.ub -offset ${QSPI_KERNEL_START} -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"   >> program_boot_qspi.sh
+    # Add this line to the shell script if you create a boot.bin that does not include the kernel (image.ub)
+    # The kernel (image.ub) "-offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file
+    echo "program_flash -f ./images/linux/image.ub -offset ${QSPI_KERNEL_START} -flash_type qspi-x4-single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"   >> program_boot_qspi.sh
     chmod 777 ./program_boot_qspi.sh
   fi
 
@@ -581,9 +758,14 @@ create_petalinux_bsp ()
     petalinux_project_set_boot_config_emmc
 
     # DEBUG
-    echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC boot"
-    #read -p "Press ENTER to continue."
-    read -t 10 -p "Pause here for 10 seconds"
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Stop here and go check the platform-top.h file and make sure it is set for eMMC boot"
+      #read -p "Press ENTER to continue."
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
     PLNX_BUILD_SUCCESS=-1
 
@@ -601,7 +783,7 @@ create_petalinux_bsp ()
     done
 
     # Create boot image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga images/linux/system.bit --uboot --force
+    petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -613,7 +795,7 @@ create_petalinux_bsp ()
     
     # Create script to program the QSPI Flash
     echo "#!/bin/sh" > program_boot_emmc_indirect.sh
-    echo "program_flash -f ./BOOT_EMMC.bin  -offset 0 -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_emmc_indirect.sh
+    echo "program_flash -f ./BOOT_EMMC.bin  -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_emmc_indirect.sh
     chmod 777 ./program_boot_emmc_indirect.sh
   fi
   
@@ -637,8 +819,7 @@ create_petalinux_bsp ()
       read -t 10 -p "Pause here for 10 seconds"
       echo " "
     fi
-
-    
+   
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -655,7 +836,7 @@ create_petalinux_bsp ()
     done
 
     # Create boot image which does not contain the bistream image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
+    petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC_No_Bit.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -668,7 +849,7 @@ create_petalinux_bsp ()
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
-    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 images/linux/system.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 ./images/linux/system.bit\" -force ./images/linux/system.bit.bin" > swap_bits.tcl
     
     # Launch vivado in batch mode to clean output products from the hardware platform.
     vivado -mode batch -source swap_bits.tcl
@@ -713,12 +894,12 @@ create_petalinux_bsp ()
 
       # Build PetaLinux project.
       petalinux-build 
-      
+
       PLNX_BUILD_SUCCESS=$?
     done
 
     # Create boot image which does not contain the bistream image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
+    petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_SD_No_Bit.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -731,8 +912,8 @@ create_petalinux_bsp ()
     # Create a temporary Vivado TCL script which take the standard bitstream 
     # file format and modify it to allow u-boot to load it into the 
     # programmable logic on the Zynq device via PCAP interface.
-    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 images/linux/system.bit\" -force images/linux/system.bit.bin" > swap_bits.tcl
-    
+    echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 ./images/linux/system.bit\" -force ./images/linux/system.bit.bin" > swap_bits.tcl
+
     # Launch vivado in batch mode to clean output products from the hardware platform.
     vivado -mode batch -source swap_bits.tcl
 
@@ -776,7 +957,7 @@ create_petalinux_bsp ()
 
       # Build PetaLinux project.
       petalinux-build 
-      
+
       PLNX_BUILD_SUCCESS=$?
     done
 
@@ -788,7 +969,7 @@ create_petalinux_bsp ()
     if [ "$BUILD_BOOT_SD_OOB_OPTION" == "yes" ]
     then
       # Create boot image which does not contain the bistream image.
-      petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
+      petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
 
       # Copy the boot.bin file and name the new file BOOT_SD_OOB.BIN
       cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -796,7 +977,7 @@ create_petalinux_bsp ()
     fi
 
     # Create boot image which DOES contain the bistream image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga images/linux/system.bit --uboot --force
+    petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_SD.BIN
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -823,7 +1004,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
 
   # Package the bitstream within the PetaLinux pre-built folder.
-  petalinux-package --prebuilt --fpga images/linux/system.bit --force
+  petalinux-package --prebuilt --fpga ./images/linux/system.bit --force
 
   # Rename the pre-built bitstream file to download.bit so that the default 
   # format for the petalinux-boot command over jtag will not need the bit file 
@@ -832,30 +1013,38 @@ create_petalinux_bsp ()
   pre-built/linux/implementation/download.bit
 
   # Create script to copy the image files to tftpboot folder and launch Petalinux JTAG boot
+  # This will boot to u-boot, then the user can use tftpboot (run netboot) to boot the Linux image
   echo "#!/bin/sh" > cptftp_jtag.sh
-  echo "rm -f ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
-  echo "cp -f ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "cp -f ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
-  echo "petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
+  echo "rm -rf ${TFTP_HOST_FOLDER}/*"  >> cptftp_jtag.sh
+  echo "cp -rf ./*.bin ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
+  echo "cp -rf ./images/linux/* ${TFTP_HOST_FOLDER}/." >> cptftp_jtag.sh
+  #echo "sync&&sync" >> cptftp_jtag.sh
+  echo "echo \"petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot\"" >> cptftp_jtag.sh
+  echo "sync && sync && petalinux-boot --jtag --fpga --bitstream ./images/linux/system.bit --u-boot" >> cptftp_jtag.sh
   chmod 777 ./cptftp_jtag.sh
+  
+  # Create script to boot the Linux image via Petalinux JTAG boot
+  echo "#!/bin/sh" > boot_jtag.sh
+  echo "petalinux-boot --jtag --kernel --fpga --bitstream ./images/linux/system.bit --verbose" >> boot_jtag.sh
+  chmod 777 ./boot_jtag.sh  
   
   # Change to PetaLinux projects folder.
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/
 
   # Copy the image.ub to the pre-built images folder.
   cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/image.ub \
-  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+  ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
 
   # If the BOOT_QSPI_OPTION is set, copy the BOOT_QSPI.BIN to the 
   # pre-built images folder.
   if [ "$BUILD_BOOT_QSPI_OPTION" == "yes" ]
   then
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_QSPI.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
 
     # Also copy the u-boot_QSPI.elf file to the pre-build images folder.
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_QSPI.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
   fi
 
   # If the BOOT_EMMC_OPTION is set, copy the BOOT_EMMC.BIN to the 
@@ -863,11 +1052,11 @@ create_petalinux_bsp ()
   if [ "$BUILD_BOOT_EMMC_OPTION" == "yes" ]
   then
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_EMMC.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
 
     # Also copy the u-boot_EMMC.elf file to the pre-build images folder.
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_EMMC.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
   fi
 
   # If the BOOT_EMMC_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
@@ -875,14 +1064,14 @@ create_petalinux_bsp ()
   if [ "$BUILD_BOOT_EMMC_NO_BIT_OPTION" == "yes" ]
   then
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_EMMC_No_Bit.BIN \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
 
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/system.bit.bin \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
 
     # Also copy the u-boot_EMMC_No_Bit.elf file to the pre-build images folder.
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/u-boot_EMMC_No_Bit.elf \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/.
   fi
 
   # If the BOOT_SD_OPTION is set, copy the BOOT_SD.BIN to the 
@@ -905,7 +1094,7 @@ create_petalinux_bsp ()
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/BOOT_SD_OOB.bin \
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/pre-built/linux/images/
   fi
-  
+ 
   # If the BOOT_SD_NO_BIT_OPTION is set, copy the BOOT_EMMC_No_Bit.BIN and 
   # the system.bit.bin files into the pre-built images folder.
   if [ "$BUILD_BOOT_SD_NO_BIT_OPTION" == "yes" ]
@@ -957,7 +1146,10 @@ build_hw_platform ()
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
-    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+    # NOTE that at this time, the argv make assist script is responsible for adding board= and project=
+    # this script is responsible for putting them in the correct order (board, then project)
+    vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME} 
+    #vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
     echo " "
     echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
@@ -997,45 +1189,59 @@ main_make_function ()
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7010_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7010_FMC2
-  PETALINUX_PROJECT_NAME=pz7010_fmc2_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=pz_fmc2
-  build_hw_platform
-  create_petalinux_bsp
-
+  if [ "$BUILD_PZ7010_FMC2" == "yes" ]
+  then
+    HDL_BOARD_NAME=PZ7010_FMC2
+    PETALINUX_PROJECT_NAME=pz7010_fmc2_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=pz_fmc2
+    build_hw_platform
+    create_petalinux_bsp
+  fi
+  
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7015_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7015_FMC2
-  PETALINUX_PROJECT_NAME=pz7015_fmc2_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=pz_fmc2
-  build_hw_platform
-  create_petalinux_bsp
+  if [ "$BUILD_PZ7015_FMC2" == "yes" ]
+  then
+    HDL_BOARD_NAME=PZ7015_FMC2
+    PETALINUX_PROJECT_NAME=pz7015_fmc2_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=pz_fmc2
+    build_hw_platform
+    create_petalinux_bsp
+  fi
 
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7020_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7020_FMC2
-  PETALINUX_PROJECT_NAME=pz7020_fmc2_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=pz_fmc2
-  build_hw_platform
-  create_petalinux_bsp
+  if [ "$BUILD_PZ7020_FMC2" == "yes" ]
+  then
+    HDL_BOARD_NAME=PZ7020_FMC2
+    PETALINUX_PROJECT_NAME=pz7020_fmc2_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=pz_fmc2
+    build_hw_platform
+    create_petalinux_bsp
+  fi
 
   #
   # Create the hardware platform (if necessary) 
   # and build the PetaLinux BSP for the PZ7030_FMC2 target.
   #
-  HDL_BOARD_NAME=PZ7030_FMC2
-  PETALINUX_PROJECT_NAME=pz7030_fmc2_${PLNX_VER}
-  PETALINUX_ROOTFS_NAME=pz_fmc2
-  build_hw_platform
-  create_petalinux_bsp
-
+  if [ "$BUILD_PZ7030_FMC2" == "yes" ]
+  then
+    HDL_BOARD_NAME=PZ7030_FMC2
+    PETALINUX_PROJECT_NAME=pz7030_fmc2_${PLNX_VER}
+    PETALINUX_ROOTFS_NAME=pz_fmc2
+    build_hw_platform
+    create_petalinux_bsp
+  fi
 }
 
-# First source any tools scripts to setup the environment needed to call both
+# First display a simple menu of what BSPs can be built with this script
+show_menu
+
+# Source any tools scripts to setup the environment needed to call both
 # PetaLinux and Vivado from this make script.
 source_tools_settings
 

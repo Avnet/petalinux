@@ -53,6 +53,8 @@
 #!/bin/bash
 
 # Set global variables here.
+DEBUG=no
+
 APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.2-final
 APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.2
 PLNX_VER=2019_2
@@ -73,8 +75,8 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 TFTP_HOST_FOLDER=/tftpboot
-
-DEBUG=yes
+# CACHE_ARCH 'arm' for Zynq, 'aarch64' for ZynqMP
+CACHE_ARCH=arm
 
 QSPI_KERNEL_START=0x160000
 
@@ -104,7 +106,7 @@ petalinux_project_configure_devicetree ()
   # If available, overwrite the board specific top level devicetree source 
   # with the revision controlled source files.
   if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/device-tree/system-user.dtsi.${HDL_BOARD_NAME} ]
-    then
+  then
     echo " "
     echo "Overwriting system-user level devicetree source include file..."
     echo " "
@@ -114,6 +116,16 @@ petalinux_project_configure_devicetree ()
     echo " "
     echo "WARNING: No board specific devicetree file found, "
     echo "PetaLinux devicetree config is not touched for this build ..."
+    echo " "
+  fi
+
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Pause here to check for any messages about copying the devicetree file."
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
 }
@@ -192,6 +204,16 @@ petalinux_project_configure_rootfs ()
     echo " "
   fi
 
+  # DEBUG
+  if [ "$DEBUG" == "yes" ];
+  then
+    echo " "
+    echo "Pause here to check for any messages about copying the rootfs configuration file."
+    #read -p "Press ENTER to continue"
+    read -t 10 -p "Pause here for 10 seconds"
+    echo " "
+  fi
+
   if [ -d ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/meta-user/${PETALINUX_ROOTFS_NAME} ]
     then
     # Copy the meta-user rootfs folder to the PetaLinux project.
@@ -203,6 +225,13 @@ petalinux_project_configure_rootfs ()
     # If the meta-user folder does not exist, then look for a bbappend file
     # Not every PetaLinux scripted build will have a custom rootfs with user applications, etc. and will instead 
     # use a bbappend file to specify PetaLinux-supplied applications
+  elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/user-rootfsconfig.${PETALINUX_ROOTFS_NAME} ]
+    then
+    echo " "
+    echo "Overwriting user-rootfsconfig file..."
+    echo " "
+    cp -rf ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/rootfs/user-rootfsconfig.${PETALINUX_ROOTFS_NAME} \
+    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/user-rootfsconfig
   else
     echo " "
     echo "WARNING: No custom rootfs found."
@@ -218,19 +247,23 @@ petalinux_project_set_sstate_paths ()
   # install folder this will significantly accelerate the build time
   # For more information see Xilinx AR #71240
   # https://www.xilinx.com/support/answers/71240.html
+  # More info also at the Xilinx wiki:
+  # https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842475/PetaLinux+Yocto+Tips#PetaLinuxYoctoTips-HowtoreducebuildtimeusingSSTATECACHE
   
-  PRJ_CFG_FILE=./project-spec/configs/config
-  CONF_FILE=./project-spec/meta-user/conf/petalinuxbsp.conf
-  
+  PRJ_CFG_FILE=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/config
+  CONF_FILE=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/petalinuxbsp.conf
   CACHE_DOWNLOADS=downloads_${PETALINUX_VER}/downloads
-  CACHE_AARCH64=sstate_aarch64_${PETALINUX_VER}/aarch64
+  SSTATE_PATH=sstate_${CACHE_ARCH}_${PETALINUX_VER}/${CACHE_ARCH}
 
-  if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ]
+  if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ];
   then
     echo " "
-    echo "Appending sstate cache paths to ${CONF_FILE}..."
-    echo " "
+    printf "Appending sstate cache paths to <>/"
+    # Shorten the path and file to something that can be displayed nicely
+    # https://stackoverflow.com/questions/10986794/remove-part-of-path-on-unix
+    echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
 
+    echo " " >> ${CONF_FILE}
     echo "PREMIRRORS_prepend = \" git://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
     echo "ftp://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
     echo "http://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
@@ -239,29 +272,65 @@ petalinux_project_set_sstate_paths ()
     echo " "
     echo "NOTE: sstate cache files not installed in ${PETALINUX} "
     echo "Not appending ${CONF_FILE} with sstate cache paths..."
-    echo " "
   fi
 
-  if [ -d ${PETALINUX}/${CACHE_AARCH64} ]
+  if [ -d ${PETALINUX}/${SSTATE_PATH} ];
   then
     echo " "
     echo "Setting local sstate cache paths in project config file..."
-    echo " "
-
     sed -i 's,http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads,file://'"${PETALINUX}"'/'"${CACHE_DOWNLOADS}"',g' ${PRJ_CFG_FILE}
-    sed -i 's!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL=""!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="'"${PETALINUX}"'/'"${CACHE_AARCH64}"'"!g' ${PRJ_CFG_FILE}
+    sed -i 's!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL=""!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="'"${PETALINUX}"'/'"${SSTATE_PATH}"'"!g' ${PRJ_CFG_FILE}
   else
     echo " "
     echo "NOTE: sstate cache files not installed in ${PETALINUX} "
     echo "Not setting local sstate cache paths in project config file..."
-    echo " "
   fi
+
+  if [ ! -d ${START_FOLDER}/../cache/${PLNX_VER}/downloads ];
+  then
+    echo " "
+    echo "Create the folder to store package downloads at build time"
+    mkdir -p ${START_FOLDER}/../cache/${PLNX_VER}/downloads
+  else
+    echo " "
+    echo "The <>petalinux/cache/${PLNX_VER}/downloads directory already exists.  Not creating."
+  fi
+
+  if [ ! -d ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH} ];
+  then
+    echo " "
+    echo "Create the folder to store sstate downloads at build time"
+    mkdir -p ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}
+  else
+    echo " "
+    echo "The <>petalinux/cache/${PLNX_VER}/sstate_${CACHE_ARCH} directory already exists.  Not creating."
+  fi
+
+  # By the time we get here we have determined that download and sstate 
+  # cache folders exist or have been created, so we can add the paths
+  # to these folders to the petalinuxbsp.conf file
+  echo " "
+  #echo -e "Appending local download and sstate cache paths \nto ${CONF_FILE}"
+  printf "Appending local download and sstate cache paths to <>/"
+  echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
+  echo " " >> ${CONF_FILE}
+  #FOO=$(realpath ${START_FOLDER}/../cache/${PLNX_VER}/downloads/)
+  #echo "DL_DIR = \"$FOO\"" >> ${CONF_FILE}
+  echo "DL_DIR = \"${START_FOLDER}/../cache/${PLNX_VER}/downloads\"" >> ${CONF_FILE}
+  #FOO=$(realpath ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}/)
+  #echo "SSTATE_DIR = \"$FOO\"" >> ${CONF_FILE}
+  echo "SSTATE_DIR = \"${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}\"" >> ${CONF_FILE}
 
   # DEBUG
   if [ "$DEBUG" == "yes" ];
   then
     echo " "
-    echo "Verify sstate cache paths have been added to ${CONF_FILE} and ${PRJ_CFG_FILE}"
+    #echo -e "Verify sstate and download cache paths have been added to \n${CONF_FILE}\n and ${PRJ_CFG_FILE}"
+    printf "Verify sstate and download cache paths have been added to <>/"
+    echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
+    printf "and <>/"
+    echo ${PRJ_CFG_FILE} | rev | cut -d'/' -f-4 | rev
+    printf "\n"
     #read -p "Press ENTER to continue" 
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
@@ -508,7 +577,7 @@ create_petalinux_bsp ()
   then
     echo " "
     echo "Pause here to check for any messages about importing the hardware platform."
-    #read -p "Press ENTER to continue" 
+    #read -p "Press ENTER to continue"
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
@@ -532,15 +601,15 @@ create_petalinux_bsp ()
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/configs/
     patch < ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
-  # DEBUG
-  if [ "$DEBUG" == "yes" ];
-  then
-    echo " "
-    echo "Pause here to check for any messages about patching the project config file."
-    #read -p "Press ENTER to continue" 
-    read -t 10 -p "Pause here for 10 seconds"
-    echo " "
-  fi
+    # DEBUG
+    if [ "$DEBUG" == "yes" ];
+    then
+      echo " "
+      echo "Pause here to check for any messages about patching the project config file."
+      #read -p "Press ENTER to continue"
+      read -t 10 -p "Pause here for 10 seconds"
+      echo " "
+    fi
 
   elif [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${HDL_BOARD_NAME} ] 
     then
@@ -567,11 +636,11 @@ create_petalinux_bsp ()
   if [ "$DEBUG" == "yes" ];
   then
     echo " "
-    echo "Compare project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
-    #read -p "Press ENTER to continue" 
+    echo "Compare <>/${PETALINUX_PROJECT_NAME}/project-spec/configs/config file to ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.patch file"
+    #read -p "Press ENTER to continue"
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
-  fi  
+  fi
 
   # Configure the device-tree.
   petalinux_project_configure_devicetree
@@ -596,7 +665,7 @@ create_petalinux_bsp ()
   then
     echo " "
     echo "Pause here to check for any messages."
-    #read -p "Press ENTER to continue" 
+    #read -p "Press ENTER to continue"
     read -t 10 -p "Pause here for 10 seconds"
     echo " "
   fi
@@ -638,7 +707,7 @@ create_petalinux_bsp ()
 
     # Create QSPI boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
     # This creates a boot.bin that includes the kernel (image.ub) that is placed in QSPI at offset after the u-boot, fsbl, and bitstream
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
+    petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --kernel --offset ${QSPI_KERNEL_START} --force
     # This creates a boot.bin that does not include the kernel
     #petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
 
@@ -652,10 +721,10 @@ create_petalinux_bsp ()
 
     # Create script to program the QSPI Flash
     echo "#!/bin/sh" > program_boot_qspi.sh
-    echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
+    echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
     # Add this line to the shell script if you create a boot.bin that does not include the kernel (image.ub)
     # The kernel (image.ub) "-offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file
-    #echo "program_flash -f ./images/linux/image.ub -offset ${QSPI_KERNEL_START} -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"   >> program_boot_qspi.sh
+    #echo "program_flash -f ./images/linux/image.ub -offset ${QSPI_KERNEL_START} -flash_type qspi-x4-single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"   >> program_boot_qspi.sh
     chmod 777 ./program_boot_qspi.sh
   fi
 
@@ -695,7 +764,7 @@ create_petalinux_bsp ()
     done
 
     # Create boot image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
+    petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
 
     # Copy the boot.bin file and name the new file BOOT_EMMC.bin
     cp ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/images/linux/BOOT.BIN \
@@ -737,7 +806,7 @@ create_petalinux_bsp ()
       read -t 10 -p "Pause here for 10 seconds"
       echo " "
     fi
-   
+
     PLNX_BUILD_SUCCESS=-1
 
     echo "Entering PetaLinux build loop.  Stay here until Linux image is built successfully"
@@ -974,7 +1043,7 @@ create_petalinux_bsp ()
   cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/
 
   # Package the bitstream within the PetaLinux pre-built folder.
-  petalinux-package --prebuilt --fpga images/linux/system.bit --force
+  petalinux-package --prebuilt --fpga ./images/linux/system.bit --force
 
   # Rename the pre-built bitstream file to download.bit so that the default 
   # format for the petalinux-boot command over jtag will not need the bit file 
@@ -1120,7 +1189,7 @@ build_hw_platform ()
       read -t 5 -p "Pause here for 5 seconds"
       echo " "
     fi
-      
+
     # Change to HDL scripts folder.
     cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
@@ -1137,7 +1206,7 @@ build_hw_platform ()
       echo " "
       read -t 5 -p "Pause here for 5 seconds"
       echo " "
-    fi  
+    fi
   fi
 }
 
