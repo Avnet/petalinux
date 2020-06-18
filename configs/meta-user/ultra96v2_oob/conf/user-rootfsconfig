@@ -3,6 +3,7 @@
 
 CONFIG_gpio-demo
 CONFIG_peekpoke
+CONFIG_pmic-prog
 
 CONFIG_packagegroup-base-extended
 CONFIG_cmake
