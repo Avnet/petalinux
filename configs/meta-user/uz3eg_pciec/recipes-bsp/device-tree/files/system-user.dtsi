@@ -23,7 +23,7 @@
 	clock-frequency = <400000>;
 
 	i2cswitch@70 { /* U7 on UZ3EG SOM */
-		compatible = "nxp,pca9542";
+		compatible = "nxp,pca9543";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x70>;
@@ -35,6 +35,27 @@
 			eeprom@51 { /* U5 on UZ3EG IOCC and U7 on the UZ7EV EVCC*/
 				compatible = "at,24c08";
 				reg = <0x51>;
+			};
+		};
+
+		i2c@1 {
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			reg = <0x1>;
+
+			irps5401@43 {
+				compatible = "infineon,irps5401";
+				reg = <0x43>;
+			};
+
+			irps5401@44 {
+				compatible = "infineon,irps5401";
+				reg = <0x44>;
+			};
+
+			irps5401@45 {
+				compatible = "infineon,irps5401";
+				reg = <0x45>;
 			};
 		};
 	};
