@@ -4229,6 +4229,7 @@ CONFIG_mac-eeprom-config-init=y
 CONFIG_performance-tests=y
 CONFIG_python-webserver=y
 CONFIG_python-webserver-init=y
+CONFIG_pmic-prog=y
 CONFIG_sds-lib=y
 CONFIG_user-led-test=y
 CONFIG_user-switch-test=y
@@ -4238,6 +4239,7 @@ CONFIG_user-switch-test=y
 #
 CONFIG_bonniePLUSPLUS=y
 CONFIG_iperf3=y
+CONFIG_lmsensors-sensorsdetect=y
 CONFIG_nano=y
 CONFIG_opencl-clhpp-dev=y
 CONFIG_opencl-headers-dev=y
