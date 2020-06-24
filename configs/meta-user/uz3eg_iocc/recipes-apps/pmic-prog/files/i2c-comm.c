@@ -60,7 +60,7 @@
 #include <i2c/smbus.h>
 
 #define DETECT_FIRST_ADDR   0x03
-#define DETECT_LAST_ADDR    0x77
+#define DETECT_LAST_ADDR    0x6F
 
 static int i2c_dev_file = 0;
 
