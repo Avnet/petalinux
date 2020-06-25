@@ -99,7 +99,7 @@
 	scl-gpios = <&gpio 4 0>;
 	sda-gpios = <&gpio 5 0>;
 
-	i2cswitch@75 { /* U7 on Ultra96-V2 */
+	i2c-mux@75 { /* U7 on Ultra96-V2 */
 		compatible = "nxp,pca9548";
 		#address-cells = <1>;
 		#size-cells = <0>;
@@ -133,24 +133,24 @@
 			#size-cells = <0>;
 			reg = <4>;
 			/* PMBus PMIC */
-			irps5401_13: irps5401@13 { /* U11 on Ultra96-V2 */
-            /* #clock-cells = <0>; */
+			irps5401_43: irps5401@43 { /* U11 on Ultra96-V2 */
+				/* #clock-cells = <0>; */
 				compatible = "infineon,irps5401";
-				reg = <0x13>;
+				reg = <0x43>;
 			};
 
 			/* PMBus PMIC */
-			irps5401_14: irps5401@14 { /* U12 on Ultra96-V2 */
-            /* #clock-cells = <0>; */
+			irps5401_44: irps5401@44 { /* U12 on Ultra96-V2 */
+				/* #clock-cells = <0>; */
 				compatible = "infineon,irps5401";
-				reg = <0x14>;
+				reg = <0x44>;
 			};
 
 			/* PMBus PMIC */
-			ir38060_15: ir38060@15 { /* U21 on Ultra96-V2 */
-            /* #clock-cells = <0>; */
+			ir38060_45: ir38060@45 { /* U21 on Ultra96-V2 */
+				/* #clock-cells = <0>; */
 				compatible = "infineon,ir38060";
-				reg = <0x15>;
+				reg = <0x45>;
 			};
 		};
 	};

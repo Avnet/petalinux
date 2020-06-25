@@ -4223,6 +4223,7 @@ CONFIG_package-feed-uris=""
 #
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
+CONFIG_pmic-prog=y
 CONFIG_sds-lib=y
 CONFIG_ultra96-radio-leds=y
 CONFIG_ultra96-wpa=y

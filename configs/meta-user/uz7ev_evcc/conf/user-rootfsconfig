@@ -3,6 +3,7 @@
 
 CONFIG_gpio-demo
 CONFIG_peekpoke
+CONFIG_pmic-prog
 
 CONFIG_blinky
 CONFIG_blinky-init
@@ -17,6 +18,7 @@ CONFIG_performance-tests
 
 CONFIG_sds-lib
 
+CONFIG_lmsensors-sensorsdetect
 CONFIG_nano
 CONFIG_iperf3
 CONFIG_bonnie++
