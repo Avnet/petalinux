@@ -59,7 +59,7 @@
 #!/bin/bash
 
 # Set global variables here.
-DEBUG=no
+DEBUG=yes
 
 # Specify images to create
 # Light Green (Avnet color)
@@ -77,9 +77,9 @@ BUILD_MZ7010_FMCCC=no
 BUILD_MZ7020_FMCCC=no
 SELECTION=$1
 
-APP_PETALINUX_INSTALL_PATH=/opt/petalinux-v2019.2-final
-APP_VIVADO_INSTALL_PATH=/opt/Xilinx/Vivado/2019.2
-PLNX_VER=2019_2
+APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2020.1-final
+APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2020.1
+PLNX_VER=2020_1
 BUILD_BOOT_QSPI_OPTION=yes
 
 
@@ -302,35 +302,32 @@ petalinux_project_set_sstate_paths ()
   CACHE_DOWNLOADS=downloads_${PETALINUX_VER}/downloads
   SSTATE_PATH=sstate_${CACHE_ARCH}_${PETALINUX_VER}/${CACHE_ARCH}
 
+  # If the Xilinx downloads archive has been installed in the PetaLinux install folder
+  # add this path to the CONFIG_PRE_MIRROR_URL setting in the 
+  # <>/project-spec/configs/config file
   if [ -d ${PETALINUX}/${CACHE_DOWNLOADS} ];
   then
     echo " "
-    printf "Appending sstate cache paths to <>/"
-    # Shorten the path and file to something that can be displayed nicely
-    # https://stackoverflow.com/questions/10986794/remove-part-of-path-on-unix
-    echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
-
-    echo " " >> ${CONF_FILE}
-    echo "PREMIRRORS_prepend = \" git://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
-    echo "ftp://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
-    echo "http://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n \\" >> ${CONF_FILE}
-    echo "https://.*/.* file://${PETALINUX}/${CACHE_DOWNLOADS} \\n\"" >> ${CONF_FILE}
+    echo "Setting local downloads archive path in project config file..."
+    sed -i 's,http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads,file://'"${PETALINUX}"'/'"${CACHE_DOWNLOADS}"',g' ${PRJ_CFG_FILE}
   else
     echo " "
-    echo "NOTE: sstate cache files not installed in ${PETALINUX} "
-    echo "Not appending ${CONF_FILE} with sstate cache paths..."
+    echo "NOTE: download archive files not installed in ${PETALINUX} "
+    echo "Not setting local download archive path in project config file..."
   fi
 
+  # If the Xilinx sstate cache has been installed in the PetaLinux install folder
+  # add this path to the CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL setting in the 
+  # <>/project-spec/configs/config file
   if [ -d ${PETALINUX}/${SSTATE_PATH} ];
   then
     echo " "
-    echo "Setting local sstate cache paths in project config file..."
-    sed -i 's,http://petalinux.xilinx.com/sswreleases/rel-v${PETALINUX_VER%%.*}/downloads,file://'"${PETALINUX}"'/'"${CACHE_DOWNLOADS}"',g' ${PRJ_CFG_FILE}
+    echo "Setting local sstate cache path in project config file..."
     sed -i 's!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL=""!CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL="'"${PETALINUX}"'/'"${SSTATE_PATH}"'"!g' ${PRJ_CFG_FILE}
   else
     echo " "
     echo "NOTE: sstate cache files not installed in ${PETALINUX} "
-    echo "Not setting local sstate cache paths in project config file..."
+    echo "Not setting local sstate cache path in project config file..."
   fi
 
   if [ ! -d ${START_FOLDER}/../cache/${PLNX_VER}/downloads ];
@@ -340,7 +337,7 @@ petalinux_project_set_sstate_paths ()
     mkdir -p ${START_FOLDER}/../cache/${PLNX_VER}/downloads
   else
     echo " "
-    echo "The <>petalinux/cache/${PLNX_VER}/downloads directory already exists.  Not creating."
+    echo "The <>/petalinux/cache/${PLNX_VER}/downloads directory already exists.  Not creating."
   fi
 
   if [ ! -d ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH} ];
@@ -350,14 +347,14 @@ petalinux_project_set_sstate_paths ()
     mkdir -p ${START_FOLDER}/../cache/${PLNX_VER}/sstate_${CACHE_ARCH}
   else
     echo " "
-    echo "The <>petalinux/cache/${PLNX_VER}/sstate_${CACHE_ARCH} directory already exists.  Not creating."
+    echo "The <>/petalinux/cache/${PLNX_VER}/sstate_${CACHE_ARCH} directory already exists.  Not creating."
   fi
 
   # By the time we get here we have determined that download and sstate 
-  # cache folders exist or have been created, so we can add the paths
-  # to these folders to the petalinuxbsp.conf file
+  # cache folders exist or have been created
+  # Append the local download (DL_DIR) and sstate cache (SSTATE_DIR) paths to the 
+  # <>/project-spec/meta-user/conf/petalinuxbsp.conf file
   echo " "
-  #echo -e "Appending local download and sstate cache paths \nto ${CONF_FILE}"
   printf "Appending local download and sstate cache paths to <>/"
   echo ${CONF_FILE} | rev | cut -d'/' -f-5 | rev
   echo " " >> ${CONF_FILE}
@@ -379,7 +376,7 @@ petalinux_project_set_sstate_paths ()
     echo ${PRJ_CFG_FILE} | rev | cut -d'/' -f-4 | rev
     printf "\n"
     #read -p "Press ENTER to continue" 
-    read -t 10 -p "Pause here for 10 seconds"
+    read -t 5 -p "Pause here for 5 seconds"
     echo " "
   fi
 }
@@ -712,6 +709,18 @@ create_petalinux_bsp ()
       petalinux-build 
       
       PLNX_BUILD_SUCCESS=$?
+
+      # DEBUG
+      if [ "$DEBUG" == "yes" ];
+      then
+        if [ $PLNX_BUILD_SUCCESS -ne 0 ];
+        then
+          echo " "
+          echo "Stop here and go check the build errors"
+          echo " "
+          exit
+        fi
+      fi
     done
 
     # Create QSPI boot image.  The kernel "--offset" must match the "kernelstart="  defined in the u-boot platform-top.h source file.
@@ -877,6 +886,18 @@ create_petalinux_bsp ()
       petalinux-build 
       
       PLNX_BUILD_SUCCESS=$?
+      
+      # DEBUG
+      if [ "$DEBUG" == "yes" ];
+      then
+        if [ $PLNX_BUILD_SUCCESS -ne 0 ];
+        then
+          echo " "
+          echo "Stop here and go check the build errors"
+          echo " "
+          break
+        fi
+      fi
     done
 
     # Create boot image which does not contain the bistream image.
@@ -940,6 +961,18 @@ create_petalinux_bsp ()
       petalinux-build 
       
       PLNX_BUILD_SUCCESS=$?
+
+      # DEBUG
+      if [ "$DEBUG" == "yes" ];
+      then
+        if [ $PLNX_BUILD_SUCCESS -ne 0 ];
+        then
+          echo " "
+          echo "Stop here and go check the build errors"
+          echo " "
+          break
+        fi
+      fi
     done
 
     # If the SD OOB boot option is set, then perform the steps needed to  
