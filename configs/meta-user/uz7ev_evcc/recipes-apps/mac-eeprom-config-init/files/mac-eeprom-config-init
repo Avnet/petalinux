@@ -58,7 +58,7 @@ DAEMON=/home/root/mac_eeprom_config.sh
 #This script launches the script that will configure the MAC address of eth0
 #with the contents of the MAC address stored in the EEPROM
 #In this case the MAC EEPROM is located at I2C address 0x51
-DAEMON_OPTS="--bus 3 --slave 0x51 --file /etc/network/interfaces --interface eth0"
+DAEMON_OPTS="--bus 2 --slave 0x51 --file /etc/network/interfaces --interface eth0"
 
 start ()
 {
@@ -71,7 +71,7 @@ echo "***   MAC address init config for eth0                            ***"
 echo "***                                                               ***"
 echo "*********************************************************************"
 echo " "
-echo "/home/root/mac_eeprom_config.sh --bus 3 --slave 0x51 --file /etc/network/interfaces --interface eth0"
+echo "/home/root/mac_eeprom_config.sh --bus 2 --slave 0x51 --file /etc/network/interfaces --interface eth0"
 echo " "
 #    start-stop-daemon -S -o --background -x $DAEMON -- $DAEMON_OPTS
     start-stop-daemon -S -o -x $DAEMON -- $DAEMON_OPTS

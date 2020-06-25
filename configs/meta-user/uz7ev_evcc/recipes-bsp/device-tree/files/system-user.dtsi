@@ -23,7 +23,7 @@
 	clock-frequency = <400000>;
 
 	i2cswitch@70 { /* U7 on UZ3EG SOM, U8 on UZ7EV SOM */
-		compatible = "nxp,pca9542";
+		compatible = "nxp,pca9543";
 		#address-cells = <1>;
 		#size-cells = <0>;
 		reg = <0x70>;
@@ -31,15 +31,57 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0>;
-			/* Ethernet MAC ID EEPROM */
-			mac_eeprom@51 { /* U5 on UZ3EG IOCC and U7 on the UZ7EV EVCC */
+			/*
+			// Ethernet MAC ID EEPROM
+			mac_eeprom@51 { // U5 on UZ3EG IOCC and U7 on the UZ7EV EVCC
 				compatible = "at,24c08";
 				reg = <0x51>;
 			};
-			/* CLOCK2 CONFIG EEPROM */
-			clock_eeprom@52 { /* U5 on the UZ7EV EVCC */
+			// CLOCK2 CONFIG EEPROM
+			clock_eeprom@52 { // U5 on the UZ7EV EVCC
 				compatible = "at,24c08";
 				reg = <0x52>;
+			};
+			*/
+		};
+
+		i2c@1 {
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			reg = <0x1>;
+
+			irps5401@46 {
+				compatible = "infineon,irps5401";
+				reg = <0x46>;
+			};
+
+			irps5401@47 {
+				compatible = "infineon,irps5401";
+				reg = <0x47>;
+			};
+
+			ir38063@48 {
+				compatible = "infineon,ir38063";
+				reg = <0x48>;
+			};
+
+			irps5401@49 {
+				compatible = "infineon,irps5401";
+				reg = <0x49>;
+			};
+			irps5401@4a {
+				compatible = "infineon,irps5401";
+				reg = <0x4a>;
+			};
+
+			ir38063@4b {
+				compatible = "infineon,ir38063";
+				reg = <0x4b>;
+			};
+
+			ir38063@4c {
+				compatible = "infineon,ir38063";
+				reg = <0x4c>;
 			};
 		};
 	};

@@ -1,0 +1,118 @@
+From a2842ba5fcc051ebe5ea734178aa77b41ae775e3 Mon Sep 17 00:00:00 2001
+From: tnizan-witekio <tnizan@witekio.com>
+Date: Sat, 30 May 2020 15:25:40 -0700
+Subject: hwmon: (pmbus) Add Infineon IRPS5401 driver
+
+Backported patch (commit 9158411b96b14d9d448e978b0fc8a1cffcb8a1c6) from
+linux-xlnx rebase_v5.4:
+
+Add a driver to support the Infineon IRPS5401 PMIC. This chip has 5
+pages corresponding to 4 switching outputs and one linear (LDO) output.
+The switching and LDO outputs have slightly different supported
+parameters.
+
+diff --git a/drivers/hwmon/pmbus/Kconfig b/drivers/hwmon/pmbus/Kconfig
+index 627bb84fd145..8d79f7d2827e 100644
+--- a/drivers/hwmon/pmbus/Kconfig
++++ b/drivers/hwmon/pmbus/Kconfig
+@@ -57,6 +57,15 @@ config SENSORS_IR35221
+ 	  This driver can also be built as a module. If so, the module will
+ 	  be called ir35521.
+ 
++config SENSORS_IRPS5401
++	tristate "Infineon IRPS5401"
++	help
++	  If you say yes here you get hardware monitoring support for the
++	  Infineon IRPS5401 controller.
++
++	  This driver can also be built as a module. If so, the module will
++	  be called irps5401.
++
+ config SENSORS_LM25066
+ 	tristate "National Semiconductor LM25066 and compatibles"
+ 	default n
+diff --git a/drivers/hwmon/pmbus/Makefile b/drivers/hwmon/pmbus/Makefile
+index 4879869f0952..73b6424b6553 100644
+--- a/drivers/hwmon/pmbus/Makefile
++++ b/drivers/hwmon/pmbus/Makefile
+@@ -8,6 +8,7 @@ obj-$(CONFIG_SENSORS_PMBUS)	+= pmbus.o
+ obj-$(CONFIG_SENSORS_ADM1275)	+= adm1275.o
+ obj-$(CONFIG_SENSORS_IBM_CFFPS)	+= ibm-cffps.o
+ obj-$(CONFIG_SENSORS_IR35221)	+= ir35221.o
++obj-$(CONFIG_SENSORS_IRPS5401)	+= irps5401.o
+ obj-$(CONFIG_SENSORS_LM25066)	+= lm25066.o
+ obj-$(CONFIG_SENSORS_LTC2978)	+= ltc2978.o
+ obj-$(CONFIG_SENSORS_LTC3815)	+= ltc3815.o
+diff --git a/drivers/hwmon/pmbus/irps5401.c b/drivers/hwmon/pmbus/irps5401.c
+new file mode 100644
+index 000000000000..d37daa001fb3
+--- /dev/null
++++ b/drivers/hwmon/pmbus/irps5401.c
+@@ -0,0 +1,67 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Hardware monitoring driver for the Infineon IRPS5401M PMIC.
++ *
++ * Copyright (c) 2019 SED Systems, a division of Calian Ltd.
++ *
++ * The device supports VOUT_PEAK, IOUT_PEAK, and TEMPERATURE_PEAK, however
++ * this driver does not currently support them.
++ */
++
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include "pmbus.h"
++
++#define IRPS5401_SW_FUNC (PMBUS_HAVE_VIN | PMBUS_HAVE_IIN | \
++			  PMBUS_HAVE_STATUS_INPUT | \
++			  PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT | \
++			  PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT | \
++			  PMBUS_HAVE_PIN | PMBUS_HAVE_POUT | \
++			  PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP)
++
++#define IRPS5401_LDO_FUNC (PMBUS_HAVE_VIN | \
++			   PMBUS_HAVE_STATUS_INPUT | \
++			   PMBUS_HAVE_VOUT | PMBUS_HAVE_STATUS_VOUT | \
++			   PMBUS_HAVE_IOUT | PMBUS_HAVE_STATUS_IOUT | \
++			   PMBUS_HAVE_PIN | PMBUS_HAVE_POUT | \
++			   PMBUS_HAVE_TEMP | PMBUS_HAVE_STATUS_TEMP)
++
++static struct pmbus_driver_info irps5401_info = {
++	.pages = 5,
++	.func[0] = IRPS5401_SW_FUNC,
++	.func[1] = IRPS5401_SW_FUNC,
++	.func[2] = IRPS5401_SW_FUNC,
++	.func[3] = IRPS5401_SW_FUNC,
++	.func[4] = IRPS5401_LDO_FUNC,
++};
++
++static int irps5401_probe(struct i2c_client *client,
++			  const struct i2c_device_id *id)
++{
++	return pmbus_do_probe(client, id, &irps5401_info);
++}
++
++static const struct i2c_device_id irps5401_id[] = {
++	{"irps5401", 0},
++	{}
++};
++
++MODULE_DEVICE_TABLE(i2c, irps5401_id);
++
++static struct i2c_driver irps5401_driver = {
++	.driver = {
++		   .name = "irps5401",
++		   },
++	.probe = irps5401_probe,
++	.remove = pmbus_do_remove,
++	.id_table = irps5401_id,
++};
++
++module_i2c_driver(irps5401_driver);
++
++MODULE_AUTHOR("Robert Hancock");
++MODULE_DESCRIPTION("PMBus driver for Infineon IRPS5401");
++MODULE_LICENSE("GPL");
