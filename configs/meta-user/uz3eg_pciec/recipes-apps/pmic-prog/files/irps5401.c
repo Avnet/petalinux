@@ -74,75 +74,6 @@ static bool write_all_registers ( const char *input_filename );
 /* Public functions *********************************************************/
 /* ***************************************************************************/
 
-// Used to detect if a device is an IRPS5401
-// no write operations, only read performed (so not setting the page)
-bool irps5401_detect ( void )
-{
-    bool ret = false;
-    uint8_t reg_addr = 0;
-    uint8_t value = 0;
-
-    //MANUFACTURER_ID1
-    reg_addr = MANUFACTURER_ID1_BYTE_ADDR;
-    ret = i2c_comm_read_byte(reg_addr, &value);
-    if ( ret == false || value != MANUFACTURER_ID1_INFINEON )
-    {
-        return false;
-    }
-
-    //MANUFACTURER_ID0
-    reg_addr = MANUFACTURER_ID0_BYTE_ADDR;
-    ret = i2c_comm_read_byte(reg_addr, &value);
-    if ( ret == false || value != MANUFACTURER_ID0_INFINEON )
-    {
-        return false;
-    }
-
-    //PRODUCT_ID
-    reg_addr = PRODUCT_ID_BYTE_ADDR;
-    ret = i2c_comm_read_byte(reg_addr, &value);
-    if ( ret == false || value != PRODUCT_ID_IRPS5401 )
-    {
-        return false;
-    }
-
-    return true;
-}
-
-// Used to verify that the device is an IRPS5401
-bool irps5401_verify ( void )
-{
-    bool ret = false;
-    uint16_t reg_addr = 0;
-    uint8_t value = 0;
-
-    //MANUFACTURER_ID1
-    reg_addr = MANUFACTURER_ID1_BYTE_ADDR;
-    ret = irps5401_read_byte(reg_addr, &value);
-    if ( ret == false || value != MANUFACTURER_ID1_INFINEON )
-    {
-        return false;
-    }
-
-    //MANUFACTURER_ID0
-    reg_addr = MANUFACTURER_ID0_BYTE_ADDR;
-    ret = irps5401_read_byte(reg_addr, &value);
-    if ( ret == false || value != MANUFACTURER_ID0_INFINEON )
-    {
-        return false;
-    }
-
-    //PRODUCT_ID
-    reg_addr = PRODUCT_ID_BYTE_ADDR;
-    ret = irps5401_read_byte(reg_addr, &value);
-    if ( ret == false || value != PRODUCT_ID_IRPS5401 )
-    {
-        return false;
-    }
-
-    return true;
-}
-
 bool irps5401_read_byte ( uint16_t address, uint8_t *res )
 {
     ASSERT_EMERG(res != NULL, "%s: NULL parameter\n", __FUNCTION__);
@@ -334,7 +265,10 @@ bool irps5401_read_all_registers ( const char *output_filename, const char *inpu
         }
 
         differences = count_diff(registers_storage, registers_input);
-        printf("Number of differences between current registers and input file: %d\n", differences);
+        if ( differences != UINT16_MAX )
+        {
+            printf("Number of differences between current registers and input file: %d\n", differences);
+        }
     }
 
     return true;
@@ -593,31 +527,48 @@ static uint16_t count_diff ( registers_t *arrayA, registers_t *arrayB )
     ASSERT_EMERG(arrayB != NULL, "%s: NULL parameter\n", __FUNCTION__);
 
     uint16_t i = 0;
+    uint16_t reg_addr_i = 0;
     uint16_t count = 0;
 
-    for ( i = 0; i < NUMBER_OF_REGISTERS; i++ )
+    for ( i = 0; i < sizeof(w_registers_ranges) / sizeof(write_registers_ranges_t); i++ )
     {
-        if ( arrayA[i].reg_addr == i )
+        CHECK_RETURN(w_registers_ranges[i].first <= w_registers_ranges[i].last, UINT16_MAX, "Error counting differences\n");
+
+        for ( reg_addr_i = w_registers_ranges[i].first; reg_addr_i <= w_registers_ranges[i].last; reg_addr_i++ )
         {
-            // reg_addr Differences
-            if ( arrayA[i].reg_addr != arrayB[i].reg_addr )
-            {
-                count++;
-                continue;
-            }
+            CHECK_RETURN(reg_addr_i < NUMBER_OF_REGISTERS, UINT16_MAX, "Error counting differences\n");
 
-            // mask Differences
-            if ( arrayA[i].mask != arrayB[i].mask )
+            if ( arrayA[reg_addr_i].reg_addr == reg_addr_i )
             {
-                count++;
-                continue;
-            }
+                // reg_addr Differences
+                if ( arrayA[reg_addr_i].reg_addr != arrayB[reg_addr_i].reg_addr )
+                {
+                    count++;
+                    continue;
+                }
 
-            // value & mask Differences
-            if ( (arrayA[i].value & arrayA[i].mask) != (arrayB[i].value & arrayB[i].mask) )
+                // mask Differences
+                if ( arrayA[reg_addr_i].mask != arrayB[reg_addr_i].mask )
+                {
+                    count++;
+                    continue;
+                }
+
+                // value & mask Differences
+                if ( (arrayA[reg_addr_i].value & arrayA[reg_addr_i].mask) != (arrayB[reg_addr_i].value & arrayB[reg_addr_i].mask) )
+                {
+                    count++;
+                    continue;
+                }
+            }
+            else
             {
-                count++;
-                continue;
+                // no value in arrayA, but value in arrayB
+                if ( arrayB[reg_addr_i].reg_addr == reg_addr_i )
+                {
+                    count++;
+                    continue;
+                }
             }
         }
     }

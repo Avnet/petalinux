@@ -51,7 +51,6 @@
 #include <stdint-gcc.h>
 #include <stdbool.h>
 
-bool ir3806x_detect ( uint8_t *version );
 bool ir3806x_read_byte ( uint16_t address, uint8_t *res );
 bool ir3806x_write_byte ( uint16_t address, uint8_t value );
 bool ir3806x_read_all_registers ( const char *output_filename, const char *compare_filename );
