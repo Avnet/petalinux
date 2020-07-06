@@ -50,6 +50,8 @@
 #include "i2c-comm.h"
 #include "utils.h"
 
+#define VERSION "1.0"
+
 #define STR_CMD_READ "read"
 #define STR_CMD_WRITE "write"
 #define STR_CMD_DETECT "detect"
@@ -66,6 +68,7 @@ typedef enum
     CMD_PROGRAM,
 } cmd_t;
 
+static void print_version ( void );
 static void print_usage ( void );
 static bool do_read ( uint8_t i2c_bus, uint8_t i2c_chip_addr, uint16_t reg_addr );
 static bool do_write ( uint8_t i2c_bus, uint8_t i2c_chip_addr, uint16_t reg_addr, uint8_t value );
@@ -80,7 +83,7 @@ static bool unsupported_write_word_fct ( uint16_t address, uint16_t value );
 static bool unsupported_read_all_registers_fct ( const char *output_filename, const char *compare_filename );
 static bool unsupported_program_fct ( bool dry_run, const char *input_filename );
 
-static bool identify_device ( void );
+static bool identify_device ( uint8_t i2c_bus, uint8_t i2c_chip_addr );
 
 static bool (*read_byte_fct) ( uint16_t address, uint8_t *res ) = unsupported_read_byte_fct;
 static bool (*read_word_fct) ( uint16_t address, uint16_t *res ) = unsupported_read_word_fct;
@@ -116,6 +119,8 @@ int main(int argc, char **argv)
     char *filename_input = NULL;
 
     bool dry_run = false;
+
+    print_version();
 
     if ( argc < 2 )
     {
@@ -393,6 +398,11 @@ int main(int argc, char **argv)
 /* Private functions *********************************************************/
 /* ***************************************************************************/
 
+static void print_version ( void )
+{
+    printf("Version: %s\n\n", VERSION);
+}
+
 static void print_usage ( void )
 {
     printf("Usage: pmic_prog [-h] COMMANDS\n"
@@ -443,11 +453,11 @@ static bool do_read ( uint8_t i2c_bus, uint8_t i2c_chip_addr, uint16_t reg_addr 
     bool ret = false;
     uint8_t value = 0;
 
+    ret = identify_device(i2c_bus, i2c_chip_addr);
+    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
+
     ret = i2c_comm_open_device(i2c_bus, i2c_chip_addr);
     CHECK_RETURN(ret == true, false, "Error: failed to open i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
-
-    ret = identify_device();
-    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
 
     ret = read_byte_fct(reg_addr, &value);
     if ( ret == false )
@@ -469,11 +479,11 @@ static bool do_write ( uint8_t i2c_bus, uint8_t i2c_chip_addr, uint16_t reg_addr
 {
     bool ret = false;
 
+    ret = identify_device(i2c_bus, i2c_chip_addr);
+    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
+
     ret = i2c_comm_open_device(i2c_bus, i2c_chip_addr);
     CHECK_RETURN(ret == true, false, "Error: failed to open i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
-
-    ret = identify_device();
-    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
 
     ret = write_byte_fct(reg_addr, value);
     if ( ret == false )
@@ -495,7 +505,7 @@ static bool do_detect ( uint8_t i2c_bus )
     uint8_t dev_addr[256] = { 0 };
     bool pmic_found = false;
     uint16_t i = 0;
-    uint8_t ir3806x_version = 0;
+    uint16_t pmbus_addr = 0;
 
     ret = i2c_comm_detect(i2c_bus, dev_addr);
     CHECK_RETURN(ret == true, false, "Error: i2c_comm_detect failed");
@@ -504,22 +514,22 @@ static bool do_detect ( uint8_t i2c_bus )
     {
         if ( dev_addr[i] == 1 )
         {
-            ret = i2c_comm_open_device(i2c_bus, (uint8_t) i);
-            CHECK_RETURN(ret == true, false, "Error: failed to open i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i);
-
-            if ( ir3806x_detect(&ir3806x_version) )
+            pmbus_addr = (uint16_t) (i + INFINEON_PMBUS_ADDR_OFFSET);
+            if ( pmbus_addr  > UINT8_MAX || dev_addr[pmbus_addr] != 1 )
             {
-                pmic_found = true;
-                printf("Found IR3806%u at address 0x%02X\n", ir3806x_version, i);
-            }
-            else if ( irps5401_detect() )
-            {
-                pmic_found = true;
-                printf("Found IRPS5401 at address 0x%02X\n", i);
+                // no valid pmbus address
+                continue;
             }
 
-            ret = i2c_comm_close_device();
-            CHECK_RETURN(ret == true, false, "Error: failed to close i2c device\n");
+            dev_id_t dev_id = identify_device_from_pmbus_interface(i2c_bus, (uint8_t) i);
+
+            if ( dev_id == DEV_ID_UNKNOWN )
+            {
+                continue;
+            }
+
+            pmic_found = true;
+            printf("Found %s at address 0x%02X (PMBus address = 0x%02X)\n", get_dev_id_string(dev_id), i, pmbus_addr);
         }
     }
 
@@ -535,11 +545,11 @@ static bool do_read_all_registers ( uint8_t i2c_bus, uint8_t i2c_chip_addr, cons
 {
     bool ret = false;
 
+    ret = identify_device(i2c_bus, i2c_chip_addr);
+    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
+
     ret = i2c_comm_open_device(i2c_bus, i2c_chip_addr);
     CHECK_RETURN(ret == true, false, "Error: failed to open i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
-
-    ret = identify_device();
-    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
 
     ret = read_all_registers_fct(output_filename, input_filename);
     if ( ret == false )
@@ -559,11 +569,11 @@ static bool do_program ( uint8_t i2c_bus, uint8_t i2c_chip_addr, bool dry_run, c
 {
     bool ret = false;
 
+    ret = identify_device(i2c_bus, i2c_chip_addr);
+    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
+
     ret = i2c_comm_open_device(i2c_bus, i2c_chip_addr);
     CHECK_RETURN(ret == true, false, "Error: failed to open i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
-
-    ret = identify_device();
-    CHECK_RETURN(ret == true, false, "Error: failed to identify the i2c device (bus %u, addr 0x%02X)\n", i2c_bus, i2c_chip_addr);
 
     ret = program_fct(dry_run, input_filename);
     if ( ret == false )
@@ -619,35 +629,38 @@ static bool unsupported_program_fct ( bool dry_run, const char *input_filename )
     return false;
 }
 
-static bool identify_device ( void )
+static bool identify_device ( uint8_t i2c_bus, uint8_t i2c_chip_addr )
 {
-    uint8_t ir3806x_version = 0;
-    if ( ir3806x_detect(&ir3806x_version) == true )
+    dev_id_t dev_id = identify_device_from_pmbus_interface(i2c_bus, i2c_chip_addr);
+
+    switch ( dev_id )
     {
-        printf("IR3806%u successfully detected\n", ir3806x_version);
+        case DEV_ID_IRPS5401:
+            printf("%s successfully detected\n", get_dev_id_string(dev_id));
+            // affect functions
+            read_byte_fct = irps5401_read_byte;
+            read_word_fct = irps5401_read_word;
+            write_byte_fct = irps5401_write_byte;
+            write_word_fct = irps5401_write_word;
+            read_all_registers_fct = irps5401_read_all_registers;
+            program_fct = irps5401_program;
+            return true;
 
-        // affect functions
-        read_byte_fct = ir3806x_read_byte;
-        write_byte_fct = ir3806x_write_byte;
-        read_all_registers_fct = ir3806x_read_all_registers;
-        program_fct = ir3806x_program;
-        return true;
+        case DEV_ID_IR38060:
+        case DEV_ID_IR38062:
+        case DEV_ID_IR38063:
+        case DEV_ID_IR38064:
+            printf("%s successfully detected\n", get_dev_id_string(dev_id));
+            // affect functions
+            read_byte_fct = ir3806x_read_byte;
+            write_byte_fct = ir3806x_write_byte;
+            read_all_registers_fct = ir3806x_read_all_registers;
+            program_fct = ir3806x_program;
+            return true;
+
+        case DEV_ID_UNKNOWN:
+        default:
+            return false;
     }
-    else if ( irps5401_verify() == true )
-    {
-        printf("IRPS5401 successfully detected\n");
-
-        // affect functions
-        read_byte_fct = irps5401_read_byte;
-        read_word_fct = irps5401_read_word;
-        write_byte_fct = irps5401_write_byte;
-        write_word_fct = irps5401_write_word;
-        read_all_registers_fct = irps5401_read_all_registers;
-        program_fct = irps5401_program;
-        return true;
-    }
-
-    // Unidentified device
-    return false;
 }
 

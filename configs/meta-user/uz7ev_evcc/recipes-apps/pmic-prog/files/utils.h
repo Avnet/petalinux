@@ -55,6 +55,18 @@
 #include <stdint-gcc.h>
 #include <stdbool.h>
 
+#define INFINEON_PMBUS_ADDR_OFFSET 0x30 // address offset between i2c and pmbus interfaces
+
+typedef enum {
+    DEV_ID_UNKNOWN = 0,
+    DEV_ID_IRPS5401,
+    DEV_ID_IR38060,
+    DEV_ID_IR38062,
+    DEV_ID_IR38063,
+    DEV_ID_IR38064,
+
+} dev_id_t;
+
 #define CLEAR_STDIN { int c; while((c = getchar()) != '\n' && c != EOF); }
 
 // Emergency errors cannot be recovered.
@@ -89,7 +101,6 @@
             if ( !fgets(s, 2, stdin) ||  (s[0] != 'Y' && s[0] != 'y') )                                         \
             {                                                                                                   \
                 fprintf(stderr, "Aborting on user request.\n");                                                 \
-                CLEAR_STDIN;                                                                                    \
                 return ret_val;                                                                                 \
             }                                                                                                   \
             CLEAR_STDIN;                                                                                        \
@@ -97,4 +108,7 @@
         } while ( 0 );                                                                                          \
 
 void convert_word_to_binary ( uint16_t word, char *str );
+dev_id_t get_dev_id_from_pmbus_id ( uint8_t pmbus_id );
+dev_id_t identify_device_from_pmbus_interface ( uint8_t i2c_bus, uint8_t i2c_addr );
+const char *get_dev_id_string ( dev_id_t dev_id );
 #endif /* UTILS_H_ */

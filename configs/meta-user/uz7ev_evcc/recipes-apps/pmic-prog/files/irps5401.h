@@ -51,8 +51,6 @@
 #include <stdint-gcc.h>
 #include <stdbool.h>
 
-bool irps5401_detect ( void );
-bool irps5401_verify ( void );
 bool irps5401_read_byte ( uint16_t address, uint8_t *res );
 bool irps5401_read_word ( uint16_t address, uint16_t *res );
 bool irps5401_write_byte ( uint16_t address, uint8_t value );
