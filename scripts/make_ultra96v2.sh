@@ -13,6 +13,9 @@ PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
 PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
 START_FOLDER=`pwd`
 
+KEEP_CACHE="true"
+ARCH="aarch64"
+
 
 source_tools_settings ()
 {
@@ -67,6 +70,37 @@ build_hw_platform ()
       echo " "
     fi
   fi
+}
+
+configure_cache_path ()
+{
+    CONF_FILE=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-avnet/conf/petalinuxbsp.conf
+    CACHE_DIR=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/cache/
+    SSTATE_CACHE=sstate_${PETALINUX_VER}/$ARCH/
+    DOWNLOAD_CACHE=downloads_${PETALINUX_VER}/
+
+    # Add the following paths to the end of ${CONF_FILE}
+    # If the sstate cache has been downloaded and extracted into the PetaLinux
+    # install folder this will significantly accelerate the build time
+    # For more information see Xilinx AR #71240
+    # https://www.xilinx.com/support/answers/71240.html
+    echo " "
+    echo "Setting local sstate cache paths in project config file..."
+    echo " "
+
+    mkdir -p ${CACHE_DIR}/${SSTATE_CACHE}
+    mkdir -p ${CACHE_DIR}/${DOWNLOAD_CACHE}
+
+    echo " " >> ${CONF_FILE}
+    echo "PREMIRRORS_prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ " >> ${CONF_FILE}
+    echo "ftp://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ " >> ${CONF_FILE}
+    echo "http://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ " >> ${CONF_FILE}
+    echo "https://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \"" >> ${CONF_FILE}
+
+    echo "DL_DIR = \"${CACHE_DIR}/${DOWNLOAD_CACHE}\"" >> ${CONF_FILE}
+    echo "SSTATE_DIR = \"${CACHE_DIR}/${SSTATE_CACHE}\"" >> ${CONF_FILE}
+
+    bash ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.cache.sh $ARCH
 }
 
 create_petalinux_bsp ()
@@ -134,16 +168,21 @@ create_petalinux_bsp ()
     echo " "
     fi
 
+    git clone -b tnizan/dev git@github.com:Avnet/meta-avnet.git project-spec/meta-avnet
+
+    if [ "$KEEP_CACHE" = "true" ]
+    then
+        configure_cache_path
+    fi
 
     # Change PetaLinux project config to boot the rootfs from ext4 partition on the SD card.
     echo " "
     echo "Patching project config for SD EXT4 boot support..."
     echo " "
+
     bash ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.sd_ext4_boot.sh
 
-    git clone -b tnizan/dev git@github.com:Avnet/meta-avnet.git project-spec/meta-avnet
-
-    petalinux-config --silentconfig 
+    petalinux-config --silentconfig
 
     petalinux-build
 
