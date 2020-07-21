@@ -19,7 +19,7 @@ ARCH="aarch64"
 
 source_tools_settings ()
 {
-  # Source the tools settings scripts so that both Vivado and PetaLinux can 
+  # Source the tools settings scripts so that both Vivado and PetaLinux can
   # be used throughout this build script.
   source ${APP_VIVADO_INSTALL_PATH}/settings64.sh
   source ${APP_PETALINUX_INSTALL_PATH}/settings.sh
@@ -30,8 +30,8 @@ build_hw_platform ()
   # Change to HDL projects folder.
   cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
 
-  # Check to see if the Vivado hardware project has not been built.  
-  # If it hasn't then build it now.  
+  # Check to see if the Vivado hardware project has not been built.
+  # If it hasn't then build it now.
   # If it has then fall through and build the PetaLinux BSP
   if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
@@ -54,7 +54,7 @@ build_hw_platform ()
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
     # NOTE that at this time, the argv make assist script is responsible for adding board= and project=
     # this script is responsible for putting them in the correct order (board, then project)
-    vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME} 
+    vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME}
     #vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
     echo " "
@@ -104,10 +104,10 @@ configure_cache_path ()
 }
 
 create_petalinux_bsp ()
-{ 
+{
     # This function is responsible for creating a PetaLinux BSP around the
     # hardware platform specificed in HDL_PROJECT_NAME variable and build
-    # the PetaLinux project within the folder specified by the 
+    # the PetaLinux project within the folder specified by the
     # PETALINUX_PROJECT_NAME variable.
     #
     # When complete, the BSP should boot from SD card by default.
@@ -148,14 +148,14 @@ create_petalinux_bsp ()
     ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
     # Change directories to the hardware definition folder for the PetaLinux
-    # project, at this point the .hdf file must be located in this folder 
+    # project, at this point the .hdf file must be located in this folder
     # for the petalinux-config step to be successful.
     cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
     # Import the hardware description into the PetaLinux project.
     petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
- 
-    if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh ] 
+
+    if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh ]
     then
     echo " "
     echo "Patching PetaLinux project config ..."
@@ -196,7 +196,7 @@ create_petalinux_bsp ()
 main_make_function ()
 {
   #
-  # Create the hardware platform (if necessary) 
+  # Create the hardware platform (if necessary)
   # and build the PetaLinux BSP for the ULTRA96 target.
   #
   HDL_BOARD_NAME=ULTRA96V2
