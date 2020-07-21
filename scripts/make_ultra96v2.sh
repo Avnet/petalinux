@@ -184,7 +184,7 @@ create_petalinux_bsp ()
 
     petalinux-config --silentconfig
 
-    petalinux-build
+    petalinux-build -c avnet-image-minimal
 
     # Create boot image which DOES contain the bistream image.
     petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
