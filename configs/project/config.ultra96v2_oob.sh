@@ -1,7 +1,6 @@
 #!/bin/bash
 
-APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2020.1-final
-KCONFIG_EDIT=${APP_PETALINUX_INSTALL_PATH}/tools/common/petalinux/utils/petalinux-kconfig-edit
+KCONFIG_EDIT=${PETALINUX}/tools/common/petalinux/utils/petalinux-kconfig-edit
 CONFIG_FILE=project-spec/configs/config
 
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_HOSTNAME -v "\"ultra96v2-oob-2020-1\""
@@ -11,5 +10,4 @@ ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ATF_SERIAL_PSU_UART_1_SELE
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SERIAL_PSU_UART_1_SELECT
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_MACHINE_NAME -v "\"avnet-ultra96-rev1\""
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_MACHINE_NAME -v "\"ultra96v2\""
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_USER_LAYER_0 -v "\"\${proot}/project-spec/meta-avnet\""
-
+${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_USER_LAYER_0 -v "\"\${PROOT}/project-spec/meta-avnet\""
