@@ -5,17 +5,17 @@ PLNX_VER=2020_1
 FSBL_PROJECT_NAME=zynqmp_fsbl
 HDL_HARDWARE_NAME=ultra96v2_oob_hw
 HDL_PROJECT_NAME=ultra96v2_oob
-HDL_PROJECTS_FOLDER=../../hdl/Projects
-HDL_SCRIPTS_FOLDER=../../hdl/Scripts
-PETALINUX_APPS_FOLDER=../../petalinux/apps
-PETALINUX_CONFIGS_FOLDER=../../petalinux/configs
-PETALINUX_PROJECTS_FOLDER=../../petalinux/projects
-PETALINUX_SCRIPTS_FOLDER=../../petalinux/scripts
-START_FOLDER=`pwd`
+
+START_FOLDER=$(realpath $0 | xargs dirname)
+HDL_PROJECTS_FOLDER=${START_FOLDER}/../../hdl/Projects
+HDL_SCRIPTS_FOLDER=${START_FOLDER}/../../hdl/Scripts
+PETALINUX_APPS_FOLDER=${START_FOLDER}/../../petalinux/apps
+PETALINUX_CONFIGS_FOLDER=${START_FOLDER}/../../petalinux/configs
+PETALINUX_PROJECTS_FOLDER=${START_FOLDER}/../../petalinux/projects
+PETALINUX_SCRIPTS_FOLDER=${START_FOLDER}/../../petalinux/scripts
 
 KEEP_CACHE="true"
 ARCH="aarch64"
-
 
 source_tools_settings ()
 {
@@ -28,7 +28,7 @@ source_tools_settings ()
 build_hw_platform ()
 {
   # Change to HDL projects folder.
-  cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
+  cd ${HDL_PROJECTS_FOLDER}
 
   # Check to see if the Vivado hardware project has not been built.
   # If it hasn't then build it now.
@@ -50,7 +50,7 @@ build_hw_platform ()
     fi
 
     # Change to HDL scripts folder.
-    cd ${START_FOLDER}/${HDL_SCRIPTS_FOLDER}
+    cd ${HDL_SCRIPTS_FOLDER}
     # Launch vivado in batch mode to build hardware platforms for the selected target boards.
     # NOTE that at this time, the argv make assist script is responsible for adding board= and project=
     # this script is responsible for putting them in the correct order (board, then project)
@@ -74,8 +74,8 @@ build_hw_platform ()
 
 configure_cache_path ()
 {
-    CONF_FILE=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-avnet/conf/petalinuxbsp.conf
-    CACHE_DIR=${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/cache/
+    CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-avnet/conf/petalinuxbsp.conf
+    CACHE_DIR=${PETALINUX_PROJECTS_FOLDER}/cache/
     SSTATE_CACHE=sstate_${PETALINUX_VER}/$ARCH/
     DOWNLOAD_CACHE=downloads_${PETALINUX_VER}/
 
@@ -100,7 +100,7 @@ configure_cache_path ()
     echo "DL_DIR = \"${CACHE_DIR}/${DOWNLOAD_CACHE}\"" >> ${CONF_FILE}
     echo "SSTATE_DIR = \"${CACHE_DIR}/${SSTATE_CACHE}\"" >> ${CONF_FILE}
 
-    bash ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.cache.sh $ARCH
+    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.cache.sh $ARCH
 }
 
 create_petalinux_bsp ()
@@ -115,52 +115,52 @@ create_petalinux_bsp ()
     # Check to see if the PetaLinux projects folder even exists because when
     # you clone the source tree from Avnet Github, the projects folder is not
     # part of that tree.
-    if [ ! -d ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER} ]; then
+    if [ ! -d ${PETALINUX_PROJECTS_FOLDER} ]; then
     # Create the PetaLinux projects folder.
-    mkdir ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
+    mkdir ${PETALINUX_PROJECTS_FOLDER}
     fi
 
     # Change to PetaLinux projects folder.
-    cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}
+    cd ${PETALINUX_PROJECTS_FOLDER}
 
     # Create the PetaLinux project.
     petalinux-create --type project --template zynqMP --name ${PETALINUX_PROJECT_NAME} --force
 
     # Create the hardware definition folder.
-    mkdir -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform
+    mkdir -p ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform
 
     # Import the hardware definition files and hardware platform bitstream from
     # implemented system products folder.
-    cd ${START_FOLDER}/${HDL_PROJECTS_FOLDER}
+    cd ${HDL_PROJECTS_FOLDER}
 
     echo " "
     echo "Importing hardware definition ${HDL_BOARD_NAME}.xsa from HDL project folder ..."
     echo " "
 
     cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
+    ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
     echo " "
     echo "Importing hardware bitstream ${HDL_BOARD_NAME}_wrapper.bit from HDL project folder..."
     echo " "
 
     cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
-    ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
+    ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
     # Change directories to the hardware definition folder for the PetaLinux
     # project, at this point the .hdf file must be located in this folder
     # for the petalinux-config step to be successful.
-    cd ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+    cd ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
     # Import the hardware description into the PetaLinux project.
-    petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${START_FOLDER}/${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+    petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
 
-    if [ -f ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh ]
+    if [ -f ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh ]
     then
     echo " "
     echo "Patching PetaLinux project config ..."
     echo " "
-    bash ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh
+    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh
     else
     echo " "
     echo "WARNING: No board specific PetaLinux project configuration files found, "
@@ -180,7 +180,7 @@ create_petalinux_bsp ()
     echo "Patching project config for SD EXT4 boot support..."
     echo " "
 
-    bash ${START_FOLDER}/${PETALINUX_CONFIGS_FOLDER}/project/config.sd_ext4_boot.sh
+    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.sd_ext4_boot.sh
 
     petalinux-config --silentconfig
 
@@ -190,7 +190,7 @@ create_petalinux_bsp ()
     petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
 
     # Change to PetaLinux scripts folder.
-    cd ${START_FOLDER}/${PETALINUX_SCRIPTS_FOLDER}
+    cd ${PETALINUX_SCRIPTS_FOLDER}
 }
 
 main_make_function ()
