@@ -1,6 +1,6 @@
 APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2020.1-final
 APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2020.1
-PLNX_VER=2020_1
+PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
 
 FSBL_PROJECT_NAME=zynqmp_fsbl
 HDL_HARDWARE_NAME=ultra96v2_oob_hw
