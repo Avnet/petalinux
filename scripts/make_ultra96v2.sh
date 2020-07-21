@@ -36,17 +36,15 @@ build_hw_platform ()
   if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
     ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}/
-    echo " "
-    echo "No built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
-    echo "Will build the hardware platform now."
-    echo " "
+    echo -e "\nNo built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
+    echo -e "Will build the hardware platform now.\n"
 
     # DEBUG
     if [ "$DEBUG" == "yes" ];
     then
-      echo " "
+      echo ""
       read -t 5 -p "Pause here for 5 seconds"
-      echo " "
+      echo ""
     fi
 
     # Change to HDL scripts folder.
@@ -57,17 +55,15 @@ build_hw_platform ()
     vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME}
     #vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
   else
-    echo " "
-    echo "Found Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
-    echo "Will build the PetaLinux BSP now."
-    echo " "
+    echo -e "\nFound Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
+    echo -e "Will build the PetaLinux BSP now.\n"
 
     # DEBUG
     if [ "$DEBUG" == "yes" ];
     then
-      echo " "
+      echo ""
       read -t 5 -p "Pause here for 5 seconds"
-      echo " "
+      echo ""
     fi
   fi
 }
@@ -84,18 +80,16 @@ configure_cache_path ()
     # install folder this will significantly accelerate the build time
     # For more information see Xilinx AR #71240
     # https://www.xilinx.com/support/answers/71240.html
-    echo " "
-    echo "Setting local sstate cache paths in project config file..."
-    echo " "
+    echo -e "\nSetting local sstate cache paths in project config file...\n"
 
     mkdir -p ${CACHE_DIR}/${SSTATE_CACHE}
     mkdir -p ${CACHE_DIR}/${DOWNLOAD_CACHE}
 
-    echo " " >> ${CONF_FILE}
-    echo "PREMIRRORS_prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ " >> ${CONF_FILE}
-    echo "ftp://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ " >> ${CONF_FILE}
-    echo "http://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ " >> ${CONF_FILE}
-    echo "https://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \"" >> ${CONF_FILE}
+    echo "" >> ${CONF_FILE}
+    echo -e "PREMIRRORS_prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n" \
+      "ftp://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n"                              \
+      "http://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n"                             \
+      "https://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \"\n" >> ${CONF_FILE}
 
     echo "DL_DIR = \"${CACHE_DIR}/${DOWNLOAD_CACHE}\"" >> ${CONF_FILE}
     echo "SSTATE_DIR = \"${CACHE_DIR}/${SSTATE_CACHE}\"" >> ${CONF_FILE}
@@ -112,13 +106,8 @@ create_petalinux_bsp ()
     #
     # When complete, the BSP should boot from SD card by default.
 
-    # Check to see if the PetaLinux projects folder even exists because when
-    # you clone the source tree from Avnet Github, the projects folder is not
-    # part of that tree.
-    if [ ! -d ${PETALINUX_PROJECTS_FOLDER} ]; then
     # Create the PetaLinux projects folder.
-    mkdir ${PETALINUX_PROJECTS_FOLDER}
-    fi
+    mkdir -p ${PETALINUX_PROJECTS_FOLDER}
 
     # Change to PetaLinux projects folder.
     cd ${PETALINUX_PROJECTS_FOLDER}
@@ -133,16 +122,12 @@ create_petalinux_bsp ()
     # implemented system products folder.
     cd ${HDL_PROJECTS_FOLDER}
 
-    echo " "
-    echo "Importing hardware definition ${HDL_BOARD_NAME}.xsa from HDL project folder ..."
-    echo " "
+    echo -e "\nImporting hardware definition ${HDL_BOARD_NAME}.xsa from HDL project folder ...\n"
 
     cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
     ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
-    echo " "
-    echo "Importing hardware bitstream ${HDL_BOARD_NAME}_wrapper.bit from HDL project folder..."
-    echo " "
+    echo -e "\nImporting hardware bitstream ${HDL_BOARD_NAME}_wrapper.bit from HDL project folder...\n"
 
     cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
     ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
@@ -157,15 +142,11 @@ create_petalinux_bsp ()
 
     if [ -f ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh ]
     then
-    echo " "
-    echo "Patching PetaLinux project config ..."
-    echo " "
-    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh
+      echo -e "\nPatching PetaLinux project config ...\n"
+      bash ${PETALINUX_CONFIGS_FOLDER}/project/config.${PETALINUX_ROOTFS_NAME}.sh
     else
-    echo " "
-    echo "WARNING: No board specific PetaLinux project configuration files found, "
-    echo "PetaLinux project config is not touched for this build ..."
-    echo " "
+      echo -e "\nWARNING: No board specific PetaLinux project configuration files found, "
+      echo -e "PetaLinux project config is not touched for this build ...\n"
     fi
 
     git clone -b tnizan/dev git@github.com:Avnet/meta-avnet.git project-spec/meta-avnet
