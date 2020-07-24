@@ -1,1 +1,0 @@
-INITSCRIPT_PARAMS = ""
