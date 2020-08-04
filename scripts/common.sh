@@ -249,7 +249,8 @@ build_bsp ()
   # Build project
   echo -e "\nBuilding project...\n"
 
-  petalinux-build -c avnet-image-minimal
+  # Sometimes the build fails because of fetch or setscene issues, so we try another time
+  petalinux-build -c avnet-image-minimal || petalinux-build -c avnet-image-minimal
 
   if [ "$NO_BIT_OPTION" = "yes" ]
   then
