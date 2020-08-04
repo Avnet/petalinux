@@ -110,7 +110,6 @@ build_hw_platform ()
   # If it has then fall through and build the PetaLinux BSP
   if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
-    ls -al ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}/
     echo -e "\nNo built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo -e "Will build the hardware platform now.\n"
 
@@ -124,11 +123,9 @@ build_hw_platform ()
 
     # Change to HDL scripts folder.
     cd ${HDL_SCRIPTS_FOLDER}
-    # Launch vivado in batch mode to build hardware platforms for the selected target boards.
-    # NOTE that at this time, the argv make assist script is responsible for adding board= and project=
-    # this script is responsible for putting them in the correct order (board, then project)
-    vivado -mode batch -notrace -source make_${HDL_PROJECT_NAME}.tcl -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME}
-    #vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+
+    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+
   else
     echo -e "\nFound Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
     echo -e "Will build the PetaLinux BSP now.\n"
