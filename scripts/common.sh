@@ -95,7 +95,6 @@ source_xilinx_tools ()
   source ${APP_VIVADO_INSTALL_PATH}/settings64.sh
   source ${APP_PETALINUX_INSTALL_PATH}/settings.sh
   PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
-  echo
 }
 
 build_hw_platform ()
@@ -138,7 +137,6 @@ build_hw_platform ()
       echo ""
     fi
   fi
-  echo
 }
 
 configure_cache_path ()
@@ -159,8 +157,7 @@ configure_cache_path ()
   mkdir -p ${CACHE_DIR}/${SSTATE_CACHE}
   mkdir -p ${CACHE_DIR}/${DOWNLOAD_CACHE}
 
-  echo "" >> ${CONF_FILE}
-  echo -e "PREMIRRORS_prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n" \
+  echo -e "\nPREMIRRORS_prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n" \
   "ftp://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n"                              \
   "http://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n"                             \
   "https://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \"\n" >> ${CONF_FILE}
