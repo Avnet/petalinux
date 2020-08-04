@@ -69,18 +69,18 @@ META_AVNET_BRANCH="master"
 
 verify_repositories ()
 {
-  WRONG_TREE=0
+  echo -e "\nVerifying repositories ...\n"
 
   if [ ! -d $HDL_FOLDER ]
   then
-    "ERROR: can't find 'hdl' folder inside '$REPOSITORIES_FOLDER'"
-    #return 1
+    echo "ERROR: can't find 'hdl' folder inside '$REPOSITORIES_FOLDER'"
+    return 1
   fi
 
   if [ ! -d $PETALINUX_FOLDER ]
   then
-    "ERROR: can't find 'petalinux' folder inside '$REPOSITORIES_FOLDER'"
-    #return 1
+    echo "ERROR: can't find 'petalinux' folder inside '$REPOSITORIES_FOLDER'"
+    return 1
   fi
 }
 
