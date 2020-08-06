@@ -65,7 +65,7 @@ BUILD_BOOT_EMMC_NO_BIT_OPTION=no
 
 
 FSBL_PROJECT_NAME=zynq_fsbl
-HDL_HARDWARE_NAME=MINIZED
+HDL_HARDWARE_NAME=minized_hw
 HDL_PROJECT_NAME=minized_petalinux
 HDL_PROJECTS_FOLDER=../../hdl/Projects
 HDL_SCRIPTS_FOLDER=../../hdl/Scripts
@@ -570,9 +570,6 @@ create_petalinux_bsp ()
     echo "#!/bin/sh" > program_boot_qspi.sh
     echo "program_flash -f ./BOOT_QSPI.bin -offset 0 -flash_type qspi_single -fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf"  >> program_boot_qspi.sh
     chmod 777 ./program_boot_qspi.sh
-    
-    
-    
   fi
 
   # If the EMMC boot option is set, then perform the steps needed to build 
