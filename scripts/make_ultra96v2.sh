@@ -67,7 +67,7 @@ ARCH="aarch64"
 SOC="zynqMP"
 
 PETALINUX_BOARD_NAME=ultra96v2
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
+PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_oob
 
 KEEP_CACHE="true"
 DEBUG="no"
@@ -81,7 +81,7 @@ NO_BIT_OPTION='yes'
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 verify_repositories
-source_xilinx_tools
+verify_environment
 
 build_hw_platform
 create_petalinux_project

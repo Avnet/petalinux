@@ -48,9 +48,6 @@
 #
 # ----------------------------------------------------------------------------
 
-APP_PETALINUX_INSTALL_PATH=/tools/petalinux-v2020.1-final
-APP_VIVADO_INSTALL_PATH=/tools/Xilinx/Vivado/2020.1
-
 #REPOSITORIES_FOLDER is the top level folder which should contain at least the 'bdf', 'hdl' amd 'petalinux' repositories
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
 
@@ -64,7 +61,7 @@ PETALINUX_CONFIGS_FOLDER=${PETALINUX_FOLDER}/configs
 PETALINUX_PROJECTS_FOLDER=${PETALINUX_FOLDER}/projects
 PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 
-META_AVNET_URL="git@github.com:Avnet/meta-avnet.git"
+META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
 META_AVNET_BRANCH="master"
 
 verify_repositories ()
@@ -84,18 +81,32 @@ verify_repositories ()
   fi
 }
 
-
-source_xilinx_tools ()
+verify_environment ()
 {
-  # Source the tools settings scripts so that both Vivado and PetaLinux can
-  # be used throughout this build script.
+  # Check if the Xilinx tools (PETALINUX and XILINX_VIVADO) are sourced
+  echo -e "\nChecking Environment (Xilinx tools sourced) ...\n"
 
-  echo -e "\nSourcing Xilinx tools ...\n"
+  if [ -z $XILINX_VIVADO ]
+  then
+    echo -e "ERROR: Variable 'XILINX_VIVADO' not set in environment\n" \
+             "\nPlease source the Vivado environment with: '$ source <path-to-installed-Vivado>/settings64.sh'\n" \
+             "\t(path by default is: /tools/Xilinx/Vivado/<VER>/settings64.sh)\n" \
+             "Consult Xilinx UG973 documentation to get more help.\n"
+    return 1
+  fi
 
-  source ${APP_VIVADO_INSTALL_PATH}/settings64.sh
-  source ${APP_PETALINUX_INSTALL_PATH}/settings.sh
+  if [ -z $PETALINUX ] || [ -z $PETALINUX_VER ]
+  then
+    echo -e "ERROR: Variable 'PETALINUX' or 'PETALINUX_VER' not set in environment\n" \
+             "\nPlease source the Vivado environment with: '$ source <path-to-installed-PetaLinux>/settings.sh'\n" \
+             "\t(path by default is: /tools/petalinux-<VER>-final/settings.sh)\n" \
+             "Consult Xilinx UG1144 documentation to get more help.\n"
+    return 1
+  fi
+
   PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
 }
+
 
 build_hw_platform ()
 {
