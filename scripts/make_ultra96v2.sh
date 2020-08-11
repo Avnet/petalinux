@@ -81,7 +81,7 @@ NO_BIT_OPTION='yes'
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 verify_repositories
-source_xilinx_tools
+verify_environment
 
 build_hw_platform
 create_petalinux_project
