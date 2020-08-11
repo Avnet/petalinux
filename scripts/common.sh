@@ -61,7 +61,7 @@ PETALINUX_CONFIGS_FOLDER=${PETALINUX_FOLDER}/configs
 PETALINUX_PROJECTS_FOLDER=${PETALINUX_FOLDER}/projects
 PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 
-META_AVNET_URL="git@github.com:Avnet/meta-avnet.git"
+META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
 META_AVNET_BRANCH="master"
 
 verify_repositories ()
