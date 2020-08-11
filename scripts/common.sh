@@ -318,8 +318,11 @@ package_bsp ()
   cp BOOT_* pre-built/linux/images/
 
   # Copy all boot scripts to the project folder and pre-built images folder.
-  cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/* .
-  cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/* pre-built/linux/images/
+  if [ -d ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/)" ];
+  then
+    cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/* .
+    cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/* pre-built/linux/images/
+  fi
 
   # Change to PetaLinux project folder.
   cd ${PETALINUX_PROJECTS_FOLDER}
