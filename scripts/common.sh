@@ -48,6 +48,9 @@
 #
 # ----------------------------------------------------------------------------
 
+# Required version of the Xilinx Tools
+REQUIRED_VER=2020.1
+
 #REPOSITORIES_FOLDER is the top level folder which should contain at least the 'bdf', 'hdl' amd 'petalinux' repositories
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
 
@@ -104,9 +107,14 @@ verify_environment ()
     return 1
   fi
 
+  if [ "$REQUIRED_VER" != "$PETALINUX_VER" ]
+  then
+    echo -e "ERROR: Wrong Petalinux Version (required: '$REQUIRED_VER', got: '$PETALINUX_VER')\n"
+    return 1
+  fi
+
   PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
 }
-
 
 build_hw_platform ()
 {
