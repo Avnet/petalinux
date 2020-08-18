@@ -255,7 +255,7 @@ configure_boot_method ()
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh
+  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh $PETALINUX_BOARD_FAMILY
 
   petalinux-config --silentconfig
 }
@@ -280,6 +280,9 @@ build_bsp ()
   cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}.BIN
 
   cp images/linux/image.ub image_${BOOT_METHOD}.ub
+
+  # save wic images, if any
+  cp images/linux/*.wic . || true
 }
 
 generate_loadable_bitstream ()
@@ -324,6 +327,9 @@ package_bsp ()
 
   # Copy all BOOT.BIN to the pre-built images folder.
   cp BOOT_* pre-built/linux/images/
+
+  # Copy all wic images, if any
+  cp *.wic pre-built/linux/images/ || true
 
   # Copy all boot scripts to the project folder and pre-built images folder.
   if [ -d ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/)" ];
