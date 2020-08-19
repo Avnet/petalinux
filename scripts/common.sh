@@ -187,6 +187,17 @@ configure_cache_path ()
   bash ${PETALINUX_CONFIGS_FOLDER}/project/config.cache.sh $ARCH $CACHE_DIR
 }
 
+do_not_rm_work ()
+{
+  # This function will comment the rm_work line in the local.conf
+  # This will make the build faster
+
+  echo -e "\nSetting rm_work to false in local.conf ...\n"
+
+  CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/conf/local.conf
+  sed -i 's/\(INHERIT += "rm_work"\)/#\1/' ${CONF_FILE}
+}
+
 create_petalinux_project ()
 {
   # This function is responsible for creating a PetaLinux project import
@@ -244,6 +255,11 @@ create_petalinux_project ()
   if [ "$KEEP_CACHE" = "true" ]
   then
     configure_cache_path
+  fi
+
+  if [ "$KEEP_WORK" = "true" ]
+  then
+    do_not_rm_work
   fi
 
   petalinux-config --silentconfig
