@@ -169,8 +169,8 @@ configure_cache_path ()
   # If the sstate cache has been downloaded and extracted into the PetaLinux
   # install folder this will significantly accelerate the build time
   # For more information see Xilinx AR #71240
-  # https://www.xilinx.com/support/answers/71240.html 
-   
+  # https://www.xilinx.com/support/answers/71240.html
+
   echo -e "\nSetting cache (sstate and download) path ($CACHE_DIR) ...\n"
 
   mkdir -p ${CACHE_DIR}/${SSTATE_CACHE}
@@ -202,7 +202,7 @@ create_petalinux_project ()
 {
   # This function is responsible for creating a PetaLinux project import
   # hardware platform specified in HDL_PROJECT_NAME variable
-  #  
+  #
   PETALINUX_PROJECT_NAME=${PETALINUX_PROJECT_BASE_NAME}_${PLNX_VER}
 
   echo -e "\nCreating '$PETALINUX_PROJECT_NAME' Petalinux project ...\n"
@@ -240,7 +240,10 @@ create_petalinux_project ()
 
   # Import the hardware description into the PetaLinux project.
   petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+}
 
+configure_petalinux_project()
+{
   if [ -f ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh ]
   then
     echo -e "\nPatching PetaLinux project config ...\n"
@@ -282,13 +285,13 @@ build_bsp ()
   echo -e "\nBuilding project...\n"
 
   # Sometimes the build fails because of fetch or setscene issues, so we try another time
-  petalinux-build -c avnet-image-minimal || petalinux-build -c avnet-image-minimal
+  petalinux-build -c ${PETALINUX_BUILD_IMAGE} || petalinux-build -c ${PETALINUX_BUILD_IMAGE}
 
   if [ "$NO_BIT_OPTION" = "yes" ]
   then
     # Create boot image which does not contain the bistream image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
-    cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}_NO_BIT.BIN 
+    cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}_NO_BIT.BIN
   fi
 
   # Create boot image which DOES contain the bistream image.
@@ -303,8 +306,8 @@ build_bsp ()
 
 generate_loadable_bitstream ()
 {
-  # Create a temporary Vivado TCL script which take the standard bitstream 
-  # file format and modify it to allow u-boot to load it into the 
+  # Create a temporary Vivado TCL script which take the standard bitstream
+  # file format and modify it to allow u-boot to load it into the
   # programmable logic on the Zynq device via PCAP interface.
 
   echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 ./images/linux/system.bit\" -force ./images/linux/system.bit.bin" > swap_bits.tcl
@@ -332,8 +335,8 @@ package_bsp ()
   # Package the bitstream within the PetaLinux pre-built folder.
   petalinux-package --prebuilt --fpga ./images/linux/system.bit --force
 
-  # Rename the pre-built bitstream file to download.bit so that the default 
-  # format for the petalinux-boot command over jtag will not need the bit file 
+  # Rename the pre-built bitstream file to download.bit so that the default
+  # format for the petalinux-boot command over jtag will not need the bit file
   # specified explicitly.
   mv -f pre-built/linux/implementation/system.bit \
   pre-built/linux/implementation/download.bit
