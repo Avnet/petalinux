@@ -300,8 +300,8 @@ build_bsp ()
 
   cp images/linux/image.ub image_${BOOT_METHOD}.ub
 
-  # save wic images, if any
-  cp images/linux/*.wic . || true
+  # save wic images, if any (don't output messages if not found)
+  cp images/linux/*.wic . > /dev/null  2>&1 || true
 }
 
 generate_loadable_bitstream ()
@@ -347,8 +347,8 @@ package_bsp ()
   # Copy all BOOT.BIN to the pre-built images folder.
   cp BOOT_* pre-built/linux/images/
 
-  # Copy all wic images, if any
-  cp *.wic pre-built/linux/images/ || true
+  # Copy all wic images, if any (don't output messages if not found)
+  cp *.wic pre-built/linux/images/ > /dev/null  2>&1 || true
 
   # Copy all boot scripts to the project folder and pre-built images folder.
   if [ -d ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/)" ];
