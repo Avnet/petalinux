@@ -14,3 +14,8 @@ then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz wic\""
 fi
 
+if [ "$PETALINUX_BOARD_NAME" == "minized" ];
+then
+    # add wic image to program EMMC
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz wic\""
+fi
