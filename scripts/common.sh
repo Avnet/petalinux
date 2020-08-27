@@ -169,8 +169,8 @@ configure_cache_path ()
   # If the sstate cache has been downloaded and extracted into the PetaLinux
   # install folder this will significantly accelerate the build time
   # For more information see Xilinx AR #71240
-  # https://www.xilinx.com/support/answers/71240.html 
-   
+  # https://www.xilinx.com/support/answers/71240.html
+
   echo -e "\nSetting cache (sstate and download) path ($CACHE_DIR) ...\n"
 
   mkdir -p ${CACHE_DIR}/${SSTATE_CACHE}
@@ -187,11 +187,22 @@ configure_cache_path ()
   bash ${PETALINUX_CONFIGS_FOLDER}/project/config.cache.sh $ARCH $CACHE_DIR
 }
 
+do_not_rm_work ()
+{
+  # This function will comment the rm_work line in the local.conf
+  # This will make the build faster
+
+  echo -e "\nSetting rm_work to false in local.conf ...\n"
+
+  CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/conf/local.conf
+  sed -i 's/\(INHERIT += "rm_work"\)/#\1/' ${CONF_FILE}
+}
+
 create_petalinux_project ()
 {
   # This function is responsible for creating a PetaLinux project import
   # hardware platform specified in HDL_PROJECT_NAME variable
-  #  
+  #
   PETALINUX_PROJECT_NAME=${PETALINUX_PROJECT_BASE_NAME}_${PLNX_VER}
 
   echo -e "\nCreating '$PETALINUX_PROJECT_NAME' Petalinux project ...\n"
@@ -229,7 +240,10 @@ create_petalinux_project ()
 
   # Import the hardware description into the PetaLinux project.
   petalinux-config --silentconfig --get-hw-description=./hw_platform/ -p ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}
+}
 
+configure_petalinux_project()
+{
   if [ -f ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh ]
   then
     echo -e "\nPatching PetaLinux project config ...\n"
@@ -244,6 +258,11 @@ create_petalinux_project ()
   if [ "$KEEP_CACHE" = "true" ]
   then
     configure_cache_path
+  fi
+
+  if [ "$KEEP_WORK" = "true" ]
+  then
+    do_not_rm_work
   fi
 
   petalinux-config --silentconfig
@@ -266,13 +285,13 @@ build_bsp ()
   echo -e "\nBuilding project...\n"
 
   # Sometimes the build fails because of fetch or setscene issues, so we try another time
-  petalinux-build -c avnet-image-minimal || petalinux-build -c avnet-image-minimal
+  petalinux-build -c ${PETALINUX_BUILD_IMAGE} || petalinux-build -c ${PETALINUX_BUILD_IMAGE}
 
   if [ "$NO_BIT_OPTION" = "yes" ]
   then
     # Create boot image which does not contain the bistream image.
     petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
-    cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}_NO_BIT.BIN 
+    cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}_NO_BIT.BIN
   fi
 
   # Create boot image which DOES contain the bistream image.
@@ -281,14 +300,14 @@ build_bsp ()
 
   cp images/linux/image.ub image_${BOOT_METHOD}.ub
 
-  # save wic images, if any
-  cp images/linux/*.wic . || true
+  # save wic images, if any (don't output messages if not found)
+  cp images/linux/*.wic . > /dev/null  2>&1 || true
 }
 
 generate_loadable_bitstream ()
 {
-  # Create a temporary Vivado TCL script which take the standard bitstream 
-  # file format and modify it to allow u-boot to load it into the 
+  # Create a temporary Vivado TCL script which take the standard bitstream
+  # file format and modify it to allow u-boot to load it into the
   # programmable logic on the Zynq device via PCAP interface.
 
   echo "write_cfgmem -format bin -interface spix1 -loadbit \"up 0x0 ./images/linux/system.bit\" -force ./images/linux/system.bit.bin" > swap_bits.tcl
@@ -316,8 +335,8 @@ package_bsp ()
   # Package the bitstream within the PetaLinux pre-built folder.
   petalinux-package --prebuilt --fpga ./images/linux/system.bit --force
 
-  # Rename the pre-built bitstream file to download.bit so that the default 
-  # format for the petalinux-boot command over jtag will not need the bit file 
+  # Rename the pre-built bitstream file to download.bit so that the default
+  # format for the petalinux-boot command over jtag will not need the bit file
   # specified explicitly.
   mv -f pre-built/linux/implementation/system.bit \
   pre-built/linux/implementation/download.bit
@@ -328,8 +347,8 @@ package_bsp ()
   # Copy all BOOT.BIN to the pre-built images folder.
   cp BOOT_* pre-built/linux/images/
 
-  # Copy all wic images, if any
-  cp *.wic pre-built/linux/images/ || true
+  # Copy all wic images, if any (don't output messages if not found)
+  cp *.wic pre-built/linux/images/ > /dev/null  2>&1 || true
 
   # Copy all boot scripts to the project folder and pre-built images folder.
   if [ -d ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/)" ];

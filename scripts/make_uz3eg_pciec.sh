@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://www.ultrazed.org/product/ultra96
+#     http://zedboard.org/product/ultrazed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,20 +32,20 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 03, 2020
-#  Design Name:         Avnet Ultra96v2 PetaLinux BSP Generator
-#  Module Name:         make_ultra96v2.sh
-#  Project Name:        Avnet Ultra96v2 PetaLinux BSP Generator
+#  Create Date:         August 19, 2020
+#  Design Name:         Avnet UZ3EG_PCIEC PetaLinux BSP Generator
+#  Module Name:         make_uz3eg_pciec.sh
+#  Project Name:        Avnet UZ3EG_PCIEC PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     Ultra96v2 Eval Board
+#  Hardware Boards:     UZ3EG_PCIEC Board
 #
 #  Tool versions:       Xilinx Vivado 2020.1
 #
-#  Description:         Build Script for Ultra96v2 PetaLinux BSP HW Platform
+#  Description:         Build Script for UZ3EG_PCIEC PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Aug 03, 2020: 1.00 Initial version
+#  Revision:            Aug 19, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 
@@ -59,15 +59,16 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
-HDL_HARDWARE_NAME=ultra96v2_oob_hw
-HDL_PROJECT_NAME=ultra96v2_oob
-HDL_BOARD_NAME=ULTRA96V2
+HDL_HARDWARE_NAME=uz_petalinux_hw
+HDL_PROJECT_NAME=uz_petalinux
+HDL_BOARD_NAME=UZ3EG_PCIEC
 
 ARCH="aarch64"
 SOC="zynqMP"
 
-PETALINUX_BOARD_NAME=ultra96v2
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_oob
+PETALINUX_BOARD_FAMILY=uz
+PETALINUX_BOARD_NAME=uz3eg_pciec
+PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-minimal
 
 KEEP_CACHE="true"
@@ -90,8 +91,8 @@ create_petalinux_project
 configure_petalinux_project
 
 for BOOT_METHOD in ${BOOT_METHODS[@]}; do
-  configure_boot_method
-  build_bsp
+   configure_boot_method
+   build_bsp
 done
 
 package_bsp

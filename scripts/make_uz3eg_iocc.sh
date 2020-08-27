@@ -69,8 +69,10 @@ SOC="zynqMP"
 PETALINUX_BOARD_FAMILY=uz
 PETALINUX_BOARD_NAME=uz3eg_iocc
 PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
+PETALINUX_BUILD_IMAGE=avnet-image-minimal
 
 KEEP_CACHE="true"
+KEEP_WORK="false"
 DEBUG="no"
 
 #BOOT METHODS: compatible methods are 'EXT4' or 'INITRD'
@@ -86,6 +88,7 @@ verify_environment
 
 build_hw_platform
 create_petalinux_project
+configure_petalinux_project
 
 for BOOT_METHOD in ${BOOT_METHODS[@]}; do
    configure_boot_method
