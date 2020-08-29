@@ -314,9 +314,9 @@ build_bsp ()
 
   # Create boot image which DOES contain the bistream image.
   petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
-  cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}.BIN
+  cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}${BOOT_SUFFIX}.BIN
 
-  cp images/linux/image.ub image_${BOOT_METHOD}.ub
+  cp images/linux/image.ub image_${BOOT_METHOD}${BOOT_SUFFIX}.ub
 
   # save wic images, if any (don't output messages if not found)
   cp images/linux/*.wic . > /dev/null  2>&1 || true
