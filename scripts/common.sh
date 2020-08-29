@@ -198,6 +198,22 @@ do_not_rm_work ()
   sed -i 's/\(INHERIT += "rm_work"\)/#\1/' ${CONF_FILE}
 }
 
+modify_initramfs_image ()
+{
+  # This function will comment modify the INITRAMFS_IMAGE in plnxtool.conf
+  # This needs to be done manually, because petalinux-config does not expose this option
+
+  # Be careful to not run another petalinux-config command after this, otherwise it will be overriden
+
+  if [ ${INITRAMFS_IMAGE} ];
+  then
+      echo -e "\nSetting '${INITRAMFS_IMAGE}' as INITRAMFS_IMAGE in plnxtool.conf ...\n"
+
+      CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/conf/plnxtool.conf
+      sed -i "s/\(INITRAMFS_IMAGE = \).*/\1\"${INITRAMFS_IMAGE}\"/"  ${CONF_FILE}
+  fi
+}
+
 create_petalinux_project ()
 {
   # This function is responsible for creating a PetaLinux project import
@@ -277,6 +293,8 @@ configure_boot_method ()
   bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh $PETALINUX_BOARD_FAMILY
 
   petalinux-config --silentconfig
+
+  modify_initramfs_image
 }
 
 build_bsp ()
