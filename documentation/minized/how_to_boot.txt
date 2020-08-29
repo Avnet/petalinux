@@ -1,0 +1,90 @@
+Generate the bsp (with script make_minized.sh) and navigate into the newly-created project.
+
+BOOT METHODS:
+
+1- Boot from JTAG
+    Position the BOOT Switch on the board to "J" (jtag).
+    Run 'xsdb boot_jtag_INITRD_MINIMAL.tcl' to load the bitstream, the bootloaders, a kernel with a minimal INITRD.
+
+2- Boot from QSPI (u-boot, minimal kernel & INITRD):
+
+    Position the BOOT Switch on the board to "J" (jtag).
+    sh boot_qspi_INITRD.sh
+
+    Position the BOOT Switch on the board to "F" (Flash).
+    Restart the board, and Linux should boot from qspi.
+
+3- Boot from QSPI (u-boot) and EMMC (kernel & INITRD):
+
+    Copy 'image_INITRD_FULL.ub', 'images/linux/avnet-boot/avnet_emmc.scr' and 'images/linux/avnet-boot/avnet_prog_emmc.scr' in the root folder of an USB stick.
+
+    Insert the USB stick on the Minized (Remember to also plug the 2nd micro-USB cable, to provide enough power to the USB stick).
+
+    Boot from method 2, but when u-boot starts, stop it by hitting any key.
+
+    In u-boot console, type the following commands:
+        usb start && fatload usb 0:1 $scriptaddr avnet_prog_emmc.scr
+        source $scriptaddr
+
+    Reboot the board, and let u-boot automatically load the kernel on the EMMC.
+
+4- Boot from QSPI (u-boot) and EMMC (kernel & Ext4 rootfs):
+
+    Copy 'rootfs.wic' in the root folder of an USB stick.
+
+    Insert the USB stick on the Minized (Remember to also plug the 2nd micro-USB cable, to provide enough power to the USB stick).
+
+    Boot from method 2
+
+    In Linux, execute these commands:
+
+        umount /dev/mmcblk0*
+        dd if=/run/media/sda1/rootfs.wic of=/dev/mmcblk0
+        cp /media/sd-mmcblk0p1/avnet-boot/avnet_emmc.scr /media/sd-mmcblk0p1/boot.scr
+
+        umount /dev/mmcblk0*
+        parted /dev/mmcblk0 resizepart 2 100%
+        umount /dev/mmcblk0*
+        e2fsck -f /dev/mmcblk0p2
+        resize2fs /dev/mmcblk0p2
+
+        flash_erase /dev/mtd2 0 0      -> used to remove the boot script on the qspi, so that u-boot will look for a boot scrip on the emmc
+
+    Reboot the board, and let u-boot automatically load the kernel on the EMMC.
+
+5- Boot from QSPI (u-boot + kernel) and EMMC (Ext4 rootfs):
+
+    Copy 'rootfs.wic' in the root folder of an USB stick.
+
+    Insert the USB stick on the Minized (Remember to also plug the 2nd micro-USB cable, to provide enough power to the USB stick).
+
+    Boot from method 2
+
+    In Linux, execute these commands:
+
+        umount /dev/mmcblk0*
+        dd if=/run/media/sda1/rootfs.wic of=/dev/mmcblk0
+
+        umount /dev/mmcblk0*
+        parted /dev/mmcblk0 resizepart 2 100%
+        umount /dev/mmcblk0*
+        e2fsck -f /dev/mmcblk0p2
+        resize2fs /dev/mmcblk0p2
+
+        # remove kernel INITRD from qspi, and install new kernel
+        flash_erase /dev/mtd1 0 0
+        mount /dev/mmcblk0p1 /media/sd-mmcblk0p1
+        flashcp /media/sd-mmcblk0p1/fitImage /dev/mtd1
+
+
+
+Note: once the emmc is partitionned, the boot part (#1) will be too small to host a full kernel and initrd. So, after you have done boot method 4 or 5, you will have to do the following to be able to boot from method 3 again:
+
+    - boot a linux from jtag (method 1)
+    - execute these commands:
+        umount /dev/mmcblk0*
+        parted /dev/mmcblk0 rm 2
+        umount /dev/mmcblk0*
+        parted /dev/mmcblk0 resizepart 1 100%
+        umount /dev/mmcblk0*
+        mkfs.vfat /dev/mmcblk0p1
