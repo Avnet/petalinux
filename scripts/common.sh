@@ -290,7 +290,7 @@ configure_boot_method ()
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh $PETALINUX_BOARD_FAMILY
+  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY}
 
   petalinux-config --silentconfig
 

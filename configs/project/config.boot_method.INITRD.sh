@@ -3,7 +3,8 @@
 KCONFIG_EDIT=${PETALINUX}/tools/common/petalinux/utils/petalinux-kconfig-edit
 CONFIG_FILE=project-spec/configs/config
 
-PETALINUX_BOARD_FAMILY=$1
+PETALINUX_BOARD_NAME=$1
+PETALINUX_BOARD_FAMILY=$2
 
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_INITRD
 
