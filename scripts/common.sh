@@ -198,6 +198,22 @@ do_not_rm_work ()
   sed -i 's/\(INHERIT += "rm_work"\)/#\1/' ${CONF_FILE}
 }
 
+modify_initramfs_image ()
+{
+  # This function will comment modify the INITRAMFS_IMAGE in plnxtool.conf
+  # This needs to be done manually, because petalinux-config does not expose this option
+
+  # Be careful to not run another petalinux-config command after this, otherwise it will be overriden
+
+  if [ ${INITRAMFS_IMAGE} ];
+  then
+      echo -e "\nSetting '${INITRAMFS_IMAGE}' as INITRAMFS_IMAGE in plnxtool.conf ...\n"
+
+      CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/conf/plnxtool.conf
+      sed -i "s/\(INITRAMFS_IMAGE = \).*/\1\"${INITRAMFS_IMAGE}\"/"  ${CONF_FILE}
+  fi
+}
+
 create_petalinux_project ()
 {
   # This function is responsible for creating a PetaLinux project import
@@ -274,9 +290,11 @@ configure_boot_method ()
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh $PETALINUX_BOARD_FAMILY
+  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY}
 
   petalinux-config --silentconfig
+
+  modify_initramfs_image
 }
 
 build_bsp ()
@@ -296,9 +314,9 @@ build_bsp ()
 
   # Create boot image which DOES contain the bistream image.
   petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
-  cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}.BIN
+  cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}${BOOT_SUFFIX}.BIN
 
-  cp images/linux/image.ub image_${BOOT_METHOD}.ub
+  cp images/linux/image.ub image_${BOOT_METHOD}${BOOT_SUFFIX}.ub
 
   # save wic images, if any (don't output messages if not found)
   cp images/linux/*.wic . > /dev/null  2>&1 || true
