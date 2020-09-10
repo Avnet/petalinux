@@ -1,0 +1,68 @@
+Generate the bsp (with script make_uz....sh) and navigate into the newly-created project.
+
+BOOT METHODS:
+
+1- Boot from JTAG + tftp
+
+    Position the BOOT Switch SW2 on the board to "JTAG" mode.
+
+    Copy image_INITRD.ub in /tftpboot folder as image.ub.
+
+    Connect the board and your computer with an Ethernet cable.
+    Setup your computer's IP address to 192.168.1.2.
+
+    Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
+
+2- Boot from SD card (u-boot, minimal kernel & INITRD):
+
+    Prepare an SD card with a FAT partition.
+
+    Copy ./BOOT_INITRD.BIN (as BOOT.BIN), ./image_INITRD.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
+
+    Position the BOOT Switch SW2 on the board to "SD1" mode.
+
+3- Boot from SD card (u-boot, kernel & EXT4 rootfs):
+
+    Prepare an SD card with a FAT partition and an EXT4 partition.
+
+    Copy ./BOOT_EXT4.BIN (as BOOT.BIN), ./image_EXT4.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the 1st partition (FAT).
+
+    Extract the rootfs inside the 2nd partition (EXT4)
+    For example:
+    sudo tar -xvf ./images/linux/rootfs.tar.gz -C /mount-point-of-2nd-part/
+
+    Position the BOOT Switch SW2 on the board to "SD1" mode.
+
+4- Boot from eMMC FAT32 (u-boot & kernel) + eMMC EXT4 (rootfs):
+
+    Copy 'rootfs.wic' on an SD card
+
+    Boot Linux from method 1 or 2.
+
+    In Linux, execute these commands:
+
+        umount /dev/mmcblk0*
+        dd if=/media/sd-mmcblk1p1/rootfs.wic of=/dev/mmcblk0
+        cp /media/sd-mmcblk0p1/avnet-boot/avnet_emmc.scr /media/sd-mmcblk0p1/boot.scr
+
+        umount /dev/mmcblk0*
+        parted /dev/mmcblk0 resizepart 2 100%
+        umount /dev/mmcblk0*
+        e2fsck -f /dev/mmcblk0p2
+        resize2fs /dev/mmcblk0p2
+
+    Position the BOOT Switch SW2 on the board to "EMMC" mode.
+
+    Reboot the board, and let u-boot automatically load the kernel on the EMMC.
+
+5- Boot from QSPI (u-boot) + eMMC FAT32 (kernel) + eMMC EXT4 (rootfs):
+
+    After having done the emmc partitioning from method 4, position the BOOT Switch SW2 on the board to "JTAG" mode.
+
+    Then to install the bootloaders on the qspi, run the command:
+
+        program_flash -f ./BOOT_INITRD.BIN -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/zynqmp_fsbl.elf
+
+    Position the BOOT Switch SW2 on the board to "QSPI" mode.
+
+    Reboot the board. The board will load u-boot from the qspi and then fetch the kernel from emmc
