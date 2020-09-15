@@ -14,7 +14,7 @@ then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"cpio cpio.gz cpio.gz.u-boot tar.gz jffs2\""
 fi
 
-if [ "$PETALINUX_BOARD_NAME" == "minized" ];
+if [ "$PETALINUX_BOARD_NAME" == "minized" ] || [ "$PETALINUX_BOARD_FAMILY" == "mz" ];
 then
     # restore rootfs formats
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"cpio cpio.gz cpio.gz.u-boot tar.gz jffs2\""
@@ -28,3 +28,4 @@ then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_FLASH_PS7_QSPI_0_BANKLESS_PART2_NAME -v "\"bootenv\""
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_FLASH_PS7_QSPI_0_BANKLESS_PART2_SIZE -v "0x40000"
 fi
+
