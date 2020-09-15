@@ -75,7 +75,7 @@ KEEP_CACHE="true"
 KEEP_WORK="false"
 DEBUG="no"
 
-#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitsteam
+#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
 NO_BIT_OPTION='yes'
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
