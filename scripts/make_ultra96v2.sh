@@ -77,7 +77,7 @@ DEBUG="no"
 #BOOT METHODS: compatible methods are 'EXT4' or 'INITRD'
 BOOT_METHODS=('EXT4' 'INITRD')
 
-#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitsteam
+#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
 NO_BIT_OPTION='yes'
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
