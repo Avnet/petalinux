@@ -20,8 +20,17 @@ then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz wic\""
 fi
 
-if [ "$PETALINUX_BOARD_FAMILY" == "mz" ] || [ "$PETALINUX_BOARD_FAMILY" == "pz" ];
+if [ "$PETALINUX_BOARD_FAMILY" == "mz" ];
 then
     # add wic image to program EMMC
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz wic\""
+fi
+
+if [ "$PETALINUX_BOARD_FAMILY" == "pz" ];
+then
+    # add wic image to program EMMC
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz wic\""
+
+    # make the emmc the default boot dev
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk1p2\""
 fi
