@@ -200,17 +200,19 @@ do_not_rm_work ()
 
 modify_initramfs_image ()
 {
-  # This function will comment modify the INITRAMFS_IMAGE in plnxtool.conf
+  # This function will modify the INITRAMFS_IMAGE in meta-user/conf/petalinuxbsp.conf
   # This needs to be done manually, because petalinux-config does not expose this option
+  # If the BSP should not generate an INITRAMFS or INITRD image, this value has to be removed
 
-  # Be careful to not run another petalinux-config command after this, otherwise it will be overriden
+  CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/petalinuxbsp.conf
+
+  # remove the line
+  sed -i "/INITRAMFS_IMAGE = /d" ${CONF_FILE}
 
   if [ ${INITRAMFS_IMAGE} ];
   then
-      echo -e "\nSetting '${INITRAMFS_IMAGE}' as INITRAMFS_IMAGE in plnxtool.conf ...\n"
-
-      CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/build/conf/plnxtool.conf
-      sed -i "s/\(INITRAMFS_IMAGE = \).*/\1\"${INITRAMFS_IMAGE}\"/"  ${CONF_FILE}
+      echo -e "\nSetting '${INITRAMFS_IMAGE}' as INITRAMFS_IMAGE in petalinuxbsp.conf ...\n"
+      echo -e "INITRAMFS_IMAGE = \"${INITRAMFS_IMAGE}\"" >> ${CONF_FILE}
   fi
 }
 
