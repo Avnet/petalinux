@@ -10,15 +10,31 @@ BOOT METHODS:
 
 2- Boot from JTAG + tftp (u-boot, kernel & INITRD):
 
-    Connect the external JTAG cable.
-    Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
+    method a: static IP
 
-    Copy image_INITRD_FULL.ub (or image_INITRD_MINIMAL.ub) in /tftpboot folder as image.ub.
+        Connect the external JTAG cable.
+        Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
 
-    Connect the board and your computer with an Ethernet cable.
-    Setup your computer's IP address to 192.168.1.2.
+        Copy image_INITRD_FULL.ub (or image_INITRD_MINIMAL.ub) in /tftpboot folder as image.ub.
 
-    Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+        Connect the board and your computer with an Ethernet cable.
+        Setup your computer's IP address to 192.168.1.2.
+
+        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+
+    method b: DHCP
+
+        Connect the external JTAG cable.
+        Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
+
+        Copy image_INITRD_FULL.ub (or image_INITRD_MINIMAL.ub) in /tftpboot folder as image.ub.
+
+        Connect the board to your network with an Ethernet cable.
+
+        Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' with TFTP_SERVER_IP your tftp server ip (likely the IP of your computer)
+            -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+
+        Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
 
 3- Boot from SD (u-boot, kernel & INITRD):
 
