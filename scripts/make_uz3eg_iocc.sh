@@ -75,9 +75,6 @@ KEEP_CACHE="true"
 KEEP_WORK="false"
 DEBUG="no"
 
-#BOOT METHODS: compatible methods are 'EXT4' or 'INITRD'
-BOOT_METHODS=('EXT4' 'INITRD')
-
 #NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
 NO_BIT_OPTION='yes'
 
@@ -90,9 +87,16 @@ build_hw_platform
 create_petalinux_project
 configure_petalinux_project
 
-for BOOT_METHOD in ${BOOT_METHODS[@]}; do
-   configure_boot_method
-   build_bsp
-done
+configure_petalinux_project
+
+BOOT_METHOD='INITRD'
+INITRAMFS_IMAGE="avnet-image-minimal"
+configure_boot_method
+build_bsp
+
+BOOT_METHOD='EXT4'
+unset INITRAMFS_IMAGE
+configure_boot_method
+build_bsp
 
 package_bsp
