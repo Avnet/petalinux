@@ -4,14 +4,29 @@ BOOT METHODS:
 
 1- Boot from JTAG + tftp
 
-    Position the BOOT Switch SW2 on the board to "JTAG" mode.
+    method a: static IP
 
-    Copy image_INITRD.ub in /tftpboot folder as image.ub.
+        Position the BOOT Switch SW2 on the board to "JTAG" mode.
 
-    Connect the board and your computer with an Ethernet cable.
-    Setup your computer's IP address to 192.168.1.2.
+        Copy image_INITRD.ub in /tftpboot folder as image.ub.
 
-    Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
+        Connect the board and your computer with an Ethernet cable.
+        Setup your computer's IP address to 192.168.1.2.
+
+        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
+
+    method b: DHCP
+
+        Position the BOOT Switch SW2 on the board to "JTAG" mode.
+
+        Copy image_INITRD.ub in /tftpboot folder as image.ub.
+
+        Connect the board to your network with an Ethernet cable.
+
+        Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' with TFTP_SERVER_IP your tftp server ip (likely the IP of your computer)
+            -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+
+        Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
 
 2- Boot from SD card (u-boot, minimal kernel & INITRD):
 
@@ -23,13 +38,9 @@ BOOT METHODS:
 
 3- Boot from SD card (u-boot, kernel & EXT4 rootfs):
 
-    Prepare an SD card with a FAT partition and an EXT4 partition.
+    Write 'rootfs.wic' on an sd card with command : sudo dd if=./rootfs.wic of=/dev/mmcblk0
 
-    Copy ./BOOT_EXT4.BIN (as BOOT.BIN), ./image_EXT4.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the 1st partition (FAT).
-
-    Extract the rootfs inside the 2nd partition (EXT4)
-    For example:
-    sudo tar -xvf ./images/linux/rootfs.tar.gz -C /mount-point-of-2nd-part/
+    Then you can resize the 2nd partition (ext4) to fill the SD card with gparted or parted & resize2fs.
 
     Position the BOOT Switch SW2 on the board to "SD1" mode.
 
@@ -43,13 +54,15 @@ BOOT METHODS:
 
         umount /dev/mmcblk0*
         dd if=/media/sd-mmcblk1p1/rootfs.wic of=/dev/mmcblk0
-        cp /media/sd-mmcblk0p1/avnet-boot/avnet_emmc.scr /media/sd-mmcblk0p1/boot.scr
 
         umount /dev/mmcblk0*
         parted /dev/mmcblk0 resizepart 2 100%
         umount /dev/mmcblk0*
         e2fsck -f /dev/mmcblk0p2
         resize2fs /dev/mmcblk0p2
+
+        umount /dev/mmcblk1*
+        Remove the sd card from the board
 
     Position the BOOT Switch SW2 on the board to "EMMC" mode.
 
