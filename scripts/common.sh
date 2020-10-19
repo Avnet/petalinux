@@ -142,7 +142,7 @@ build_hw_platform ()
     # Change to HDL scripts folder.
     cd ${HDL_SCRIPTS_FOLDER}
 
-    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl
+    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl -notrace -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME}
 
   else
     echo -e "\nFound Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
