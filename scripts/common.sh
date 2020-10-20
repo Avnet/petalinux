@@ -319,6 +319,8 @@ build_bsp ()
   cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}${BOOT_SUFFIX}.BIN
 
   cp images/linux/image.ub image_${BOOT_METHOD}${BOOT_SUFFIX}.ub
+  
+  cp images/linux/boot.scr boot_${BOOT_METHOD}${BOOT_SUFFIX}.scr
 
   # save wic images, if any (don't output messages if not found)
   cp images/linux/*.wic . > /dev/null  2>&1 || true
