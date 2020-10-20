@@ -87,8 +87,6 @@ build_hw_platform
 create_petalinux_project
 configure_petalinux_project
 
-configure_petalinux_project
-
 BOOT_METHOD='INITRD'
 INITRAMFS_IMAGE="avnet-image-minimal"
 configure_boot_method
