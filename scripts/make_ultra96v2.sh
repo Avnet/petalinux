@@ -75,7 +75,7 @@ KEEP_WORK="false"
 DEBUG="no"
 
 #BOOT METHODS: compatible methods are 'EXT4' or 'INITRD'
-BOOT_METHODS=('EXT4' 'INITRD')
+BOOT_METHODS=('INITRD' 'EXT4')
 
 #NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
 NO_BIT_OPTION='yes'
