@@ -67,6 +67,8 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
 META_AVNET_BRANCH="master"
 
+TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
+
 verify_repositories ()
 {
   echo -e "\nVerifying repositories ...\n"
@@ -114,6 +116,40 @@ verify_environment ()
   fi
 
   PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
+}
+
+checkout_git_tag()
+{
+  TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
+
+  # If TAG_STAMP is exists and if BUILD_FROM_TAG is true
+  if [ ${BUILD_FROM_TAG} = "true" ]
+  then
+    # Change to HDL projects folder.
+    cd ${HDL_FOLDER}
+    echo -e "\nCheckout git tag ${PETALINUX_BOARD_NAME}_${PLNX_VER}_${TAG_STAMP} from hdl repository...\n"
+    git checkout ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP}
+
+    cd ${PETALINUX_FOLDER}
+    echo -e "\nCheckout git tag ${PETALINUX_BOARD_NAME}_${PLNX_VER}_${TAG_STAMP} from petalinux repository...\n"
+    git checkout ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP}
+  fi
+}
+
+reset_git_branch()
+{
+  # If BUILD_FROM_TAG is true
+  if [ ${BUILD_FROM_TAG} = "true" ]
+  then
+    # Change to HDL projects folder.
+    cd ${HDL_FOLDER}
+    echo -e "\nCheckout git branch ${$PETALINUX_VER} from hdl repository...\n"
+    git checkout ${PETALINUX_VER}
+
+    cd ${PETALINUX_FOLDER}
+    echo -e "\nCheckout git branch ${$PETALINUX_VER} from petalinux repository...\n"
+    git checkout ${$PETALINUX_VER}
+  fi
 }
 
 build_hw_platform ()
@@ -271,7 +307,24 @@ configure_petalinux_project()
     echo -e "PetaLinux project config is not touched for this build ...\n"
   fi
 
-  git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
+  # If tag_stamp.txt file exists and if $BUILD_FROM_TAG is true
+  if [ -f ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt ] && [ "${BUILD_FROM_TAG}" = "true" ]
+  then
+    # Then clone meta-avnet and checkout git tag ${PETALINUX_BOARD_NAME}_${PLNX_VER}_${TAG_STAMP} and if that fails 
+    # (tag_stamp.txt file may be empty or may not match available git tags) clone meta-avnet master branch
+    echo -e "\nClone meta-avnet layer and checkout git tag ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP}"
+    git clone -b ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP} ${META_AVNET_URL} project-spec/meta-avnet || \
+      git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
+  else
+    # No tag_stamp.txt file found or BUILD_FROM_TAG is set to "false"
+    git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
+  fi
+
+
+
+      read -t 5 -p "Pause here for 5 seconds" || :
+
+
 
   if [ "$KEEP_CACHE" = "true" ]
   then

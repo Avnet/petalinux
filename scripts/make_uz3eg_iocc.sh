@@ -69,7 +69,9 @@ SOC="zynqMP"
 PETALINUX_BOARD_FAMILY=uz
 PETALINUX_BOARD_NAME=uz3eg_iocc
 PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
-PETALINUX_BUILD_IMAGE=avnet-image-minimal
+PETALINUX_BUILD_IMAGE=avnet-image-full
+
+BUILD_FROM_TAG="false"
 
 KEEP_CACHE="true"
 KEEP_WORK="false"
@@ -88,11 +90,19 @@ create_petalinux_project
 configure_petalinux_project
 
 BOOT_METHOD='INITRD'
+BOOT_SUFFIX='_MINIMAL'
 INITRAMFS_IMAGE="avnet-image-minimal"
 configure_boot_method
 build_bsp
 
+BOOT_METHOD='INITRD'
+BOOT_SUFFIX='_FULL'
+INITRAMFS_IMAGE="avnet-image-full"
+configure_boot_method
+build_bsp
+
 BOOT_METHOD='EXT4'
+unset BOOT_SUFFIX
 unset INITRAMFS_IMAGE
 configure_boot_method
 build_bsp
