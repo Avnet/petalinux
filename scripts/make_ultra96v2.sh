@@ -68,14 +68,11 @@ SOC="zynqMP"
 
 PETALINUX_BOARD_NAME=ultra96v2
 PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_oob
-PETALINUX_BUILD_IMAGE=avnet-image-minimal
+PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"
 KEEP_WORK="false"
 DEBUG="no"
-
-#BOOT METHODS: compatible methods are 'EXT4' or 'INITRD'
-BOOT_METHODS=('INITRD' 'EXT4')
 
 #NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
 NO_BIT_OPTION='yes'
@@ -89,9 +86,8 @@ build_hw_platform
 create_petalinux_project
 configure_petalinux_project
 
-for BOOT_METHOD in ${BOOT_METHODS[@]}; do
-  configure_boot_method
-  build_bsp
-done
+BOOT_METHOD='EXT4'
+configure_boot_method
+build_bsp
 
 package_bsp

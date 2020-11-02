@@ -95,12 +95,6 @@ INITRAMFS_IMAGE="avnet-image-minimal"
 configure_boot_method
 build_bsp
 
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_FULL'
-INITRAMFS_IMAGE="avnet-image-full"
-configure_boot_method
-build_bsp
-
 BOOT_METHOD='EXT4'
 unset BOOT_SUFFIX
 unset INITRAMFS_IMAGE

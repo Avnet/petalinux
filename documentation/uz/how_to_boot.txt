@@ -74,7 +74,7 @@ BOOT METHODS:
 
     Then to install the bootloaders on the qspi, run the command:
 
-        program_flash -f ./BOOT_INITRD.BIN -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/zynqmp_fsbl.elf
+        program_flash -f ./BOOT_INITRD_MINIMAL.BIN -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/zynqmp_fsbl.elf
 
     Position the BOOT Switch SW2 on the board to "QSPI" mode.
 
