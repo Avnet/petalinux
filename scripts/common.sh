@@ -67,7 +67,11 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
 META_AVNET_BRANCH="master"
 
+PAUSE_DELAY=5
+BUILD_FROM_TAG="true"
+TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
 TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
+TAG_STRING=${TOOL_VER}_${HDL_PROJECT_NAME}_${HDL_BOARD_NAME}_${TAG_STAMP}
 
 verify_repositories ()
 {
@@ -118,21 +122,34 @@ verify_environment ()
   PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
 }
 
-checkout_git_tag()
+check_git_tag()
 {
-  TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
-
   # If TAG_STAMP is exists and if BUILD_FROM_TAG is true
   if [ ${BUILD_FROM_TAG} = "true" ]
   then
-    # Change to HDL projects folder.
+    # Verify the hdl repository is checked out with the correct ${TAG_STRING} tag
     cd ${HDL_FOLDER}
-    echo -e "\nCheckout git tag ${PETALINUX_BOARD_NAME}_${PLNX_VER}_${TAG_STAMP} from hdl repository...\n"
-    git checkout ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP}
-
+    echo -e "\nVerify the hdl repository is checked out with the correct ${TAG_STRING} tag...\n"
+    if [ ${TAG_STRING} = $(git status head | head -n1 | cut -d ' ' -f4) ]
+    then
+      echo -e "\nReported hdl tag matches ${TAG_STRING}.  Check petalinux tag next...\n"
+    else
+      echo -e "\nReported hdl tag is $(git status head | head -n1 | cut -d ' ' -f4).\n"
+      echo -e "\nThis does not match ${TAG_STRING}.  Exiting now...\n"
+      exit
+    fi
+      
+    # Verify the petalinux repository is checked out with the correct ${TAG_STRING} tag
     cd ${PETALINUX_FOLDER}
-    echo -e "\nCheckout git tag ${PETALINUX_BOARD_NAME}_${PLNX_VER}_${TAG_STAMP} from petalinux repository...\n"
-    git checkout ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP}
+    echo -e "\nVerify the petalinux repository is checked out with the correct ${TAG_STRING} tag...\n"
+    if [ ${TAG_STRING} = $(git status head | head -n1 | cut -d ' ' -f4) ]
+    then
+      echo -e "\nReported petalinux tag matches ${TAG_STRING}.  Build will continue...\n"
+    else
+      echo -e "\nReported petalinux tag is $(git status head | head -n1 | cut -d ' ' -f4).\n"
+      echo -e "\nThis does not match ${TAG_STRING}.  Exiting now...\n"
+      exit
+    fi
   fi
 }
 
@@ -303,28 +320,28 @@ configure_petalinux_project()
     echo -e "\nPatching PetaLinux project config ...\n"
     bash ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh
   else
-    echo -e "\nWARNING: No board specific PetaLinux project configuration files found, "
+    echo -e "\nWARNING: No board specific PetaLinux project configuration files found, \n"
     echo -e "PetaLinux project config is not touched for this build ...\n"
   fi
 
   # If tag_stamp.txt file exists and if $BUILD_FROM_TAG is true
   if [ -f ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt ] && [ "${BUILD_FROM_TAG}" = "true" ]
   then
-    # Then clone meta-avnet and checkout git tag ${PETALINUX_BOARD_NAME}_${PLNX_VER}_${TAG_STAMP} and if that fails 
+    # Then clone meta-avnet and checkout git tag ${TAG_STRING} and if that fails 
     # (tag_stamp.txt file may be empty or may not match available git tags) clone meta-avnet master branch
-    echo -e "\nClone meta-avnet layer and checkout git tag ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP}"
-    git clone -b ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP} ${META_AVNET_URL} project-spec/meta-avnet || \
-      git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
+    echo -e "\nClone meta-avnet layer and checkout git tag ${TAG_STRING}\n"
+    git clone -b ${TAG_STRING} ${META_AVNET_URL} project-spec/meta-avnet 
   else
     # No tag_stamp.txt file found or BUILD_FROM_TAG is set to "false"
+    echo -e "\nTag ${TOOL_VER}_${PETALINUX_BOARD_NAME}_${TAG_STAMP} not found.  Cloning ${META_AVNET_BRANCH} branch instead.\n"
+    echo -e "\n***WARNING:  This may result in build mismatch!***\n"
+    echo -e "\nStop (<ctrl>-c) in the next ${PAUSE_DELAY} seconds if this is not OK. \n"
+
+    read -t ${PAUSE_DELAY} -p "Pause here for ${PAUSE_DELAY} seconds" || :
+
+    echo -e "\nClone meta-avnet layer and checkout ${META_AVNET_BRANCH} branch\n"
     git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
   fi
-
-
-
-      read -t 5 -p "Pause here for 5 seconds" || :
-
-
 
   if [ "$KEEP_CACHE" = "true" ]
   then
