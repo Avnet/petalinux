@@ -82,6 +82,7 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 verify_repositories
 verify_environment
+check_git_tag
 
 build_hw_platform
 create_petalinux_project
