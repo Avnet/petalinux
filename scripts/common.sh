@@ -129,25 +129,25 @@ check_git_tag()
   then
     # Verify the hdl repository is checked out with the correct ${TAG_STRING} tag
     cd ${HDL_FOLDER}
-    echo -e "\nVerify the hdl repository is checked out with the correct ${TAG_STRING} tag...\n"
+    echo -e "\nVerifying the hdl repository is checked out with the correct ${TAG_STRING} tag.\n"
     if [ ${TAG_STRING} = $(git status head | head -n1 | cut -d ' ' -f4) ]
     then
       echo -e "\nReported hdl tag matches ${TAG_STRING}.  Check petalinux tag next...\n"
     else
       echo -e "\nReported hdl tag is $(git status head | head -n1 | cut -d ' ' -f4).\n"
-      echo -e "\nThis does not match ${TAG_STRING}.  Exiting now...\n"
+      echo -e "\nThis does not match requested ${TAG_STRING}.  Exiting now.\n"
       exit
     fi
       
     # Verify the petalinux repository is checked out with the correct ${TAG_STRING} tag
     cd ${PETALINUX_FOLDER}
-    echo -e "\nVerify the petalinux repository is checked out with the correct ${TAG_STRING} tag...\n"
+    echo -e "\nVerifying the petalinux repository is checked out with the correct ${TAG_STRING} tag.\n"
     if [ ${TAG_STRING} = $(git status head | head -n1 | cut -d ' ' -f4) ]
     then
       echo -e "\nReported petalinux tag matches ${TAG_STRING}.  Build will continue...\n"
     else
       echo -e "\nReported petalinux tag is $(git status head | head -n1 | cut -d ' ' -f4).\n"
-      echo -e "\nThis does not match ${TAG_STRING}.  Exiting now...\n"
+      echo -e "\nThis does not match ${TAG_STRING}.  Exiting now.\n"
       exit
     fi
   fi

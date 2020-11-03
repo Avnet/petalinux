@@ -40,7 +40,7 @@ BOOT METHODS:
 
     Prepare an SD card with a FAT partition.
 
-    Copy ./BOOT_INITRD_FULL.BIN (as BOOT.BIN), ./image_INITRD_FULL.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
+    Copy ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN), ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
 
     Position the BOOT switch SW1 on the board to the SD mode (HIGH-HIGH).
 
