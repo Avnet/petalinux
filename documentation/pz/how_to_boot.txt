@@ -61,7 +61,8 @@ BOOT METHODS:
     Restart the board, and Linux should boot from qspi.
 
 6- Boot from QSPI (u-boot) and EMMC (kernel & INITRD):
-
+    *** The steps below may not work ***
+    *** Fetching files from USB while in u-boot doesn't always work ***
     (Remove the sd card from the board)
 
     Copy 'image_INITRD_FULL.ub', 'images/linux/avnet-boot/avnet_mmc.scr' and 'images/linux/avnet-boot/avnet_prog_emmc.scr' in the root folder of an USB stick.
