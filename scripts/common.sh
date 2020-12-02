@@ -49,7 +49,7 @@
 # ----------------------------------------------------------------------------
 
 # Required version of the Xilinx Tools
-REQUIRED_VER=2020.1
+REQUIRED_VER=2020.2
 
 #REPOSITORIES_FOLDER is the top level folder which should contain at least the 'bdf', 'hdl' amd 'petalinux' repositories
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
