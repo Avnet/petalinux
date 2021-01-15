@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/minized
+#     http://www.ultrazed.org/product/ultra96
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,20 +32,20 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 24, 2020
-#  Design Name:         Avnet Minized PetaLinux BSP Generator
-#  Module Name:         make_minized.sh
-#  Project Name:        Avnet Minized PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Minized Eval Board
+#  Create Date:         August 03, 2020
+#  Design Name:         Avnet Ultra96v2 PetaLinux BSP Generator
+#  Module Name:         make_ultra96v2.sh
+#  Project Name:        Avnet Ultra96v2 PetaLinux BSP Generator
+#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
+#  Hardware Boards:     Ultra96v2 Eval Board
 #
 #  Tool versions:       Xilinx Vivado 2020.1
 #
-#  Description:         Build Script for Minized PetaLinux BSP HW Platform
+#  Description:         Build Script for Ultra96v2 PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Aug 24, 2020: 1.00 Initial version
+#  Revision:            Aug 03, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 
@@ -57,16 +57,15 @@ set -e
 # MAIN_SCRIPT_FOLDER is the folder where this current script is
 MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
-FSBL_PROJECT_NAME=zynq_fsbl
+FSBL_PROJECT_NAME=zynqmp_fsbl
 
-HDL_HARDWARE_NAME=minized_hw
-HDL_PROJECT_NAME=minized_petalinux
-HDL_BOARD_NAME=MINIZED
+HDL_PROJECT_NAME=u96v2_petalinux
+HDL_BOARD_NAME=u96v2_sbc
 
-ARCH="arm"
-SOC="zynq"
+ARCH="aarch64"
+SOC="zynqMP"
 
-PETALINUX_BOARD_NAME=minized
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
@@ -87,21 +86,7 @@ build_hw_platform
 create_petalinux_project
 configure_petalinux_project
 
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_MINIMAL'
-INITRAMFS_IMAGE="avnet-image-minimal"
-configure_boot_method
-build_bsp
-
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_FULL'
-INITRAMFS_IMAGE="avnet-image-full"
-configure_boot_method
-build_bsp
-
 BOOT_METHOD='EXT4'
-unset BOOT_SUFFIX
-unset INITRAMFS_IMAGE
 configure_boot_method
 build_bsp
 

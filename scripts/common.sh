@@ -55,8 +55,8 @@ REQUIRED_VER=2020.2
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
 
 HDL_FOLDER=${REPOSITORIES_FOLDER}/hdl
-HDL_PROJECTS_FOLDER=${HDL_FOLDER}/Projects
-HDL_SCRIPTS_FOLDER=${HDL_FOLDER}/Scripts
+HDL_PROJECTS_FOLDER=${HDL_FOLDER}/projects
+HDL_SCRIPTS_FOLDER=${HDL_FOLDER}/scripts
 
 PETALINUX_FOLDER=${REPOSITORIES_FOLDER}/petalinux
 PETALINUX_APPS_FOLDER=${PETALINUX_FOLDER}/apps
@@ -65,7 +65,7 @@ PETALINUX_PROJECTS_FOLDER=${PETALINUX_FOLDER}/projects
 PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2020.1"
+META_AVNET_BRANCH="2020.2"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
@@ -171,7 +171,7 @@ reset_git_branch()
 
 build_hw_platform ()
 {
-  echo -e "\nChecking '${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}' Vivado Project ...\n"
+  echo -e "\nChecking '${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}' Vivado Project ...\n"
 
   # Change to HDL projects folder.
   cd ${HDL_PROJECTS_FOLDER}
@@ -179,7 +179,7 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.
   # If it hasn't then build it now.
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
+  if [ ! -e ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
   then
     echo -e "\nNo built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
     echo -e "Will build the hardware platform now.\n"
@@ -188,7 +188,7 @@ build_hw_platform ()
     if [ "$DEBUG" == "yes" ];
     then
       echo ""
-      read -t 5 -p "Pause here for 5 seconds"
+      read -t ${PAUSE_DELAY} -p "Pause here for ${PAUSE_DELAY} seconds"
       echo ""
     fi
 
@@ -205,7 +205,7 @@ build_hw_platform ()
     if [ "$DEBUG" == "yes" ];
     then
       echo ""
-      read -t 5 -p "Pause here for 5 seconds"
+      read -t ${PAUSE_DELAY} -p "Pause here for ${PAUSE_DELAY} seconds"
       echo ""
     fi
   fi
@@ -296,12 +296,12 @@ create_petalinux_project ()
 
   echo -e "\nImporting hardware definition ${HDL_BOARD_NAME}.xsa from HDL project folder ...\n"
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
+  cp -f ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
   ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
   echo -e "\nImporting hardware bitstream ${HDL_BOARD_NAME}_wrapper.bit from HDL project folder...\n"
 
-  cp -f ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
+  cp -f ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
   ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux
@@ -461,6 +461,6 @@ package_bsp ()
 
   # Package the hardware source into a BSP package output.
   petalinux-package --bsp -p ${PETALINUX_PROJECT_NAME} \
-  --hwsource ${HDL_PROJECTS_FOLDER}/${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}/ \
+  --hwsource ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
 }

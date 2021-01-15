@@ -59,9 +59,8 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
-HDL_HARDWARE_NAME=uz_petalinux_hw
 HDL_PROJECT_NAME=uz_petalinux
-HDL_BOARD_NAME=UZ3EG_IOCC
+HDL_BOARD_NAME=uz3eg_iocc
 
 ARCH="aarch64"
 SOC="zynqMP"

@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/picozed
+#     http://zedboard.org/product/microzed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,20 +32,20 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Sept 16, 2020
-#  Design Name:         Avnet Picozed PetaLinux BSP Generator
-#  Module Name:         make_pz7010_fmc2.sh
-#  Project Name:        Avnet Picozed PetaLinux BSP Generator
+#  Create Date:         Sept 15, 2020
+#  Design Name:         Avnet Microzed PetaLinux BSP Generator
+#  Module Name:         make_mz7020_fmcc.sh
+#  Project Name:        Avnet Microzed PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Picozed pz7010 Eval Board with FMC2
+#  Hardware Boards:     Microzed mz7020 Eval Board with or without FMCC
 #
 #  Tool versions:       Xilinx Vivado 2020.1
 #
-#  Description:         Build Script for Picozed pz7010 PetaLinux BSP HW Platform
+#  Description:         Build Script for Microzed mz7020 PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Sept 16, 2020: 1.00 Initial version
+#  Revision:            Sept 15, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 
@@ -59,13 +59,13 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynq_fsbl
 
-HDL_PROJECT_NAME=pz_petalinux
-HDL_BOARD_NAME=pz7010_fmc2
+HDL_PROJECT_NAME=mz_petalinux
+HDL_BOARD_NAME=mz7020_som
 
 ARCH="arm"
 SOC="zynq"
 
-PETALINUX_BOARD_FAMILY=pz
+PETALINUX_BOARD_FAMILY=mz
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full

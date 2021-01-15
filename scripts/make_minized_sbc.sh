@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/microzed
+#     http://zedboard.org/product/minized
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,20 +32,20 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Sept 10, 2020
-#  Design Name:         Avnet Microzed PetaLinux BSP Generator
-#  Module Name:         make_mz7010_fmcc.sh
-#  Project Name:        Avnet Microzed PetaLinux BSP Generator
+#  Create Date:         August 24, 2020
+#  Design Name:         Avnet Minized PetaLinux BSP Generator
+#  Module Name:         make_minized.sh
+#  Project Name:        Avnet Minized PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Microzed mz7010 Eval Board with or without FMCC
+#  Hardware Boards:     Minized Eval Board
 #
 #  Tool versions:       Xilinx Vivado 2020.1
 #
-#  Description:         Build Script for Microzed mz7010 PetaLinux BSP HW Platform
+#  Description:         Build Script for Minized PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Sept 10, 2020: 1.00 Initial version
+#  Revision:            Aug 24, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 
@@ -59,17 +59,15 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynq_fsbl
 
-HDL_HARDWARE_NAME=mz_petalinux_hw
-HDL_PROJECT_NAME=mz_petalinux
-HDL_BOARD_NAME=MZ7010_FMCCC
+HDL_PROJECT_NAME=minized_petalinux
+HDL_BOARD_NAME=minized_sbc
 
 ARCH="arm"
 SOC="zynq"
 
-PETALINUX_BOARD_FAMILY=mz
-PETALINUX_BOARD_NAME=mz7010_fmccc
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
-PETALINUX_BUILD_IMAGE=avnet-image-minimal
+PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"
 KEEP_WORK="false"

@@ -1,5 +1,10 @@
 ![alt text][logo]
 
+WARNING! Large Changes forthcoming
+This 2020.2 Branch is unstable at the moment.  Please use the 2020.1 branch.
+This extends to all 2020.2 branches in the Avnet repository
+15JAN2021
+
 Avnet PetaLinux Projects
 ========================
 
@@ -8,7 +13,8 @@ Avnet software libraries, project build scripts, and example source code used in
 
 Current Tools Version:
 ----------------------
-* **Xilinx PetaLinux Tools**: [PetaLinux 2017.2]
+
+* Denoted by Branch
 
 
 Where can I find documentation?
