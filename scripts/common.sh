@@ -461,6 +461,6 @@ package_bsp ()
 
   # Package the hardware source into a BSP package output.
   petalinux-package --bsp -p ${PETALINUX_PROJECT_NAME} \
-  --hwsource ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
+  --hwsource ${HDL_PROJECTS_FOLDER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
 }
