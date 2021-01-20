@@ -318,7 +318,7 @@ configure_petalinux_project()
   if [ -f ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh ]
   then
     echo -e "\nPatching PetaLinux project config ...\n"
-    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh
+    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh ${PETALINUX_PROJECT_NAME}
   else
     echo -e "\nWARNING: No board specific PetaLinux project configuration files found, \n"
     echo -e "PetaLinux project config is not touched for this build ...\n"
