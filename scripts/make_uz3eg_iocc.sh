@@ -39,13 +39,14 @@
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
 #  Hardware Boards:     UZ3EG_IOCC Board
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
 #  Description:         Build Script for UZ3EG_IOCC PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
 #  Revision:            Aug 10, 2020: 1.00 Initial version
+#                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
 

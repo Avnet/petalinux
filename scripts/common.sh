@@ -38,13 +38,14 @@
 #  Project Name:        Common functions for BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
 #  Description:         Common functions to generate PetaLinux BSP
 #
 #  Dependencies:        None
 #
 #  Revision:            Aug 03, 2020: 1.00 Initial version
+#                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
 

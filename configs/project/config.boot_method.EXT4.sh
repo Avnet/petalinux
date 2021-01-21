@@ -15,7 +15,7 @@ ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_EXT4
 # openssh, which is needed for greater throughput
 ${KCONFIG_EDIT} -c ${ROOTFS_CONFIG_FILE} -o CONFIG_packagegroup-core-ssh-dropbear -u
 
-if [ "$PETALINUX_BOARD_NAME" == "ultra96v2" ];
+if [ "$PETALINUX_BOARD_NAME" == "u96v2_sbc" ];
 then
     # make the sd card the default boot dev - SD0
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
@@ -33,7 +33,7 @@ then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"cpio cpio.gz cpio.gz.u-boot tar.gz jffs2 ext4 ext4.gz wic\""
 fi
 
-if [ "$PETALINUX_BOARD_NAME" == "minized" ];
+if [ "$PETALINUX_BOARD_NAME" == "minized_sbc" ];
 then
     # make the emmc the default boot dev - SD1
     # Minized does not have sd card

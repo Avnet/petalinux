@@ -34,18 +34,19 @@
 #
 #  Create Date:         August 24, 2020
 #  Design Name:         Avnet Minized PetaLinux BSP Generator
-#  Module Name:         make_minized.sh
+#  Module Name:         make_minized_sbc.sh
 #  Project Name:        Avnet Minized PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq
 #  Hardware Boards:     Minized Eval Board
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
 #  Description:         Build Script for Minized PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
 #  Revision:            Aug 24, 2020: 1.00 Initial version
+#                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
 
