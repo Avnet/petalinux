@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://www.ultrazed.org/product/ultra96
+#     http://zedboard.org/product/ultrazed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,20 +32,20 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 03, 2020
-#  Design Name:         Avnet Ultra96v2 PetaLinux BSP Generator
-#  Module Name:         make_u96v2_sbc.sh
-#  Project Name:        Avnet Ultra96v2 PetaLinux BSP Generator
+#  Create Date:         August 19, 2020
+#  Design Name:         Avnet UZ3EG_PCIEC PetaLinux BSP Generator
+#  Module Name:         make_uz3eg_pciec.sh
+#  Project Name:        Avnet UZ3EG_PCIEC PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     Ultra96v2 Eval Board
+#  Hardware Boards:     UZ3EG_PCIEC Board
 #
 #  Tool versions:       Xilinx Vivado 2020.2
 #
-#  Description:         Build Script for Ultra96v2 PetaLinux BSP HW Platform
+#  Description:         Build Script for UZ3EG_PCIEC PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Aug 03, 2020: 1.00 Initial version
+#  Revision:            Aug 19, 2020: 1.00 Initial version
 #                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
@@ -60,14 +60,15 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
-HDL_PROJECT_NAME=u96v2_petalinux
-HDL_BOARD_NAME=u96v2_sbc
+HDL_PROJECT_NAME=base
+HDL_BOARD_NAME=uz3eg_pciec
 
 ARCH="aarch64"
 SOC="zynqMP"
 
-PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
+PETALINUX_BOARD_FAMILY=uz
+PETALINUX_BOARD_NAME=uz3eg_pciec
+PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"
@@ -87,7 +88,15 @@ build_hw_platform
 create_petalinux_project
 configure_petalinux_project
 
+BOOT_METHOD='INITRD'
+BOOT_SUFFIX='_MINIMAL'
+INITRAMFS_IMAGE="avnet-image-minimal"
+configure_boot_method
+build_bsp
+
 BOOT_METHOD='EXT4'
+unset BOOT_SUFFIX
+unset INITRAMFS_IMAGE
 configure_boot_method
 build_bsp
 

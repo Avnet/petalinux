@@ -180,9 +180,9 @@ build_hw_platform ()
   # Check to see if the Vivado hardware project has not been built.
   # If it hasn't then build it now.
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa ]
+  if [ ! -e ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.xsa ]
   then
-    echo -e "\nNo built Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER} found."
+    echo -e "\nNo built Vivado HW project ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER} found."
     echo -e "Will build the hardware platform now.\n"
 
     # DEBUG
@@ -196,10 +196,10 @@ build_hw_platform ()
     # Change to HDL scripts folder.
     cd ${HDL_SCRIPTS_FOLDER}
 
-    vivado -mode batch -source make_${HDL_PROJECT_NAME}.tcl -notrace -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME}
+    vivado -mode batch -source make_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.tcl -notrace -tclargs ${HDL_BOARD_NAME} ${HDL_PROJECT_NAME} -nolog -nojournal
 
   else
-    echo -e "\nFound Vivado HW project ${HDL_PROJECT_NAME}/${HDL_BOARD_NAME}_${PLNX_VER}."
+    echo -e "\nFound Vivado HW project ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}."
     echo -e "Will build the PetaLinux BSP now.\n"
 
     # DEBUG
@@ -295,14 +295,14 @@ create_petalinux_project ()
   # implemented system products folder.
   cd ${HDL_PROJECTS_FOLDER}
 
-  echo -e "\nImporting hardware definition ${HDL_BOARD_NAME}.xsa from HDL project folder ...\n"
+  echo -e "\nImporting hardware definition ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.xsa from HDL project folder ...\n"
 
-  cp -f ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.xsa \
+  cp -f ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.xsa \
   ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/.
 
-  echo -e "\nImporting hardware bitstream ${HDL_BOARD_NAME}_wrapper.bit from HDL project folder...\n"
+  echo -e "\nImporting hardware bitstream ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_wrapper.bit from HDL project folder...\n"
 
-  cp -f ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}.runs/impl_1/${HDL_BOARD_NAME}_wrapper.bit \
+  cp -f ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.runs/impl_1/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_wrapper.bit \
   ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform/system_wrapper.bit
 
   # Change directories to the hardware definition folder for the PetaLinux

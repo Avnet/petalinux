@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/ultrazed
+#     http://zedboard.org/product/microzed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,21 +32,20 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 10, 2020
-#  Design Name:         Avnet UZ3EG_IOCC PetaLinux BSP Generator
-#  Module Name:         make_uz3eg_iocc.sh
-#  Project Name:        Avnet UZ3EG_IOCC PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     UZ3EG_IOCC Board
+#  Create Date:         Sept 10, 2020
+#  Design Name:         Avnet Microzed PetaLinux BSP Generator
+#  Module Name:         make_mz7010_fmcc.sh
+#  Project Name:        Avnet Microzed PetaLinux BSP Generator
+#  Target Devices:      Xilinx Zynq
+#  Hardware Boards:     Microzed mz7010 Eval Board with or without FMCC
 #
-#  Tool versions:       Xilinx Vivado 2020.2
+#  Tool versions:       Xilinx Vivado 2020.1
 #
-#  Description:         Build Script for UZ3EG_IOCC PetaLinux BSP HW Platform
+#  Description:         Build Script for Microzed mz7010 PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Aug 10, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Revision:            Sept 10, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 
@@ -58,20 +57,18 @@ set -e
 # MAIN_SCRIPT_FOLDER is the folder where this current script is
 MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
-FSBL_PROJECT_NAME=zynqmp_fsbl
+FSBL_PROJECT_NAME=zynq_fsbl
 
-HDL_PROJECT_NAME=uz_petalinux
-HDL_BOARD_NAME=uz3eg_iocc
+HDL_PROJECT_NAME=base
+HDL_BOARD_NAME=mz7010_som
 
-ARCH="aarch64"
-SOC="zynqMP"
+ARCH="arm"
+SOC="zynq"
 
-PETALINUX_BOARD_FAMILY=uz
-PETALINUX_BOARD_NAME=uz3eg_iocc
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
+PETALINUX_BOARD_FAMILY=mz
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
+PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
-
-BUILD_FROM_TAG="false"
 
 KEEP_CACHE="true"
 KEEP_WORK="false"
@@ -93,6 +90,12 @@ configure_petalinux_project
 BOOT_METHOD='INITRD'
 BOOT_SUFFIX='_MINIMAL'
 INITRAMFS_IMAGE="avnet-image-minimal"
+configure_boot_method
+build_bsp
+
+BOOT_METHOD='INITRD'
+BOOT_SUFFIX='_FULL'
+INITRAMFS_IMAGE="avnet-image-full"
 configure_boot_method
 build_bsp
 
