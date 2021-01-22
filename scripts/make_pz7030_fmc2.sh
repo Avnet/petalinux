@@ -39,13 +39,14 @@
 #  Target Devices:      Xilinx Zynq
 #  Hardware Boards:     Picozed pz7030 Eval Board with FMC2
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
 #  Description:         Build Script for Picozed pz7030 PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
 #  Revision:            Oct 1, 2020: 1.00 Initial version
+#                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
 

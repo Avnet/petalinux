@@ -34,18 +34,19 @@
 #
 #  Create Date:         August 03, 2020
 #  Design Name:         Avnet Ultra96v2 PetaLinux BSP Generator
-#  Module Name:         make_ultra96v2.sh
+#  Module Name:         make_u96v2_sbc.sh
 #  Project Name:        Avnet Ultra96v2 PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale MPSoC
 #  Hardware Boards:     Ultra96v2 Eval Board
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
 #  Description:         Build Script for Ultra96v2 PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
 #  Revision:            Aug 03, 2020: 1.00 Initial version
+#                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
 

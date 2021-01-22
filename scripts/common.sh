@@ -38,13 +38,14 @@
 #  Project Name:        Common functions for BSP Generator
 #  Target Devices:      Xilinx Zynq Ultrascale
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
 #  Description:         Common functions to generate PetaLinux BSP
 #
 #  Dependencies:        None
 #
 #  Revision:            Aug 03, 2020: 1.00 Initial version
+#                       Jan 20, 2021: update to 2020.2
 #
 # ----------------------------------------------------------------------------
 
@@ -318,7 +319,7 @@ configure_petalinux_project()
   if [ -f ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh ]
   then
     echo -e "\nPatching PetaLinux project config ...\n"
-    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh
+    bash ${PETALINUX_CONFIGS_FOLDER}/project/config.board.${PETALINUX_BOARD_NAME}.sh ${PETALINUX_PROJECT_NAME}
   else
     echo -e "\nWARNING: No board specific PetaLinux project configuration files found, \n"
     echo -e "PetaLinux project config is not touched for this build ...\n"
@@ -461,6 +462,6 @@ package_bsp ()
 
   # Package the hardware source into a BSP package output.
   petalinux-package --bsp -p ${PETALINUX_PROJECT_NAME} \
-  --hwsource ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
+  --hwsource ${HDL_PROJECTS_FOLDER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
 }

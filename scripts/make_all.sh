@@ -33,15 +33,14 @@
 # ----------------------------------------------------------------------------
 #
 #  Create Date:         Oct 1, 2020
-#  Design Name:         Avnet Picozed PetaLinux BSP Generator
-#  Module Name:         make_pz7030_fmc2.sh
-#  Project Name:        Avnet Picozed PetaLinux BSP Generator
+#  Design Name:         Avnet All PetaLinux BSP Generator
+#  Module Name:         make_all.sh
+#  Project Name:        Avnet All PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Picozed pz7030 Eval Board with FMC2
 #
-#  Tool versions:       Xilinx Vivado 2020.1
+#  Tool versions:       Xilinx Vivado 2020.2
 #
-#  Description:         Build Script for Picozed pz7030 PetaLinux BSP HW Platform
+#  Description:         Build Script for all PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
