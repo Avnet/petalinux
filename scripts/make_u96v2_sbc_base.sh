@@ -93,8 +93,8 @@ INITRAMFS_IMAGE="avnet-image-minimal"
 configure_boot_method
 build_bsp
 
-BOOT_METHOD='EXT4'
-configure_boot_method
-build_bsp
+#BOOT_METHOD='EXT4'
+#configure_boot_method
+#build_bsp
 
 package_bsp
