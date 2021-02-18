@@ -174,13 +174,10 @@ build_hw_platform ()
 {
   echo -e "\nChecking '${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}' Vivado Project ...\n"
 
-  # Change to HDL projects folder.
-  cd ${HDL_PROJECTS_FOLDER}
-
   # Check to see if the Vivado hardware project has not been built.
   # If it hasn't then build it now.
   # If it has then fall through and build the PetaLinux BSP
-  if [ ! -e ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.xsa ]
+  if [ ! -e ${HDL_PROJECTS_FOLDER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.xsa ]
   then
     echo -e "\nNo built Vivado HW project ${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER} found."
     echo -e "Will build the hardware platform now.\n"

@@ -1,5 +1,7 @@
 # Ignore everything in this directory
 scripts/vitis_*_Makefile
+scripts/*.jou
+scripts/*.log
 projects/
 # Except this file
 !.gitignore
