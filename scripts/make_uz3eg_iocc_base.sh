@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/ultrazed
+#     http://www.ultrazed.org/product/ultrazed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -27,26 +27,17 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 10, 2020
-#  Design Name:         Avnet UZ3EG_IOCC PetaLinux BSP Generator
-#  Module Name:         make_uz3eg_iocc.sh
-#  Project Name:        Avnet UZ3EG_IOCC PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     UZ3EG_IOCC Board
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for UZ3EG_IOCC PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Aug 10, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Create Date:         Aug 10, 2020
+#  Design Name:         UltraZed-EG Base BSP
+#  Module Name:         make_uz3eg_iocc_base.sh
+#  Project Name:        UltraZed-EG Base BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 3EG
+#  Hardware Boards:     UltraZed-EG SOM + I/O Carrier
 #
 # ----------------------------------------------------------------------------
 

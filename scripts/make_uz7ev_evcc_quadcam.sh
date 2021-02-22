@@ -19,7 +19,7 @@
 #     http://www.ultrazed.org/forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/ultrazed
+#     http://www.ultrazed.org/product/ultrazed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -27,25 +27,17 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Jan. 20, 2021
-#  Design Name:         Avnet UZ7EV_EVCC_QUADCAM PetaLinux BSP Generator
+#  Create Date:         Jan 20, 2021
+#  Design Name:         UltraZed-EV QUADCAM BSP
 #  Module Name:         make_uz7ev_evcc_quadcam.sh
-#  Project Name:        Avnet UZ7EV_EVCC_QUADCAM PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     UZ7EV_EVCC Board
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for UZ7EV_EVCC with HDMI and QUAD CAM support PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Jan 20, 2021: 1.00 Initial version
+#  Project Name:        UltraZed-EV QUADCAM BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 7EV
+#  Hardware Boards:     UltraZed-EV SOM + EV Carrier + Quad Camera FMC
 #
 # ----------------------------------------------------------------------------
 

@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
+#  Please direct any questions to the PicoZed community support forum:
+#     http://avnet.me/picozed_forum
 #
 #  Product information is available at:
-#     http://zedboard.org/product/picozed
+#     http://avnet.me/picozed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -27,26 +27,17 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Oct 1, 2020
-#  Design Name:         Avnet Picozed PetaLinux BSP Generator
-#  Module Name:         make_pz7020_fmc2.sh
-#  Project Name:        Avnet Picozed PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Picozed pz7020 Eval Board with FMC2
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for Picozed pz7020 PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Oct 1, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Create Date:         Sep 16, 2020
+#  Design Name:         PicoZed Base BSP
+#  Module Name:         make_pz7020_fmc2_base.sh
+#  Project Name:        PicoZed Base BSP
+#  Target Devices:      Xilinx Zynq-7020
+#  Hardware Boards:     PicoZed SOM + FMC2 Carrier
 #
 # ----------------------------------------------------------------------------
 

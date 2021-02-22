@@ -14,40 +14,31 @@
 #
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
-#
-#  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
-#
+# 
+#  Please direct any questions to the MiniZed community support forum:
+#     http://www.minized.org/forum
+# 
 #  Product information is available at:
-#     http://zedboard.org/product/minized
-#
+#     http://www.minized.org/product/minized
+# 
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
 #     This code is provided  "As Is". Avnet, Inc assumes no responsibility for
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
-#
-#  Create Date:         August 24, 2020
-#  Design Name:         Avnet Minized PetaLinux BSP Generator
-#  Module Name:         make_minized_sbc.sh
-#  Project Name:        Avnet Minized PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Minized Eval Board
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for Minized PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Aug 24, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
-#
+# 
+#  Create Date:         Sep 10, 2020
+#  Design Name:         MiniZed Base BSP
+#  Module Name:         make_minized_sbc_base.sh
+#  Project Name:        MiniZed Base BSP
+#  Target Devices:      Xilinx Zynq-7007
+#  Hardware Boards:     MiniZed
+# 
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
