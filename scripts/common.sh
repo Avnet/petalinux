@@ -15,37 +15,23 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
-#
-#  Product information is available at:
-#     http://www.ultrazed.org/product/ultra96
-#
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
 #     This code is provided  "As Is". Avnet, Inc assumes no responsibility for
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
 #
 #  Create Date:         August 03, 2020
-#  Design Name:         Common functions for BSP Generator
+#  Design Name:         Common functions for BSP builds
 #  Module Name:         common.sh
-#  Project Name:        Common functions for BSP Generator
+#  Project Name:        Common functions for BSP builds
 #  Target Devices:      Xilinx Zynq Ultrascale
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Common functions to generate PetaLinux BSP
-#
-#  Dependencies:        None
-#
-#  Revision:            Aug 03, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Hardware Boards:     
 #
 # ----------------------------------------------------------------------------
 
@@ -64,6 +50,7 @@ PETALINUX_APPS_FOLDER=${PETALINUX_FOLDER}/apps
 PETALINUX_CONFIGS_FOLDER=${PETALINUX_FOLDER}/configs
 PETALINUX_PROJECTS_FOLDER=${PETALINUX_FOLDER}/projects
 PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
+PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
 META_AVNET_BRANCH="2020.2"
@@ -72,7 +59,7 @@ PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
 TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
 TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
-TAG_STRING=${TOOL_VER}_${HDL_PROJECT_NAME}_${HDL_BOARD_NAME}_${TAG_STAMP}
+TAG_STRING=${TOOL_VER}_${HDL_PROJECT}_${HDL_BOARD}_${TAG_STAMP}
 
 verify_repositories ()
 {
@@ -272,7 +259,7 @@ create_petalinux_project ()
   # This function is responsible for creating a PetaLinux project import
   # hardware platform specified in HDL_PROJECT_NAME variable
   #
-  PETALINUX_PROJECT_NAME=${PETALINUX_PROJECT_BASE_NAME}_${PLNX_VER}
+  PETALINUX_PROJECT_NAME=${PETALINUX_PROJECT_ROOT_NAME}_${PLNX_VER}
 
   echo -e "\nCreating '$PETALINUX_PROJECT_NAME' Petalinux project ...\n"
 
@@ -440,11 +427,11 @@ package_bsp ()
   # Copy all wic images, if any (don't output messages if not found)
   cp *.wic pre-built/linux/images/ > /dev/null  2>&1 || true
 
-  # Copy all boot scripts to the project folder and pre-built images folder.
-  if [ -d ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/)" ];
+  # Copy all family boot instructions to the project folder and pre-built images folder.
+  if [ $PETALINUX_BOARD_FAMILY ] && [ -d ${PETALINUX_DOCS_FOLDER}/${PETALINUX_BOARD_FAMILY}/ ] && [ "$(ls -A ${PETALINUX_DOCS_FOLDER}/${PETALINUX_BOARD_FAMILY}/)" ];
   then
-    cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/* .
-    cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_NAME}/* pre-built/linux/images/
+    cp ${PETALINUX_DOCS_FOLDER}/${PETALINUX_BOARD_FAMILY}/* .
+    cp ${PETALINUX_DOCS_FOLDER}/${PETALINUX_BOARD_FAMILY}/* pre-built/linux/images/
   fi
 
   # Copy all family boot scripts to the project folder and pre-built images folder.
@@ -452,6 +439,15 @@ package_bsp ()
   then
     cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_FAMILY}/* .
     cp ${PETALINUX_SCRIPTS_FOLDER}/boot/${PETALINUX_BOARD_FAMILY}/* pre-built/linux/images/
+  fi
+
+  # Copy rebuild scripts to the project folder and pre-built images folder.
+  if [ $PETALINUX_BOARD_FAMILY ] && [ -d ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/)" ];
+  then
+    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh .
+    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh pre-built/linux/images/.
+    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh .
+    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh pre-built/linux/images/.
   fi
 
   # Change to PetaLinux project folder.
