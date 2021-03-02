@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the MiniZed community support forum:
-#     http://avnet.me/minized_forum
-# 
+#  Please direct any questions to the UltraZed community support forum:
+#     http://www.ultrazed.org/forum
+#
 #  Product information is available at:
-#     http://avnet.me/minized
+#     http://www.ultrazed.org/product/ultrazed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -31,14 +31,14 @@
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
-# 
-#  Create Date:         Sep 10, 2020
-#  Design Name:         MiniZed Base BSP
-#  Module Name:         make_minized_sbc_base.sh
-#  Project Name:        MiniZed Base BSP
-#  Target Devices:      Xilinx Zynq-7007
-#  Hardware Boards:     MiniZed
-# 
+#
+#  Create Date:         Aug 19, 2020
+#  Design Name:         UltraZed-EG Base BSP
+#  Module Name:         rebuild_uz3eg_pciec_base.sh
+#  Project Name:        UltraZed-EG Base BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 3EG
+#  Hardware Boards:     UltraZed-EG SOM + PCIe Carrier
+#
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
@@ -46,48 +46,22 @@
 # Stop the script whenever we had an error (non-zero returning function)
 set -e
 
-# MAIN_SCRIPT_FOLDER is the folder where this current script is
-MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
-
-FSBL_PROJECT_NAME=zynq_fsbl
+FSBL_PROJECT_NAME=zynqmp_fsbl
 
 HDL_PROJECT_NAME=base
-HDL_BOARD_NAME=minized_sbc
+HDL_BOARD_NAME=uz3eg_pciec
 
-ARCH="arm"
-SOC="zynq"
-
-PETALINUX_BOARD_FAMILY=minized
+PETALINUX_BOARD_FAMILY=uz
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_PROJECT_ROOT_NAME=${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
-KEEP_CACHE="true"
-KEEP_WORK="false"
-DEBUG="no"
+source ./rebuild_common.sh
 
-#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
-NO_BIT_OPTION='yes'
-
-source ${MAIN_SCRIPT_FOLDER}/common.sh
-
-verify_repositories
 verify_environment
-check_git_tag
-
-build_hw_platform
-create_petalinux_project
-configure_petalinux_project
 
 BOOT_METHOD='INITRD'
 BOOT_SUFFIX='_MINIMAL'
 INITRAMFS_IMAGE="avnet-image-minimal"
-configure_boot_method
-build_bsp
-
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_FULL'
-INITRAMFS_IMAGE="avnet-image-full"
 configure_boot_method
 build_bsp
 
@@ -97,4 +71,3 @@ unset INITRAMFS_IMAGE
 configure_boot_method
 build_bsp
 
-package_bsp

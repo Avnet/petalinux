@@ -32,21 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Sept 29, 2020
-#  Design Name:         Avnet Picozed PetaLinux BSP Generator
-#  Module Name:         make_pz7015_fmc2.sh
-#  Project Name:        Avnet Picozed PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Picozed pz7015 Eval Board with FMC2
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for Picozed pz7015 PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Sept 29, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Create Date:         Sep 29, 2020
+#  Design Name:         PicoZed Base BSP
+#  Module Name:         make_pz7015_fmc2_base.sh
+#  Project Name:        PicoZed Base BSP
+#  Target Devices:      Xilinx Zynq-7015
+#  Hardware Boards:     PicoZed SOM + FMC2 Carrier
 #
 # ----------------------------------------------------------------------------
 
@@ -68,7 +59,7 @@ SOC="zynq"
 
 PETALINUX_BOARD_FAMILY=pz
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"

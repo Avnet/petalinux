@@ -32,21 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 19, 2020
-#  Design Name:         Avnet UZ7EV_EVCC PetaLinux BSP Generator
-#  Module Name:         make_uz7ev_evcc.sh
-#  Project Name:        Avnet UZ7EV_EVCC PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     UZ7EV_EVCC Board
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for UZ7EV_EVCC PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Aug 19, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Create Date:         Aug 19, 2020
+#  Design Name:         UltraZed-EV Base BSP
+#  Module Name:         make_uz7ev_evcc_base.sh
+#  Project Name:        UltraZed-EV Base BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 7EV
+#  Hardware Boards:     UltraZed-EV SOM + EV Carrier
 #
 # ----------------------------------------------------------------------------
 
@@ -68,7 +59,7 @@ SOC="zynqMP"
 
 PETALINUX_BOARD_FAMILY=uz
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"

@@ -32,20 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Sept 15, 2020
-#  Design Name:         Avnet Microzed PetaLinux BSP Generator
-#  Module Name:         make_mz7020_fmcc.sh
-#  Project Name:        Avnet Microzed PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Microzed mz7020 Eval Board with or without FMCC
-#
-#  Tool versions:       Xilinx Vivado 2020.1
-#
-#  Description:         Build Script for Microzed mz7020 PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Sept 15, 2020: 1.00 Initial version
+#  Create Date:         Sep 15, 2020
+#  Design Name:         MicroZed Base BSP
+#  Module Name:         make_mz7020_som_base.sh
+#  Project Name:        MicroZed Base BSP
+#  Target Devices:      Xilinx Zynq-7020
+#  Hardware Boards:     MicroZed SOM
 #
 # ----------------------------------------------------------------------------
 
@@ -67,7 +59,7 @@ SOC="zynq"
 
 PETALINUX_BOARD_FAMILY=mz
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"

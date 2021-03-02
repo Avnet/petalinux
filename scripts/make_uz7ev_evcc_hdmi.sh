@@ -32,20 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Jan. 20, 2021
-#  Design Name:         Avnet UZ7EV_EVCC_HDMI PetaLinux BSP Generator
+#  Create Date:         Jan 20, 2021
+#  Design Name:         UltraZed-EV HDMI BSP
 #  Module Name:         make_uz7ev_evcc_hdmi.sh
-#  Project Name:        Avnet UZ7EV_EVCC_HDMI PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     UZ7EV_EVCC Board
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for UZ7EV_EVCC with HDMI support PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Jan. 20, 2021: 1.00 Initial version
+#  Project Name:        UltraZed-EV HDMI BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 7EV
+#  Hardware Boards:     UltraZed-EV SOM + EV Carrier
 #
 # ----------------------------------------------------------------------------
 
@@ -66,8 +58,8 @@ ARCH="aarch64"
 SOC="zynqMP"
 
 PETALINUX_BOARD_FAMILY=uz
-PETALINUX_BOARD_NAME=uz7ev_evcc_hdmi
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"

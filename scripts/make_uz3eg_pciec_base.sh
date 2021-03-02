@@ -32,21 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         August 19, 2020
-#  Design Name:         Avnet UZ3EG_PCIEC PetaLinux BSP Generator
-#  Module Name:         make_uz3eg_pciec.sh
-#  Project Name:        Avnet UZ3EG_PCIEC PetaLinux BSP Generator
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     UZ3EG_PCIEC Board
-#
-#  Tool versions:       Xilinx Vivado 2020.2
-#
-#  Description:         Build Script for UZ3EG_PCIEC PetaLinux BSP HW Platform
-#
-#  Dependencies:        Common Script 'common.sh'
-#
-#  Revision:            Aug 19, 2020: 1.00 Initial version
-#                       Jan 20, 2021: update to 2020.2
+#  Create Date:         Aug 19, 2020
+#  Design Name:         UltraZed-EG Base BSP
+#  Module Name:         make_uz3eg_pciec_base.sh
+#  Project Name:        UltraZed-EG Base BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 3EG
+#  Hardware Boards:     UltraZed-EG SOM + PCIe Carrier
 #
 # ----------------------------------------------------------------------------
 
@@ -68,7 +59,7 @@ SOC="zynqMP"
 
 PETALINUX_BOARD_FAMILY=uz
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_PROJECT_BASE_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${HDL_PROJECT_NAME}
 PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"
