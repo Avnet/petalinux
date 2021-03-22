@@ -228,7 +228,30 @@ configure_cache_path ()
   echo "DL_DIR = \"${CACHE_DIR}/${DOWNLOAD_CACHE}\"" >> ${CONF_FILE}
   echo "SSTATE_DIR = \"${CACHE_DIR}/${SSTATE_CACHE}\"" >> ${CONF_FILE}
 
+  # Set the CONFIG_PRE_MIRROR_URL and CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL settings to the local cahce path
   bash ${PETALINUX_CONFIGS_FOLDER}/project/config.cache.sh $ARCH $CACHE_DIR
+}
+
+unconfigure_cache_path ()
+{
+  CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/petalinuxbsp.conf
+  CACHE_DIR=${PETALINUX_PROJECTS_FOLDER}/cache
+
+  # Comment out the local cache paths at the end of ${CONF_FILE}
+  # to make it easier for users to rebuild this BSP
+
+  echo -e "\nUn-setting cache (sstate and download) path ($CACHE_DIR) ...\n"
+
+  sed -i "/PREMIRRORS/d" ${CONF_FILE}
+  sed -i "/ftp:/d" ${CONF_FILE}
+  sed -i "/http:/d" ${CONF_FILE}
+  sed -i "/https:/d" ${CONF_FILE}
+
+  sed -i 's/\(DL_DIR\)/#\1/'  ${CONF_FILE}
+  sed -i 's/\(SSTATE_DIR\)/#\1/'  ${CONF_FILE}
+  
+  # Reset the CONFIG_PRE_MIRROR_URL and CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL settings to their defaults
+  bash ${PETALINUX_CONFIGS_FOLDER}/project/unconfig.cache.sh
 }
 
 do_not_rm_work ()
@@ -415,6 +438,11 @@ package_bsp ()
     generate_loadable_bitstream
   fi
 
+  if [ "$KEEP_CACHE" = "true" ]
+  then
+    unconfigure_cache_path
+  fi
+
   # Package the bitstream within the PetaLinux pre-built folder.
   petalinux-package --prebuilt --fpga ./images/linux/system.bit --force
 
@@ -454,6 +482,15 @@ package_bsp ()
     cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh pre-built/linux/images/.
     cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh .
     cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh pre-built/linux/images/.
+  fi
+
+  # Copy all boot method config scripts to the project folder and pre-built images folder.
+  if [ -d ${PETALINUX_CONFIGS_FOLDER}/project/ ] && [ "$(ls -A ${PETALINUX_CONFIGS_FOLDER}/project/)" ];
+  then
+    cp ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.EXT4.sh .
+    cp ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.EXT4.sh pre-built/linux/images/.
+    cp ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.INITRD.sh .
+    cp ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.INITRD.sh pre-built/linux/images/.
   fi
 
   # Change to PetaLinux project folder.
