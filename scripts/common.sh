@@ -265,24 +265,6 @@ do_not_rm_work ()
   sed -i 's/\(INHERIT += "rm_work"\)/#\1/' ${CONF_FILE}
 }
 
-modify_initramfs_image ()
-{
-  # This function will modify the INITRAMFS_IMAGE in meta-user/conf/petalinuxbsp.conf
-  # This needs to be done manually, because petalinux-config does not expose this option
-  # If the BSP should not generate an INITRAMFS or INITRD image, this value has to be removed
-
-  CONF_FILE=${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/project-spec/meta-user/conf/petalinuxbsp.conf
-
-  # remove the line
-  sed -i "/INITRAMFS_IMAGE = /d" ${CONF_FILE}
-
-  if [ ${INITRAMFS_IMAGE} ];
-  then
-      echo -e "\nSetting '${INITRAMFS_IMAGE}' as INITRAMFS_IMAGE in petalinuxbsp.conf ...\n"
-      echo -e "INITRAMFS_IMAGE = \"${INITRAMFS_IMAGE}\"" >> ${CONF_FILE}
-  fi
-}
-
 create_petalinux_project ()
 {
   # This function is responsible for creating a PetaLinux project import
@@ -376,11 +358,9 @@ configure_boot_method ()
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY}
+  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
 
   petalinux-config --silentconfig
-
-  modify_initramfs_image
 }
 
 build_bsp ()

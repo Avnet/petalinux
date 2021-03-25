@@ -6,8 +6,11 @@ ROOTFS_CONFIG_FILE=project-spec/configs/rootfs_config
 
 PETALINUX_BOARD_NAME=$1
 PETALINUX_BOARD_FAMILY=$2
+INITRAMFS_IMAGE=$3
 
+${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_EXT4 -u
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_INITRD
+${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_INITRAMFS_IMAGE_NAME -v "\"${INITRAMFS_IMAGE}\""
 
 # Remove the dropbear package group from the rootfs.  This conflicts with 
 # openssh, which is needed for greater throughput
