@@ -26,6 +26,9 @@ then
 elif [ "$PETALINUX_BOARD_PROJECT" == "quadcam_h" ];
 then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_MACHINE_NAME -v "\"uz7ev-evcc-quadcam-h\""
+elif [ "$PETALINUX_BOARD_PROJECT" == "quadcam_h_v" ];
+then
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_MACHINE_NAME -v "\"uz7ev-evcc-quadcam-h-v\""
 else
     echo "***WARNING: Unknown board_project name ('$PETALINUX_BOARD_PROJECT'): setting YOCTO_MACHINE_NAME to generic '$BASE_YOCTO_MACHINE'***"
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_MACHINE_NAME -v "\"$BASE_YOCTO_MACHINE\""
