@@ -70,35 +70,16 @@ verify_environment ()
   PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
 }
 
-modify_initramfs_image ()
-{
-  # This function will modify the INITRAMFS_IMAGE in meta-user/conf/petalinuxbsp.conf
-  # This needs to be done manually, because petalinux-config does not expose this option
-  # If the BSP should not generate an INITRAMFS or INITRD image, this value has to be removed
-
-  CONF_FILE=./project-spec/meta-user/conf/petalinuxbsp.conf
-
-  # remove the line
-  sed -i "/INITRAMFS_IMAGE = /d" ${CONF_FILE}
-
-  if [ ${INITRAMFS_IMAGE} ];
-  then
-      echo -e "\nSetting '${INITRAMFS_IMAGE}' as INITRAMFS_IMAGE in petalinuxbsp.conf ...\n"
-      echo -e "INITRAMFS_IMAGE = \"${INITRAMFS_IMAGE}\"" >> ${CONF_FILE}
-  fi
-}
-
 configure_boot_method ()
 {
 
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ./config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY}
+  bash ./config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
 
   petalinux-config --silentconfig
 
-  modify_initramfs_image
 }
 
 build_bsp ()

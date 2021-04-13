@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the MicroZed community support forum:
-#     http://avnet.me/microzed_forum
+#  Please direct any questions to the PicoZed community support forum:
+#     http://avnet.me/picozed_forum
 #
 #  Product information is available at:
-#     http://avnet.me/microzed
+#     http://avnet.me/picozed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -31,37 +31,39 @@
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
+#!/bin/bash
 
-# You can run 'xsdb boot_jtag_dhcp_INITRD.tcl' to execute"
+# This script will boot u-boot using JTAG and then boot the OS image
+# using TFTP over the user's LAN
 
-connect
-puts stderr "INFO: Configuring the FPGA..."
-puts stderr "INFO: Downloading bitstream: ./pre-built/linux/implementation/download.bit to the target."
-fpga "./pre-built/linux/implementation/download.bit"
-after 2000
-targets -set -nocase -filter {name =~ "arm*#0"}
+# Stop the script whenever we had an error (non-zero returning function)
+set -e
 
-source ./project-spec/hw-description/ps7_init.tcl; ps7_post_config
-catch {stop}
-set mctrlval [string trim [lindex [split [mrd 0xF8007080] :] 1]]
-puts "mctrlval=$mctrlval"
-puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/zynq_fsbl.elf to the target."
-dow  "./pre-built/linux/images/zynq_fsbl.elf"
-after 2000
-con
-after 3000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
-dow  "./pre-built/linux/images/u-boot.elf"
-after 2000
-con; after 1000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
-dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
-after 2000
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Loading image: ./avnet_jtag_tftp_dhcp.scr at 0x3000000"
-dow -data  "./avnet_jtag_tftp_dhcp.scr" 0x3000000
-after 2000
-con
-exit
+PROJECT_FOLDER=$(basename $PWD)
+
+if [ -z "$1" ]
+  then
+    echo "No argument supplied.  Command options are 'FULL' or 'MINIMAL'"
+    exit 1
+  else
+    # IMAGE can be FULL or MINIMAL
+    IMAGE=$1
+fi
+
+# Set the SERVER_IP to the IP address of this PC
+SERVER_IP=$(hostname -I)
+FIT_IMAGE=image_INITRD_$IMAGE.ub
+
+if [ ! -f $FIT_IMAGE ]
+  then
+    echo "ERROR: Can't find $FIT_IMAGE file inside folder '$PROJECT_FOLDER'"
+    exit 1
+  else
+    echo "Copy OS image $FIT_IMAGE to /tftpboot as image.ub"
+    cp $FIT_IMAGE /tftpboot/image.ub
+fi
+
+sh create_dhcp_boot_scr.sh $SERVER_IP
+
+xsdb boot_jtag_tftp_dhcp_INITRD.tcl
+

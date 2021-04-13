@@ -31,37 +31,14 @@
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
+#!/bin/bash
 
-# You can run 'xsdb boot_jtag_dhcp_INITRD.tcl' to execute"
+# This script will generate a BOOT.BIN file and program the qspi
+# This BOOT.BIN file will contain uboot, a kernel with INITRD and a boot.scr
 
-connect
-puts stderr "INFO: Configuring the FPGA..."
-puts stderr "INFO: Downloading bitstream: ./pre-built/linux/implementation/download.bit to the target."
-fpga "./pre-built/linux/implementation/download.bit"
-after 2000
-targets -set -nocase -filter {name =~ "arm*#0"}
+# Stop the script whenever we had an error (non-zero returning function)
+set -e
 
-source ./project-spec/hw-description/ps7_init.tcl; ps7_post_config
-catch {stop}
-set mctrlval [string trim [lindex [split [mrd 0xF8007080] :] 1]]
-puts "mctrlval=$mctrlval"
-puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/zynq_fsbl.elf to the target."
-dow  "./pre-built/linux/images/zynq_fsbl.elf"
-after 2000
-con
-after 3000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
-dow  "./pre-built/linux/images/u-boot.elf"
-after 2000
-con; after 1000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
-dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
-after 2000
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Loading image: ./avnet_jtag_tftp_dhcp.scr at 0x3000000"
-dow -data  "./avnet_jtag_tftp_dhcp.scr" 0x3000000
-after 2000
-con
-exit
+petalinux-package --boot --fsbl ./images/linux/zynq_fsbl.elf --fpga ./images/linux/system.bit --uboot --kernel ./image_INITRD_MINIMAL.ub -o BOOT_LINUX_QSPI.BIN --force --boot-device flash --add ./images/linux/avnet-boot/avnet_qspi.scr --offset 0xFC0000
+
+program_flash -f ./BOOT_LINUX_QSPI.BIN -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/zynq_fsbl.elf

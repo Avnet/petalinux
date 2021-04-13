@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
-#
+#  Please direct any questions to the MiniZed community support forum:
+#     http://avnet.me/minized_forum
+# 
 #  Product information is available at:
-#     http://www.ultrazed.org/product/minized
+#     http://avnet.me/minized
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -27,25 +27,8 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
-#
-# ----------------------------------------------------------------------------
-#
-#  Create Date:         August 31, 2020
-#  Design Name:         Avnet Minized PetaLinux
-#  Module Name:         booy_jtag_INITRD_MINIMAL.tcl
-#  Project Name:        Avnet Minized PetaLinux
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Minized Eval Board
-#
-#  Tool versions:       Xilinx Vivado 2020.1
-#
-#  Description:         Boot Script for Minized, to boot a minimal initrd image from jtag
-#
-#  Dependencies:        None
-#
-#  Revision:            Aug 31, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 

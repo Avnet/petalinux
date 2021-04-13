@@ -1,4 +1,4 @@
-Generate the bsp (with script make_mz....sh) and navigate into the newly-created project.
+Generate the bsp (with script make_pz....sh) and navigate into the newly-created project.
 
 BOOT METHODS:
 
@@ -6,7 +6,8 @@ BOOT METHODS:
 
     Connect the external JTAG cable.
     Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
-    Run 'xsdb boot_jtag_INITRD_MINIMAL.tcl' to load the bitstream, the bootloaders, and kernel with a minimal INITRD.
+    Run 'xsdb boot_jtag_INITRD_MINIMAL.tcl' to load the FSBL, bitstream, u-boot, 
+    and kernel with INITRD.
 
 2- Boot from JTAG + tftp (u-boot, kernel & INITRD):
 
@@ -15,47 +16,55 @@ BOOT METHODS:
         Connect the external JTAG cable.
         Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
 
-        Copy image_INITRD_FULL.ub (or image_INITRD_MINIMAL.ub) in /tftpboot folder as image.ub.
+        Copy image_INITRD_MINIMAL.ub to /tftpboot folder as image.ub.
 
         Connect the board and your computer with an Ethernet cable.
         Setup your computer's IP address to 192.168.1.2.
 
-        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the FSBL, bitstream, and u-boot.
+        Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
 
     method b: DHCP
 
         Connect the external JTAG cable.
         Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
-
-        Copy image_INITRD_FULL.ub (or image_INITRD_MINIMAL.ub) in /tftpboot folder as image.ub.
-
         Connect the board to your network with an Ethernet cable.
 
-        Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' with TFTP_SERVER_IP your tftp server ip (likely the IP of your computer)
-            -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+        Run 'sh boot_jtag_tftp_dhcp_INITRD.sh <FULL | MINIMAL>' shell script to perform the following commands:
+            1. Copy image_INITRD_$IMAGE.ub to /tftpboot folder as image.ub.
 
-        Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+            2. Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' 
+               where TFTP_SERVER_IP is the IP address of your tftp server ($ hostname -I)
+               -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+
+            3. Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the FSBL, bitstream, and u-boot. 
+               Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
 
 3- Boot from SD (u-boot, kernel & INITRD):
 
     Prepare an SD card with a FAT partition.
 
-    Copy ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN), ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
+    Copy the following files to the root folder of the FAT partition:
+        ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN)
+        ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) 
+        ./images/linux/boot.scr 
 
     Position the BOOT switch SW1 on the board to the SD mode (HIGH-HIGH).
 
 4- Boot from SD (u-boot, kernel & Ext4 rootfs):
 
-    Write 'rootfs.wic' on an sd card with command : sudo dd if=./rootfs.wic of=/dev/mmcblk0
+    Write 'rootfs.wic' on an sd card with command : 
+    $ sudo dd if=./rootfs.wic of=/dev/mmcblk0
 
-    Then you can resize the 2nd partition (ext4) to fill the SD card with gparted or parted & resize2fs.
+    Then you can resize the 2nd partition (ext4) to fill the SD card with gparted or 
+    parted & resize2fs.
 
     Position the BOOT switch SW1 on the board to the SD mode (HIGH-HIGH).
 
 5- Boot from QSPI (u-boot, kernel & minimal INITRD):
 
     Position the BOOT switch SW1 on the board to the JTAG mode (LOW-LOW).
-    sh boot_qspi_INITRD.sh
+    sh boot_qspi_INITRD_MINIMAL.sh
 
     Position the BOOT switch SW1 on the board to the QSPI mode (LOW-HIGH).
     Restart the board, and Linux should boot from qspi.
@@ -65,14 +74,19 @@ BOOT METHODS:
     *** Fetching files from USB while in u-boot doesn't always work ***
     (Remove the sd card from the board)
 
-    Copy 'image_INITRD_FULL.ub', 'images/linux/avnet-boot/avnet_mmc.scr' and 'images/linux/avnet-boot/avnet_prog_emmc.scr' in the root folder of an USB stick.
+    Copy the following files to the root folder of a USB Flash drive:
+        'image_INITRD_FULL.ub'
+        'images/linux/avnet-boot/avnet_mmc.scr'
+        'images/linux/avnet-boot/avnet_prog_emmc.scr'
 
     Insert the USB stick on the Picozed.
 
-    Boot from method 5, but when u-boot starts, stop it by hitting any key.
-
+    Boot from QSPI (method 5), but when u-boot starts, stop it by hitting any key.
+    
     In u-boot console, type the following commands:
-        usb start && fatload usb 0:1 $scriptaddr avnet_prog_emmc.scr
+        usb reset
+        usb start 
+        fatload usb 0:1 $scriptaddr avnet_prog_emmc.scr
         source $scriptaddr
 
     Reboot the board, and let u-boot automatically load the kernel on the EMMC.
@@ -85,8 +99,8 @@ BOOT METHODS:
 
     Copy 'rootfs.wic' in the root folder of an sd card.
 
-    Boot from method 5
-
+    Boot from QSPI (method 5)
+    
     Insert the sd card on the Picozed.
 
     In Linux, execute these commands:
@@ -100,45 +114,13 @@ BOOT METHODS:
         e2fsck -f /dev/mmcblk1p2
         resize2fs /dev/mmcblk1p2
 
-        flash_erase /dev/mtd2 0 0      -> used to remove the boot script on the qspi, so that u-boot will look for a boot scrip on the emmc
-
+        flash_erase /dev/mtd2 0 0 -> used to remove the boot script on the qspi, so that u-boot 
+        will look for a boot script on the emmc
 
         umount /dev/mmcblk0*
         Remove the sd card from the board
 
     Reboot the board, and let u-boot automatically load the kernel from the EMMC.
-
-8- Boot from QSPI (u-boot + kernel) and EMMC (Ext4 rootfs):
-
-    (Remove the sd card from the board)
-
-    Copy 'rootfs.wic' in the root folder of an sd card.
-
-    Boot from method 5
-
-    Insert the sd card on the Picozed.
-
-    In Linux, execute these commands:
-
-        umount /dev/mmcblk1*
-        dd if=/media/sd-mmcblk0p1/rootfs.wic of=/dev/mmcblk1
-
-        umount /dev/mmcblk1*
-        parted /dev/mmcblk1 resizepart 2 100%
-        umount /dev/mmcblk1*
-        e2fsck -f /dev/mmcblk1p2
-        resize2fs /dev/mmcblk1p2
-
-        # remove kernel INITRD from qspi, and install new kernel
-        flash_erase /dev/mtd1 0 0
-        mount /dev/mmcblk1p1 /media/sd-mmcblk1p1
-        flashcp /media/sd-mmcblk1p1/image.ub /dev/mtd1
-
-        umount /dev/mmcblk0*
-        Remove the sd card from the board
-
-    Reboot the board, and let u-boot automatically load the kernel from the QSPI.
-
 
 
 Note1: if your emmc does not have a partition table follow these steps:
@@ -148,7 +130,9 @@ Note1: if your emmc does not have a partition table follow these steps:
     - mkfs.vfat /dev/mmcblk1p1
 
 
-Note2: once the emmc is partitionned using the rootfs.wic, the boot part (#1) will be too small to host a full kernel and initrd. So, after you have done boot method 7 or 8, you will have to do the following to be able to boot from method 6 again:
+Note2: once the emmc is partitioned using the rootfs.wic, the boot part (#1) will be too small 
+to host a full kernel and initrd. So, after you have done boot method 7, you will have to 
+do the following to be able to boot from method 6 again:
 
     - boot a linux from jtag (method 1)
     - execute these commands:

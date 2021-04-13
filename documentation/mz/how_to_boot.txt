@@ -2,61 +2,77 @@ Generate the bsp (with script make_mz....sh) and navigate into the newly-created
 
 BOOT METHODS:
 
-1- Boot from JTAG
+1- Boot from JTAG(u-boot, kernel & minimal INITRD):
 
     Connect the external JTAG cable.
     Position the BOOT Jumpers on the board to the JTAG mode (JP3, JP2 and JP1 to position 1-2).
-    Run 'xsdb boot_jtag_INITRD.tcl' to load the bitstream, the bootloaders, a kernel with INITRD.
+    Run 'xsdb boot_jtag_INITRD_MINIMAL.tcl' to load the FSBL, bitstream, u-boot, 
+    and kernel with INITRD.
 
 2- Boot from JTAG + tftp
 
     method a: static IP
 
         Connect the external JTAG cable.
-        Position the BOOT Jumpers on the board to the JTAG mode (JP3, JP2 and JP1 to position 1-2).
+        Position the BOOT Jumpers on the board to the JTAG mode:
+        (JP3, JP2 and JP1 to position 1-2)
 
-        Copy image_INITRD.ub in /tftpboot folder as image.ub.
+        Copy image_INITRD_MINIMAL.ub in /tftpboot folder as image.ub.
 
         Connect the board and your computer with an Ethernet cable.
         Setup your computer's IP address to 192.168.1.2.
 
-        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
+        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the FSBL, bitstream, and u-boot. 
+        Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
 
     method b: DHCP
 
         Connect the external JTAG cable.
-        Position the BOOT Jumpers on the board to the JTAG mode (JP3, JP2 and JP1 to position 1-2).
-
-        Copy image_INITRD.ub in /tftpboot folder as image.ub.
-
+        Position the BOOT Jumpers on the board to the JTAG mode:
+        (JP3, JP2 and JP1 to position 1-2)
         Connect the board to your network with an Ethernet cable.
 
-        Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' with TFTP_SERVER_IP your tftp server ip (likely the IP of your computer)
-            -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+        Run 'sh boot_jtag_tftp_dhcp_INITRD.sh <FULL | MINIMAL>' shell script to perform the following commands:
+            1. Copy image_INITRD_$IMAGE.ub to /tftpboot folder as image.ub.
 
-        Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+            2. Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' 
+               where TFTP_SERVER_IP is the IP address of your tftp server ($ hostname -I)
+               -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
 
-3- Boot from QSPI (u-boot, kernel & INITRD):
+            3. Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the FSBL, bitstream, and u-boot. 
+               Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+
+3- Boot from SD (u-boot, kernel & INITRD):
+
+    Prepare an SD card with a FAT partition.  
+    
+    Copy the following files to the root folder of the FAT partition:
+        ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN)
+        ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) 
+        ./images/linux/boot.scr 
+
+    Position the BOOT Jumpers on the board to the SD mode:
+    (JP3 and JP2 to position 2-3, JP1 to position 1-2)
+
+4- Boot from SD (u-boot, kernel & Ext4 rootfs):
+
+    Write 'rootfs.wic' on an sd card with command : 
+    $ sudo dd if=./rootfs.wic of=/dev/mmcblk0
+
+    Then you can resize the 2nd partition (ext4) to fill the SD card with 
+    gparted or parted & resize2fs.
+
+    Position the BOOT Jumpers on the board to the SD mode:
+    (JP3 and JP2 to position 2-3, JP1 to position 1-2)  
+
+5- Boot from QSPI (u-boot, kernel & INITRD):
 
     Connect the external JTAG cable.
-    Position the BOOT Jumpers on the board to the JTAG mode (JP3, JP2 and JP1 to position 1-2)
-    sh boot_qspi_INITRD.sh
+    Position the BOOT Jumpers on the board to the JTAG mode:
+    (JP3, JP2 and JP1 to position 1-2)
+    sh boot_qspi_INITRD_MINIMAL.sh
 
-    Position the BOOT Jumpers on the board to the QSPI mode (JP3 to position 2-3, JP2 and JP1 to position 1-2)
+    Position the BOOT Jumpers on the board to the QSPI mode:
+    (JP3 to position 2-3, JP2 and JP1 to position 1-2)
     Restart the board, and Linux should boot from qspi.
 
-4- Boot from SD (u-boot, kernel & INITRD):
-
-    Prepare an SD card with a FAT partition.
-
-    Copy ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN), ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
-
-    Position the BOOT Jumpers on the board to the SD mode (JP3 and JP2 to position 2-3, JP1 to position 1-2)
-
-5- Boot from SD (u-boot, kernel & Ext4 rootfs):
-
-    Write 'rootfs.wic' on an sd card with command : sudo dd if=./rootfs.wic of=/dev/mmcblk0
-
-    Then you can resize the 2nd partition (ext4) to fill the SD card with gparted or parted & resize2fs.
-
-    Position the BOOT Jumpers on the board to the SD mode (JP3 and JP2 to position 2-3, JP1 to position 1-2)  

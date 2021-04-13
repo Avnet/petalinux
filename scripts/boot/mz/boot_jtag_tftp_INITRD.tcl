@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
+#  Please direct any questions to the MicroZed community support forum:
+#     http://avnet.me/microzed_forum
 #
 #  Product information is available at:
-#     http://www.ultrazed.org/product/microzed
+#     http://avnet.me/microzed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -27,25 +27,8 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
-#
-# ----------------------------------------------------------------------------
-#
-#  Create Date:         Sept. 14, 2020
-#  Design Name:         Avnet Microzed PetaLinux
-#  Module Name:         booy_jtag_tftp_INITRD.tcl
-#  Project Name:        Avnet Microzed PetaLinux
-#  Target Devices:      Xilinx Zynq
-#  Hardware Boards:     Microzed Eval Board
-#
-#  Tool versions:       Xilinx Vivado 2020.1
-#
-#  Description:         Boot Script for Microzed, to boot a initrd image from jtag + tftp
-#
-#  Dependencies:        None
-#
-#  Revision:            Sept 14, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 

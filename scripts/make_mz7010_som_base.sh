@@ -32,7 +32,7 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Sep 10, 2020
+#  Create Date:         Sep 15, 2020
 #  Design Name:         MicroZed Base BSP
 #  Module Name:         make_mz7010_som_base.sh
 #  Project Name:        MicroZed Base BSP
