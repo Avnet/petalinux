@@ -73,7 +73,8 @@ DEBUG="no"
 NO_BIT_OPTION='yes'
 
 META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-META_ON_SEMI_BRANCH="master"
+#META_ON_SEMI_BRANCH="master"
+META_ON_SEMI_BRANCH="u96v2_sbc_dualcam_without_osd"
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
