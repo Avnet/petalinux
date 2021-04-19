@@ -37,7 +37,7 @@ if [ "$PETALINUX_BOARD_NAME" == "minized_sbc" ];
 then
     # make the emmc the default boot dev - SD1
     # Minized does not have sd card
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk1p2\""
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
 
     # set rootfs formats (add ext4, ext4.gz, and wic)
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"cpio cpio.gz cpio.gz.u-boot tar.gz jffs2 ext4 ext4.gz wic\""
