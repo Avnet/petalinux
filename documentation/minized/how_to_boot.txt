@@ -3,7 +3,9 @@ Generate the bsp (with script make_minized....sh) and navigate into the newly-cr
 BOOT METHODS:
 
 1- Boot from JTAG (u-boot, kernel & minimal INITRD):
+    
     Position the BOOT Switch on the board to "J" (jtag).
+    
     Run 'xsdb boot_jtag_INITRD_MINIMAL.tcl' to load the FSBL, bitstream, u-boot, 
     and kernel with INITRD.
     

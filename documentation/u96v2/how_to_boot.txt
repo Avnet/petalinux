@@ -2,23 +2,25 @@ Generate the bsp (with script make_ultra96v2.sh) and navigate into the newly-cre
 
 BOOT METHODS:
 
-1- Boot from JTAG
-    Position the BOOT Switch SW3 on the board to "JTAG" mode.
-    Run 'xsdb boot_jtag_INITRD.tcl' to load the bitstream, the bootloaders, a kernel with a minimal INITRD.
-
-2- Boot from SD card (u-boot, minimal kernel & INITRD):
+1- Boot from SD card (u-boot, minimal kernel & INITRD):
 
     Prepare an SD card with a FAT partition.
 
-    Copy ./BOOT_INITRD.BIN (as BOOT.BIN), ./image_INITRD.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
+    Copy the following files to the root folder of the FAT partition:
+        ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN)
+        ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) 
+        ./images/linux/boot.scr 
 
     Position the BOOT Switch SW3 on the board to "SD" mode.
 
-3- Boot from SD card (u-boot, kernel & EXT4 rootfs):
+2- Boot from SD card (u-boot, kernel & EXT4 rootfs):
 
     Prepare an SD card with a FAT partition and an EXT4 partition.
 
-    Copy ./BOOT_EXT4.BIN (as BOOT.BIN), ./image_EXT4.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the 1st partition (FAT).
+    Copy the following files to the root folder of the FAT partition:
+        ./BOOT_EXT4.BIN (as BOOT.BIN)
+        ./image_EXT4.ub (as image.ub) 
+        ./images/linux/boot.scr 
 
     Extract the rootfs inside the 2nd partition (EXT4)
     For example:

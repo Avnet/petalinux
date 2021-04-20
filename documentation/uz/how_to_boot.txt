@@ -2,51 +2,66 @@ Generate the bsp (with script make_uz....sh) and navigate into the newly-created
 
 BOOT METHODS:
 
-1- Boot from JTAG + tftp
+1- Boot from JTAG + tftp (u-boot, kernel & INITRD):
 
     method a: static IP
 
-        Position the BOOT Switch SW2 on the board to "JTAG" mode.
+        Connect the external JTAG cable.
+        
+        Position the BOOT Switch SW2 on the board to "JTAG" mode (SW[1:4] ON,ON,ON,ON).
 
-        Copy image_INITRD.ub in /tftpboot folder as image.ub.
+        Copy image_INITRD_MINIMAL.ub to /tftpboot folder as image.ub.
 
         Connect the board and your computer with an Ethernet cable.
         Setup your computer's IP address to 192.168.1.2.
 
-        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
+        Run 'xsdb boot_jtag_tftp_INITRD.tcl' to load the FSBL, bitstream, and u-boot.
+        Then u-boot will use TFTP to load the kernel (with minimal INITRD) from your computer.
 
     method b: DHCP
 
-        Position the BOOT Switch SW2 on the board to "JTAG" mode.
+        Connect the external JTAG cable.
 
-        Copy image_INITRD.ub in /tftpboot folder as image.ub.
+        Position the BOOT Switch SW2 on the board to "JTAG" mode (SW[1:4] ON,ON,ON,ON).
 
         Connect the board to your network with an Ethernet cable.
 
-        Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' with TFTP_SERVER_IP your tftp server ip (likely the IP of your computer)
-            -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+        Run 'sh boot_jtag_tftp_dhcp_INITRD.sh' shell script to perform the following commands:
+            1. Copy image_INITRD_MINIMAL.ub to /tftpboot folder as image.ub.
 
-        Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the bitstream, the bootloaders. Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
+            2. Run 'sh create_dhcp_boot_scr.sh' 
+               where TFTP_SERVER_IP is the IP address of your tftp server ($ hostname -I)
+               -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
+
+            3. Run 'xsdb boot_jtag_tftp_dhcp_INITRD.tcl' to load the FSBL, bitstream, and u-boot. 
+               Then u-boot will use TFTP to load the kernel (with INITRD) from your computer.
 
 2- Boot from SD card (u-boot, minimal kernel & INITRD):
 
     Prepare an SD card with a FAT partition.
 
-    Copy ./BOOT_INITRD.BIN (as BOOT.BIN), ./image_INITRD.ub (as image.ub) and ./images/linux/boot.scr on the root folder of the partition.
+    Copy the following files to the root folder of the FAT partition:
+        ./BOOT_INITRD_<FULL | MINIMAL>.BIN (as BOOT.BIN)
+        ./image_INITRD_<FULL | MINIMAL>.ub (as image.ub) 
+        ./images/linux/boot.scr 
 
-    Position the BOOT Switch SW2 on the board to "SD1" mode.
+    Position the BOOT Switch SW2 on the board to "SD1" mode (SW[1:4] OFF,ON,OFF,ON).
 
 3- Boot from SD card (u-boot, kernel & EXT4 rootfs):
 
-    Write 'rootfs.wic' on an sd card with command : sudo dd if=./rootfs.wic of=/dev/mmcblk0
+    Write 'rootfs.wic' on an sd card with command: 
+    $ sudo dd if=./rootfs.wic of=/dev/mmcblk0
 
-    Then you can resize the 2nd partition (ext4) to fill the SD card with gparted or parted & resize2fs.
+    Then you can resize the 2nd partition (ext4) to fill the SD card with gparted or 
+    parted & resize2fs.
 
-    Position the BOOT Switch SW2 on the board to "SD1" mode.
+    Position the BOOT Switch SW2 on the board to "SD1" mode (SW[1:4] OFF,ON,OFF,ON).
 
 4- Boot from eMMC FAT32 (u-boot & kernel) + eMMC EXT4 (rootfs):
 
-    Copy 'rootfs.wic' on an SD card
+    (Remove the sd card from the board)
+
+    Copy 'rootfs.wic' to the root folder of an sd card.
 
     Boot Linux from method 1 or 2.
 
@@ -64,18 +79,19 @@ BOOT METHODS:
         umount /dev/mmcblk1*
         Remove the sd card from the board
 
-    Position the BOOT Switch SW2 on the board to "EMMC" mode.
+    Position the BOOT Switch SW2 on the board to "EMMC" mode (SW[1:4] ON,OFF,OFF,ON).
 
     Reboot the board, and let u-boot automatically load the kernel on the EMMC.
 
 5- Boot from QSPI (u-boot) + eMMC FAT32 (kernel) + eMMC EXT4 (rootfs):
 
-    After having done the emmc partitioning from method 4, position the BOOT Switch SW2 on the board to "JTAG" mode.
+    After having done the emmc partitioning from method 4, position the 
+    BOOT Switch SW2 on the board to "JTAG" mode (SW[1:4] ON,ON,ON,ON).
 
     Then to install the bootloaders on the qspi, run the command:
 
         program_flash -f ./BOOT_INITRD_MINIMAL.BIN -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/zynqmp_fsbl.elf
 
-    Position the BOOT Switch SW2 on the board to "QSPI" mode.
+    Position the BOOT Switch SW2 on the board to "QSPI" mode (SW[1:4] ON,OFF,ON,ON).
 
-    Reboot the board. The board will load u-boot from the qspi and then fetch the kernel from emmc
+    Reboot the board. The board will load u-boot from the qspi and then fetch the kernel from emmc.

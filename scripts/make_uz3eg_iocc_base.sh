@@ -16,7 +16,7 @@
 #  design is not authorized without written consent from Avnet.
 #
 #  Please direct any questions to the UltraZed community support forum:
-#     http://avnet.me/uzegforum
+#     http://avnet.me/uzegforum and 
 #
 #  Product information is available at:
 #     http://avnet.me/ultrazed-eg

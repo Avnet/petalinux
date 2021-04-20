@@ -41,14 +41,7 @@ set -e
 
 PROJECT_FOLDER=$(basename $PWD)
 
-if [ -z "$1" ]
-  then
-    echo "No argument supplied.  Command options are 'FULL' or 'MINIMAL'"
-    exit 1
-  else
-    # IMAGE can be FULL or MINIMAL
-    IMAGE=$1
-fi
+IMAGE=MINIMAL
 
 # Set the SERVER_IP to the IP address of this PC
 SERVER_IP=$(hostname -I)

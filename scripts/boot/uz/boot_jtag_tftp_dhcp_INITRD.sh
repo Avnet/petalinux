@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the MicroZed community support forum:
-#     http://avnet.me/microzed_forum
+#  Please direct any questions to the UltraZed community support forum:
+#     http://avnet.me/uzegforum and http://avnet.me/uzevforum
 #
 #  Product information is available at:
-#     http://avnet.me/microzed
+#     http://avnet.me/ultrazed-eg and http://avnet.me/ultrazed-ev
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
