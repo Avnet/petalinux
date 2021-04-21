@@ -16,10 +16,10 @@
 #  design is not authorized without written consent from Avnet.
 #
 #  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
+#     http://avnet.me/uzegforum and http://avnet.me/uzevforum
 #
 #  Product information is available at:
-#     http://www.ultrazed.org/product/ultrazed
+#     http://avnet.me/ultrazed-eg and http://avnet.me/ultrazed-ev
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,7 +32,7 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Mar 25, 2021
+#  Create Date:         Jan 20, 2021
 #  Design Name:         UltraZed-EV HDMI (+VCU) BSP
 #  Module Name:         rebuild_uz7ev_evcc_hdmi_v.sh
 #  Project Name:        UltraZed-EV HDMI_V BSP

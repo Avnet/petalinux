@@ -16,10 +16,10 @@
 #  design is not authorized without written consent from Avnet.
 #
 #  Please direct any questions to the UltraZed community support forum:
-#     http://www.ultrazed.org/forum
+#     http://avnet.me/uzegforum and http://avnet.me/uzevforum
 #
 #  Product information is available at:
-#     http://www.ultrazed.org/product/ultra96
+#     http://avnet.me/ultrazed-eg and http://avnet.me/ultrazed-ev
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -27,25 +27,8 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2017 Avnet, Inc.
+#                      Copyright(c) 2021 Avnet, Inc.
 #                              All rights reserved.
-#
-# ----------------------------------------------------------------------------
-#
-#  Create Date:         August 17, 2020
-#  Design Name:         Avnet UZ PetaLinux
-#  Module Name:         boot_jtag_INITRD.tcl
-#  Project Name:        Avnet Ultrazed PetaLinux
-#  Target Devices:      Xilinx Zynq Ultrascale MPSoC
-#  Hardware Boards:     Ultrazed Boards
-#
-#  Tool versions:       Xilinx Vivado 2020.1
-#
-#  Description:         Boot Script for Ultrazed Boards, to load uboot from jtag, and a script to tftp a linux kernel with initrd
-#
-#  Dependencies:        None
-#
-#  Revision:            Aug 17, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 

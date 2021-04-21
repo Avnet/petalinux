@@ -38,7 +38,7 @@ BOOT METHODS:
         Run 'sh boot_jtag_tftp_dhcp_INITRD.sh' shell script to perform the following commands:
             1. Copy image_INITRD_MINIMAL.ub to /tftpboot folder as image.ub.
 
-            2. Run 'sh create_dhcp_boot_scr.sh TFTP_SERVER_IP' 
+            2. Run 'sh create_dhcp_boot_scr.sh $TFTP_SERVER_IP' 
                where TFTP_SERVER_IP is the IP address of your tftp server ($ hostname -I)
                -> for example: 'sh create_dhcp_boot_scr.sh 192.168.0.125'
 
