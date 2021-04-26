@@ -62,10 +62,10 @@ META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
 META_AVNET_BRANCH="2020.2"
 
 PAUSE_DELAY=5
-BUILD_FROM_TAG="false"
+BUILD_FROM_TAG="true"
 TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
 TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
-TAG_STRING=${TOOL_VER}_${HDL_PROJECT}_${HDL_BOARD}_${TAG_STAMP}
+TAG_STRING=${TOOL_VER}_${HDL_PROJECT}_${TAG_STAMP}
 
 verify_repositories ()
 {
