@@ -44,7 +44,7 @@ PROJECT_FOLDER=$(basename $PWD)
 IMAGE=MINIMAL
 
 # Set the SERVER_IP to the IP address of this PC
-SERVER_IP=$(hostname -I)
+TFTP_SERVER_IP=$(hostname -I)
 FIT_IMAGE=image_INITRD_$IMAGE.ub
 
 if [ ! -f $FIT_IMAGE ]
@@ -56,7 +56,7 @@ if [ ! -f $FIT_IMAGE ]
     cp $FIT_IMAGE /tftpboot/image.ub
 fi
 
-sh create_dhcp_boot_scr.sh $SERVER_IP
+sh create_dhcp_boot_scr.sh $TFTP_SERVER_IP
 
 xsdb boot_jtag_tftp_dhcp_INITRD.tcl
 
