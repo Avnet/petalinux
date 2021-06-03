@@ -73,8 +73,7 @@ DEBUG="no"
 NO_BIT_OPTION='yes'
 
 META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-#META_ON_SEMI_BRANCH="master"
-META_ON_SEMI_BRANCH="u96v2_sbc_dualcam_without_osd"
+META_ON_SEMI_BRANCH="master"
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
@@ -89,12 +88,6 @@ echo "Fetching meta-on-semi ..."
 git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
 
 configure_petalinux_project
-
-#BOOT_METHOD='INITRD'
-#BOOT_SUFFIX='_MINIMAL'
-#INITRAMFS_IMAGE="avnet-image-minimal"
-#configure_boot_method
-#build_bsp
 
 BOOT_METHOD='EXT4'
 unset BOOT_SUFFIX
