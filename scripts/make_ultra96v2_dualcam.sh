@@ -78,7 +78,7 @@ DEBUG="no"
 NO_BIT_OPTION='yes'
 
 META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-META_ON_SEMI_BRANCH="master"
+META_ON_SEMI_BRANCH="2020.1"
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
