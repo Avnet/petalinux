@@ -71,6 +71,9 @@ DEBUG="no"
 #NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
 NO_BIT_OPTION='yes'
 
+META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
+META_ON_SEMI_BRANCH="2020.2"
+
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 verify_repositories
@@ -79,13 +82,11 @@ check_git_tag
 
 build_hw_platform
 create_petalinux_project
-configure_petalinux_project
 
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_MINIMAL'
-INITRAMFS_IMAGE="avnet-image-minimal"
-configure_boot_method
-build_bsp
+echo "Fetching meta-on-semi ..."
+git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
+
+configure_petalinux_project
 
 BOOT_METHOD='EXT4'
 unset BOOT_SUFFIX
