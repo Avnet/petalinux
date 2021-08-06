@@ -32,12 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Jan 20, 2021
-#  Design Name:         UltraZed-EV HDMI BSP
-#  Module Name:         make_uz7ev_evcc_hdmi.sh
-#  Project Name:        UltraZed-EV HDMI BSP
+#  Create Date:         Aug 19, 2020
+#  Design Name:         UltraZed-EV NVME BSP
+#  Module Name:         make_uz7ev_evcc_nvme.sh
+#  Project Name:        UltraZed-EV NVME BSP
 #  Target Devices:      Xilinx Zynq UltraScale+ 7EV
-#  Hardware Boards:     UltraZed-EV SOM + EV Carrier
+#  Hardware Boards:     UltraZed-EV SOM + EV Carrier + FPGADrive FMC
 #
 # ----------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
-HDL_PROJECT_NAME=hdmi
+HDL_PROJECT_NAME=nvme
 HDL_BOARD_NAME=uz7ev_evcc
 
 ARCH="aarch64"
@@ -87,10 +87,10 @@ INITRAMFS_IMAGE="avnet-image-minimal"
 configure_boot_method
 build_bsp
 
-#~ BOOT_METHOD='EXT4'
-#~ unset BOOT_SUFFIX
-#~ unset INITRAMFS_IMAGE
-#~ configure_boot_method
-#~ build_bsp
+BOOT_METHOD='EXT4'
+unset BOOT_SUFFIX
+unset INITRAMFS_IMAGE
+configure_boot_method
+build_bsp
 
 package_bsp
