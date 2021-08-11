@@ -42,7 +42,7 @@
 # ----------------------------------------------------------------------------
 
 # Required version of the Xilinx Tools
-REQUIRED_VER=2020.2
+REQUIRED_VER=2021.1
 
 #REPOSITORIES_FOLDER is the top level folder which should contain at least the 'bdf', 'hdl' amd 'petalinux' repositories
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
@@ -59,7 +59,7 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2020.2"
+META_AVNET_BRANCH="2021.1"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
