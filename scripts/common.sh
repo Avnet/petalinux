@@ -339,6 +339,14 @@ configure_petalinux_project()
     git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
   fi
 
+  # VITIS-AI FIX: meta not included in petalinux in 2021.1 version:
+  #     https://forums.xilinx.com/t5/Embedded-Linux/Petalinux-2021-1-packagegroup-petalinux-vitisai-problem/td-p/1257091
+  if [ ${SOC} = "zynqMP" ]
+  then
+    echo -e "\nClone meta-vitis-ai layer and checkout rel-v2021.1 branch\n"
+    git clone -b rel-v2021.1 https://github.com/Xilinx/meta-vitis-ai.git  project-spec/meta-vitis-ai
+  fi
+
   if [ "$KEEP_CACHE" = "true" ]
   then
     configure_cache_path
