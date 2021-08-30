@@ -32,12 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Aug 19, 2020
+#  Create Date:         Aug 19, 2021
 #  Design Name:         UltraZed-EV NVME BSP
 #  Module Name:         make_uz7ev_evcc_nvme.sh
 #  Project Name:        UltraZed-EV NVME BSP
 #  Target Devices:      Xilinx Zynq UltraScale+ 7EV
-#  Hardware Boards:     UltraZed-EV SOM + EV Carrier + FPGADrive FMC
+#  Hardware Boards:     UltraZed-EV SOM + EV Carrier + Opsero FPGADrive FMC
 #
 # ----------------------------------------------------------------------------
 
