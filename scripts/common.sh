@@ -42,7 +42,7 @@
 # ----------------------------------------------------------------------------
 
 # Required version of the Xilinx Tools
-REQUIRED_VER=2020.2
+REQUIRED_VER=2021.1
 
 #REPOSITORIES_FOLDER is the top level folder which should contain at least the 'bdf', 'hdl' amd 'petalinux' repositories
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
@@ -59,7 +59,7 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2020.2"
+META_AVNET_BRANCH="2021.1"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
@@ -337,6 +337,14 @@ configure_petalinux_project()
 
     echo -e "\nClone meta-avnet layer and checkout ${META_AVNET_BRANCH} branch\n"
     git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
+  fi
+
+  # VITIS-AI FIX: meta not included in petalinux in 2021.1 version:
+  #     https://forums.xilinx.com/t5/Embedded-Linux/Petalinux-2021-1-packagegroup-petalinux-vitisai-problem/td-p/1257091
+  if [ ${SOC} = "zynqMP" ]
+  then
+    echo -e "\nClone meta-vitis-ai layer and checkout rel-v2021.1 branch\n"
+    git clone -b rel-v2021.1 https://github.com/Xilinx/meta-vitis-ai.git  project-spec/meta-vitis-ai
   fi
 
   if [ "$KEEP_CACHE" = "true" ]
