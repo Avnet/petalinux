@@ -51,11 +51,11 @@ after 2000
 con
 after 3000; stop
 targets -set -nocase -filter {name =~ "arm*#0"}
+puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
+dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
+after 2000
+targets -set -nocase -filter {name =~ "arm*#0"}
 puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
 dow  "./pre-built/linux/images/u-boot.elf"
 after 2000
 con; after 1000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
-dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
-after 2000
