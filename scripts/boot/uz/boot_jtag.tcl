@@ -51,6 +51,7 @@ con
 targets -set -nocase -filter {name =~ "*APU*"}
 mwr 0xffff0000 0x14000000
 mask_write 0xFD1A0104 0x501 0x0
+after 5000
 targets -set -nocase -filter {name =~ "*A53*#0"}
 
 source ./project-spec/hw-description/psu_init.tcl
@@ -59,6 +60,10 @@ dow  "./pre-built/linux/images/zynqmp_fsbl.elf"
 after 2000
 con
 after 4000; stop; catch {stop}; psu_ps_pl_isolation_removal; psu_ps_pl_reset_config
+targets -set -nocase -filter {name =~ "*A53*#0"}
+puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
+dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
+after 2000
 targets -set -nocase -filter {name =~ "*A53*#0"}
 puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
 dow  "./pre-built/linux/images/u-boot.elf"
