@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the UltraZed community support forum:
-#     http://avnet.me/uzegforum and http://avnet.me/uzevforum
+#  Please direct any questions to the PicoZed community support forum:
+#     http://avnet.me/picozed_forum
 #
 #  Product information is available at:
-#     http://avnet.me/ultrazed-eg and http://avnet.me/ultrazed-ev
+#     http://avnet.me/picozed
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -32,12 +32,30 @@
 #
 # ----------------------------------------------------------------------------
 
-# You can run 'xsdb boot_jtag_tftp_INITRD.tcl' to execute"
+# You can run 'xsdb boot_jtag.tcl' to execute"
 
-source boot_jtag.tcl
+connect
+puts stderr "INFO: Configuring the FPGA..."
+puts stderr "INFO: Downloading bitstream: ./pre-built/linux/implementation/download.bit to the target."
+fpga "./pre-built/linux/implementation/download.bit"
+after 2000
+targets -set -nocase -filter {name =~ "arm*#0"}
 
-targets -set -nocase -filter {name =~ "*A53*#0"}
-puts stderr "INFO: Loading image: ./pre-built/linux/images/avnet-boot/avnet_jtag_tftp.scr at 0x20000000"
-dow -data  "./pre-built/linux/images/avnet-boot/avnet_jtag_tftp.scr" 0x20000000
+source ./project-spec/hw-description/ps7_init.tcl; ps7_post_config
+catch {stop}
+set mctrlval [string trim [lindex [split [mrd 0xF8007080] :] 1]]
+puts "mctrlval=$mctrlval"
+puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/zynq_fsbl.elf to the target."
+dow  "./pre-built/linux/images/zynq_fsbl.elf"
 after 2000
 con
+after 3000; stop
+targets -set -nocase -filter {name =~ "arm*#0"}
+puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
+dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
+after 2000
+targets -set -nocase -filter {name =~ "arm*#0"}
+puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
+dow  "./pre-built/linux/images/u-boot.elf"
+after 2000
+con; after 1000; stop

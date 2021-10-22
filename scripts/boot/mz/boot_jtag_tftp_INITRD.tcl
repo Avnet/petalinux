@@ -34,35 +34,10 @@
 
 # You can run 'xsdb boot_jtag_INITRD.tcl' to execute"
 
-connect
-puts stderr "INFO: Configuring the FPGA..."
-puts stderr "INFO: Downloading bitstream: ./pre-built/linux/implementation/download.bit to the target."
-fpga "./pre-built/linux/implementation/download.bit"
-after 2000
-targets -set -nocase -filter {name =~ "arm*#0"}
+source boot_jtag.tcl
 
-source ./project-spec/hw-description/ps7_init.tcl; ps7_post_config
-catch {stop}
-set mctrlval [string trim [lindex [split [mrd 0xF8007080] :] 1]]
-puts "mctrlval=$mctrlval"
-puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/zynq_fsbl.elf to the target."
-dow  "./pre-built/linux/images/zynq_fsbl.elf"
-after 2000
-con
-after 3000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
-dow  "./pre-built/linux/images/u-boot.elf"
-after 2000
-con; after 1000; stop
-targets -set -nocase -filter {name =~ "arm*#0"}
-puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
-dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
-after 2000
 targets -set -nocase -filter {name =~ "arm*#0"}
 puts stderr "INFO: Loading image: ./pre-built/linux/images/avnet-boot/avnet_jtag_tftp.scr at 0x3000000"
 dow -data  "./pre-built/linux/images/avnet-boot/avnet_jtag_tftp.scr" 0x3000000
 after 2000
 con
-exit
-puts stderr "INFO: Saving XSDB commands to test.tcl. You can run 'xsdb test.tcl' to execute"

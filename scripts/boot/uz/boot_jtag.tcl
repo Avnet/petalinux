@@ -32,12 +32,43 @@
 #
 # ----------------------------------------------------------------------------
 
-# You can run 'xsdb boot_jtag_tftp_INITRD.tcl' to execute"
+# You can run 'xsdb boot_jtag.tcl' to execute"
 
-source boot_jtag.tcl
+connect
+puts stderr "INFO: Configuring the FPGA..."
+puts stderr "INFO: Downloading bitstream: ./pre-built/linux/implementation/download.bit to the target."
+fpga "./pre-built/linux/implementation/download.bit"
+after 2000
+targets -set -nocase -filter {name =~ "*PSU*"}
+mask_write 0xFFCA0038 0x1C0 0x1C0
+targets -set -nocase -filter {name =~ "*MicroBlaze PMU*"}
 
-targets -set -nocase -filter {name =~ "*A53*#0"}
-puts stderr "INFO: Loading image: ./pre-built/linux/images/avnet-boot/avnet_jtag_tftp.scr at 0x20000000"
-dow -data  "./pre-built/linux/images/avnet-boot/avnet_jtag_tftp.scr" 0x20000000
+catch {stop}; after 1000
+puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/pmufw.elf to the target."
+dow  "./pre-built/linux/images/pmufw.elf"
 after 2000
 con
+targets -set -nocase -filter {name =~ "*APU*"}
+mwr 0xffff0000 0x14000000
+mask_write 0xFD1A0104 0x501 0x0
+after 5000
+targets -set -nocase -filter {name =~ "*A53*#0"}
+
+source ./project-spec/hw-description/psu_init.tcl
+puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/zynqmp_fsbl.elf to the target."
+dow  "./pre-built/linux/images/zynqmp_fsbl.elf"
+after 2000
+con
+after 4000; stop; catch {stop}; psu_ps_pl_isolation_removal; psu_ps_pl_reset_config
+targets -set -nocase -filter {name =~ "*A53*#0"}
+puts stderr "INFO: Loading image: ./pre-built/linux/images/system.dtb at 0x00100000"
+dow -data  "./pre-built/linux/images/system.dtb" 0x00100000
+after 2000
+targets -set -nocase -filter {name =~ "*A53*#0"}
+puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/u-boot.elf to the target."
+dow  "./pre-built/linux/images/u-boot.elf"
+after 2000
+targets -set -nocase -filter {name =~ "*A53*#0"}
+puts stderr "INFO: Downloading ELF file: ./pre-built/linux/images/bl31.elf to the target."
+dow  "./pre-built/linux/images/bl31.elf"
+after 2000
