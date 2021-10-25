@@ -43,9 +43,6 @@
 
 #!/bin/bash
 
-# Stop the script whenever we had an error (non-zero returning function)
-set -e
-
 # MAIN_SCRIPT_FOLDER is the folder where this current script is
 MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
@@ -58,40 +55,17 @@ ARCH="aarch64"
 SOC="zynqMP"
 
 PETALINUX_BOARD_FAMILY=u96v2
-PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
-PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
 
-PETALINUX_BUILD_IMAGE=avnet-image-full
-
-KEEP_CACHE="true"
-KEEP_WORK="false"
-DEBUG="no"
-
-#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
-NO_BIT_OPTION='yes'
-
-META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-META_ON_SEMI_BRANCH="2021.1"
+IMAGE_TYPES="ext4"
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
-verify_repositories
-verify_environment
-check_git_tag
+post_create_petalinux_project()
+{
+    META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
+    META_ON_SEMI_BRANCH="2021.1"
+    echo "Fetching meta-on-semi ..."
+    git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
+}
 
-build_hw_platform
-create_petalinux_project
-
-echo "Fetching meta-on-semi ..."
-git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
-
-configure_petalinux_project
-
-BOOT_METHOD='EXT4'
-unset BOOT_SUFFIX
-unset INITRAMFS_IMAGE
-configure_boot_method
-build_bsp
-
-package_bsp
+make_board

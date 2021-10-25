@@ -37,9 +37,25 @@
 #  Module Name:         common.sh
 #  Project Name:        Common functions for BSP builds
 #  Target Devices:      Xilinx Zynq Ultrascale
-#  Hardware Boards:     
+#  Hardware Boards:
 #
 # ----------------------------------------------------------------------------
+
+# Stop the script whenever we had an error (non-zero returning function)
+set -e
+
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
+PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
+
+PETALINUX_BUILD_IMAGE=avnet-image-full
+
+KEEP_CACHE="true"
+KEEP_WORK="false"
+DEBUG="no"
+
+#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
+NO_BIT_OPTION='yes'
 
 # Required version of the Xilinx Tools
 REQUIRED_VER=2021.1
@@ -145,6 +161,56 @@ check_git_tag()
       exit
     fi
   fi
+}
+
+post_create_petalinux_project()
+{
+    : # provides optional board specific project setup, see make_u96v2_sbc_dualcam.sh
+}
+
+setup_project()
+{
+    verify_repositories
+    verify_environment
+    check_git_tag
+
+    build_hw_platform
+    create_petalinux_project
+    post_create_petalinux_project
+    configure_petalinux_project
+}
+
+build_image()
+{
+    imageType=$1
+    case $imageType in
+        initrd-minimal)
+            BOOT_METHOD='INITRD'
+            BOOT_SUFFIX='_MINIMAL'
+            INITRAMFS_IMAGE="avnet-image-minimal"
+            ;;
+        initrd-full)
+            BOOT_METHOD='INITRD'
+            BOOT_SUFFIX='_FULL'
+            INITRAMFS_IMAGE="avnet-image-full"
+            ;;
+        ext4)
+            BOOT_METHOD='EXT4'
+            unset BOOT_SUFFIX
+            unset INITRAMFS_IMAGE
+            ;;
+    esac
+    configure_boot_method
+    build_bsp
+}
+
+make_board()
+{
+    setup_project
+    for imageType in $IMAGE_TYPES; do
+        build_image $imageType
+    done
+    package_bsp
 }
 
 reset_git_branch()
