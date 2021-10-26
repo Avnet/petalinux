@@ -1,0 +1,4 @@
+FSBL_PROJECT_NAME=zynqmp_fsbl
+ARCH="aarch64"
+SOC="zynqMP"
+PETALINUX_BOARD_FAMILY=uz

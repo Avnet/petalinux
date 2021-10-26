@@ -35,6 +35,9 @@
 #
 # ----------------------------------------------------------------------------
 
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
+PETALINUX_BUILD_IMAGE=avnet-image-full
+
 # Required version of the Xilinx Tools
 REQUIRED_VER=2021.1
 
@@ -107,4 +110,41 @@ build_bsp ()
 
   # save wic images, if any (don't output messages if not found)
   cp images/linux/*.wic . > /dev/null  2>&1 || true
+}
+
+build_image()
+{
+    imageType=$1
+    case $imageType in
+        initrd-minimal)
+            BOOT_METHOD='INITRD'
+            BOOT_SUFFIX='_MINIMAL'
+            INITRAMFS_IMAGE="avnet-image-minimal"
+            ;;
+        initrd-full)
+            BOOT_METHOD='INITRD'
+            BOOT_SUFFIX='_FULL'
+            INITRAMFS_IMAGE="avnet-image-full"
+            ;;
+        ext4)
+            BOOT_METHOD='EXT4'
+            unset BOOT_SUFFIX
+            unset INITRAMFS_IMAGE
+            ;;
+    esac
+    configure_boot_method
+    build_bsp
+}
+
+build_images()
+{
+    for imageType in $IMAGE_TYPES; do
+        build_image $imageType
+    done
+}
+
+make_board()
+{
+    verify_environment
+    build_images
 }
