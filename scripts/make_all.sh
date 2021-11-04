@@ -50,14 +50,6 @@
 
 #!/bin/bash
 
-./make_minized_sbc.sh
-./make_mz7010_som.sh
-./make_mz7020_som.sh
-./make_pz7010_fmc2.sh
-./make_pz7015_fmc2.sh
-./make_pz7020_fmc2.sh
-./make_pz7030_fmc2.sh
-./make_u96v2_sbc.sh
-./make_uz3eg_iocc.sh
-./make_uz3eg_pciec.sh
-./make_uz7ev_evcc.sh
+for script in $(ls make* | grep -v $(basename $0)); do
+    ./$script
+done
