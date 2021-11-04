@@ -38,6 +38,8 @@
 # Required version of the Xilinx Tools
 REQUIRED_VER=2021.1
 
+CONFIGS_FOLDER=.
+
 verify_environment ()
 {
   # Check if the Xilinx tools (PETALINUX and XILINX_VIVADO) are sourced
@@ -76,7 +78,7 @@ configure_boot_method ()
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ./config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
+  bash ${CONFIGS_FOLDER}/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
 
   petalinux-config --silentconfig
 
