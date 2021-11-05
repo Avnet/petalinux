@@ -64,7 +64,7 @@ TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
 TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
 TAG_STRING=${TOOL_VER}_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${TAG_STAMP}
 
-source $MAIN_SCRIPT_FOLDER/rebuild/common/rebuild_common.sh
+source $MAIN_SCRIPT_FOLDER/build_common.sh
 CONFIGS_FOLDER=${PETALINUX_CONFIGS_FOLDER}/project
 
 verify_repositories ()
@@ -394,12 +394,18 @@ package_bsp ()
   fi
 
   # Copy rebuild scripts to the project folder and pre-built images folder.
-  if [ $PETALINUX_BOARD_FAMILY ] && [ -d ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/)" ];
+  if [ $PETALINUX_BOARD_FAMILY ];
   then
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh .
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh pre-built/linux/images/.
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh .
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh pre-built/linux/images/.
+    # rebuild is just make, but with verify_environment instead of setup_project and no package_bsp
+    REBUILD_SCRIPT=rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh
+    cp ${PETALINUX_SCRIPTS_FOLDER}/make_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh $REBUILD_SCRIPT
+    sed -i 's/setup_project/verify_environment/' $REBUILD_SCRIPT
+    sed -i '/package_bsp/d' $REBUILD_SCRIPT
+    cp $REBUILD_SCRIPT pre-built/linux/images/.
+
+    # build_common.sh has all the common build code with out the unnecessary project setup code
+    cp ${PETALINUX_SCRIPTS_FOLDER}/build_common.sh common.sh
+    cp common.sh pre-built/linux/images/.
   fi
 
   # Copy all boot method config scripts to the project folder and pre-built images folder.
