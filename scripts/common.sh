@@ -489,3 +489,20 @@ package_bsp ()
   --hwsource ${HDL_PROJECTS_FOLDER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
 }
+
+create_petalinux_project_append()
+{
+    : # provides optional board specific project setup, see make_u96v2_sbc_dualcam.sh
+}
+
+setup_project()
+{
+    verify_repositories
+    verify_environment
+    check_git_tag
+
+    build_hw_platform
+    create_petalinux_project
+    create_petalinux_project_append
+    configure_petalinux_project
+}

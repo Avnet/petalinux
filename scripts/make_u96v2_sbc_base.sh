@@ -73,13 +73,7 @@ NO_BIT_OPTION='yes'
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
-verify_repositories
-verify_environment
-check_git_tag
-
-build_hw_platform
-create_petalinux_project
-configure_petalinux_project
+setup_project
 
 BOOT_METHOD='INITRD'
 BOOT_SUFFIX='_MINIMAL'
