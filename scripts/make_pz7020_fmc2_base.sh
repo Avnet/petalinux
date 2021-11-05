@@ -75,22 +75,8 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 setup_project
 
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_MINIMAL'
-INITRAMFS_IMAGE="avnet-image-minimal"
-configure_boot_method
-build_bsp
-
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_FULL'
-INITRAMFS_IMAGE="avnet-image-full"
-configure_boot_method
-build_bsp
-
-BOOT_METHOD='EXT4'
-unset BOOT_SUFFIX
-unset INITRAMFS_IMAGE
-configure_boot_method
-build_bsp
+build_bsp 'INITRD' '_MINIMAL' "avnet-image-minimal"
+build_bsp 'INITRD' '_FULL' "avnet-image-full"
+build_bsp 'EXT4'
 
 package_bsp

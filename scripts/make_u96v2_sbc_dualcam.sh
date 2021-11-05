@@ -83,10 +83,6 @@ create_petalinux_project_append()
 
 setup_project
 
-BOOT_METHOD='EXT4'
-unset BOOT_SUFFIX
-unset INITRAMFS_IMAGE
-configure_boot_method
-build_bsp
+build_bsp 'EXT4'
 
 package_bsp

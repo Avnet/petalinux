@@ -86,6 +86,11 @@ configure_boot_method ()
 
 build_bsp ()
 {
+  BOOT_METHOD=$1
+  BOOT_SUFFIX=$2
+  INITRAMFS_IMAGE=$3
+  configure_boot_method
+
   # Build project
   echo -e "\nBuilding project...\n"
 

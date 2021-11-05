@@ -75,8 +75,6 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 setup_project
 
-BOOT_METHOD='EXT4'
-configure_boot_method
-build_bsp
+build_bsp 'EXT4'
 
 package_bsp
