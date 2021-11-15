@@ -65,7 +65,6 @@ TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
 TAG_STRING=${TOOL_VER}_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${TAG_STAMP}
 
 source $MAIN_SCRIPT_FOLDER/build_common.sh
-CONFIGS_FOLDER=${PETALINUX_CONFIGS_FOLDER}/project
 
 verify_repositories ()
 {

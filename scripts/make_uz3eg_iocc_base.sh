@@ -75,7 +75,7 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 setup_project
 
-build_bsp 'INITRD' '_MINIMAL' "avnet-image-minimal"
+build_bsp 'INITRD' '_MINIMAL' 'avnet-image-minimal'
 build_bsp 'EXT4'
 
 package_bsp
