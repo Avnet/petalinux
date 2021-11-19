@@ -404,6 +404,7 @@ package_bsp ()
 
     # build_common.sh has all the common build code with out the unnecessary project setup code
     cp ${PETALINUX_SCRIPTS_FOLDER}/build_common.sh common.sh
+    sed -i 's/${PETALINUX_CONFIGS_FOLDER}\/project/./' common.sh
     cp common.sh pre-built/linux/images/.
   fi
 
