@@ -75,6 +75,10 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 setup_project
 
-build_bsp 'INITRD' '_MINIMAL' 'avnet-image-minimal'
+BOOT_METHOD='INITRD'
+BOOT_SUFFIX='_MINIMAL'
+INITRAMFS_IMAGE='avnet-image-minimal'
+build_bsp
+
 
 package_bsp

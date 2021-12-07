@@ -75,6 +75,9 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 setup_project
 
-build_bsp 'EXT4'
+BOOT_METHOD='EXT4'
+unset BOOT_SUFFIX
+unset INITRAMFS_IMAGE
+build_bsp
 
 package_bsp
