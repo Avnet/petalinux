@@ -41,9 +41,6 @@
 #
 # ----------------------------------------------------------------------------
 
-# Required version of the Xilinx Tools
-REQUIRED_VER=2021.1
-
 #REPOSITORIES_FOLDER is the top level folder which should contain at least the 'bdf', 'hdl' amd 'petalinux' repositories
 REPOSITORIES_FOLDER=$(readlink -f $MAIN_SCRIPT_FOLDER/../..)
 
@@ -67,6 +64,8 @@ TOOL_VER=$(echo $PETALINUX_VER | sed 's/\./p/g')
 TAG_STAMP=$(cat ${PETALINUX_SCRIPTS_FOLDER}/tag_stamp.txt)
 TAG_STRING=${TOOL_VER}_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${TAG_STAMP}
 
+source $MAIN_SCRIPT_FOLDER/build_common.sh
+
 verify_repositories ()
 {
   echo -e "\nVerifying repositories ...\n"
@@ -82,38 +81,6 @@ verify_repositories ()
     echo "ERROR: can't find 'petalinux' folder inside '$REPOSITORIES_FOLDER'"
     return 1
   fi
-}
-
-verify_environment ()
-{
-  # Check if the Xilinx tools (PETALINUX and XILINX_VIVADO) are sourced
-  echo -e "\nChecking Environment (Xilinx tools sourced) ...\n"
-
-  if [ -z $XILINX_VIVADO ]
-  then
-    echo -e "ERROR: Variable 'XILINX_VIVADO' not set in environment\n" \
-             "\nPlease source the Vivado environment with: '$ source <path-to-installed-Vivado>/settings64.sh'\n" \
-             "\t(path by default is: /tools/Xilinx/Vivado/<VER>/settings64.sh)\n" \
-             "Consult Xilinx UG973 documentation to get more help.\n"
-    return 1
-  fi
-
-  if [ -z $PETALINUX ] || [ -z $PETALINUX_VER ]
-  then
-    echo -e "ERROR: Variable 'PETALINUX' or 'PETALINUX_VER' not set in environment\n" \
-             "\nPlease source the Vivado environment with: '$ source <path-to-installed-PetaLinux>/settings.sh'\n" \
-             "\t(path by default is: /tools/petalinux-<VER>-final/settings.sh)\n" \
-             "Consult Xilinx UG1144 documentation to get more help.\n"
-    return 1
-  fi
-
-  if [ "$REQUIRED_VER" != "$PETALINUX_VER" ]
-  then
-    echo -e "ERROR: Wrong Petalinux Version (required: '$REQUIRED_VER', got: '$PETALINUX_VER')\n"
-    return 1
-  fi
-
-  PLNX_VER=$(echo $PETALINUX_VER | sed 's/\./_/g')
 }
 
 check_git_tag()
@@ -360,44 +327,6 @@ configure_petalinux_project()
   petalinux-config --silentconfig
 }
 
-configure_boot_method ()
-{
-
-  # Change PetaLinux project config to change the boot method
-  echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
-
-  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
-
-  petalinux-config --silentconfig
-}
-
-build_bsp ()
-{
-  # Build project
-  echo -e "\nBuilding project...\n"
-
-  # Sometimes the build fails because of fetch or setscene issues, so we try another time
-  petalinux-build -c ${PETALINUX_BUILD_IMAGE} || petalinux-build -c ${PETALINUX_BUILD_IMAGE}
-
-  if [ "$NO_BIT_OPTION" = "yes" ]
-  then
-    # Create boot image which does not contain the bistream image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
-    cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}_NO_BIT.BIN
-  fi
-
-  # Create boot image which DOES contain the bistream image.
-  petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
-  cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}${BOOT_SUFFIX}.BIN
-
-  cp images/linux/image.ub image_${BOOT_METHOD}${BOOT_SUFFIX}.ub
-  
-  cp images/linux/boot.scr boot_${BOOT_METHOD}${BOOT_SUFFIX}.scr
-
-  # save wic images, if any (don't output messages if not found)
-  cp images/linux/*.wic . > /dev/null  2>&1 || true
-}
-
 generate_loadable_bitstream ()
 {
   # Create a temporary Vivado TCL script which take the standard bitstream
@@ -464,12 +393,19 @@ package_bsp ()
   fi
 
   # Copy rebuild scripts to the project folder and pre-built images folder.
-  if [ $PETALINUX_BOARD_FAMILY ] && [ -d ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/ ] && [ "$(ls -A ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/)" ];
+  if [ $PETALINUX_BOARD_FAMILY ];
   then
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh .
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/${PETALINUX_BOARD_FAMILY}/rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh pre-built/linux/images/.
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh .
-    cp ${PETALINUX_SCRIPTS_FOLDER}/rebuild/common/rebuild_common.sh pre-built/linux/images/.
+    # rebuild is just make, but with verify_environment instead of setup_project and no package_bsp
+    REBUILD_SCRIPT=rebuild_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh
+    cp ${PETALINUX_SCRIPTS_FOLDER}/make_${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}.sh $REBUILD_SCRIPT
+    sed -i 's/setup_project/verify_environment/' $REBUILD_SCRIPT
+    sed -i '/package_bsp/d' $REBUILD_SCRIPT
+    cp $REBUILD_SCRIPT pre-built/linux/images/.
+
+    # build_common.sh has all the common build code with out the unnecessary project setup code
+    cp ${PETALINUX_SCRIPTS_FOLDER}/build_common.sh common.sh
+    sed -i 's/${PETALINUX_CONFIGS_FOLDER}\/project/./' common.sh
+    cp common.sh pre-built/linux/images/.
   fi
 
   # Copy all boot method config scripts to the project folder and pre-built images folder.
@@ -488,4 +424,21 @@ package_bsp ()
   petalinux-package --bsp -p ${PETALINUX_PROJECT_NAME} \
   --hwsource ${HDL_PROJECTS_FOLDER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
+}
+
+create_petalinux_project_append()
+{
+    : # provides optional board specific project setup, see make_u96v2_sbc_dualcam.sh
+}
+
+setup_project()
+{
+    verify_repositories
+    verify_environment
+    check_git_tag
+
+    build_hw_platform
+    create_petalinux_project
+    create_petalinux_project_append
+    configure_petalinux_project
 }

@@ -76,7 +76,7 @@ configure_boot_method ()
   # Change PetaLinux project config to change the boot method
   echo -e "\nModifying project config for ${BOOT_METHOD} boot support...\n"
 
-  bash ./config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
+  bash ${PETALINUX_CONFIGS_FOLDER}/project/config.boot_method.${BOOT_METHOD}.sh ${PETALINUX_BOARD_NAME} ${PETALINUX_BOARD_FAMILY} ${INITRAMFS_IMAGE}
 
   petalinux-config --silentconfig
 
@@ -84,6 +84,8 @@ configure_boot_method ()
 
 build_bsp ()
 {
+  configure_boot_method
+
   # Build project
   echo -e "\nBuilding project...\n"
 
