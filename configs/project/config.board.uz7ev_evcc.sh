@@ -14,10 +14,6 @@ PETALINUX_PROJECT_HOSTNAME=$(echo $PETALINUX_PROJECT_NAME | sed 's/\_/-/g')
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_HOSTNAME -v "\"$PETALINUX_PROJECT_HOSTNAME\""
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_USER_LAYER_0 -v "\"\${PROOT}/project-spec/meta-avnet\""
 
-# VITIS-AI FIX: meta not included in petalinux in 2021.1 version:
-#     https://forums.xilinx.com/t5/Embedded-Linux/Petalinux-2021-1-packagegroup-petalinux-vitisai-problem/td-p/1257091
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_USER_LAYER_1 -v "\"\${PROOT}/project-spec/meta-vitis-ai\""
-
 if [ "$PETALINUX_BOARD_PROJECT" == "base" ];
 then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_MACHINE_NAME -v "\"$BASE_YOCTO_MACHINE\""
