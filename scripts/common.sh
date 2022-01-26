@@ -306,6 +306,17 @@ configure_petalinux_project()
     git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
   fi
 
+  # FIX BIF Order issue: https://lists.yoctoproject.org/g/meta-xilinx/message/4944
+  # The bitstream was appended at the end of the BOOT.BIN, preventing the board from booting
+  if [ ${SOC} = "zynqMP" ]
+  then
+    echo -e "\nPatching meta-xilinx (BIF Order issue) ..."
+    patch -d components/yocto/layers/meta-xilinx/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Change-bif-attributes-value-to-softer.patch
+
+    echo -e "\nPatching meta-xilinx-tools (BIF Order issue) ..."
+    patch -d components/yocto/layers/meta-xilinx-tools/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Fix-order-of-bitstream-in-bif-attribu.patch
+  fi
+
   if [ "$KEEP_CACHE" = "true" ]
   then
     configure_cache_path

@@ -1,0 +1,29 @@
+From 09ecb52fbb77b8db02161f884e11e974fe9b9ebb Mon Sep 17 00:00:00 2001
+From: Sandeep Gundlupet Raju <sandeep.gundlupet-raju@xilinx.com>
+Date: Sun, 14 Nov 2021 20:59:04 -0700
+Subject: [meta-xilinx-tools][rev-v2021.2][PATCH] xilinx-bootbin: Fix order of
+ bitstream in bif attributes
+
+When boot.bin includes bitstream it fails it hangs at pmufw when
+xilfpga load the bitstream. This is due to bitstream was included
+at the end when  bif file is generated. Fix the order of bitstream
+in bif file.
+
+Signed-off-by: Sandeep Gundlupet Raju <sandeep.gundlupet-raju@xilinx.com>
+---
+ recipes-bsp/bootbin/xilinx-bootbin_1.0.bbappend | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/recipes-bsp/bootbin/xilinx-bootbin_1.0.bbappend b/recipes-bsp/bootbin/xilinx-bootbin_1.0.bbappend
+index f56bbe5..dae273d 100644
+--- a/recipes-bsp/bootbin/xilinx-bootbin_1.0.bbappend
++++ b/recipes-bsp/bootbin/xilinx-bootbin_1.0.bbappend
+@@ -1,4 +1,4 @@
+-BIF_PARTITION_ATTR_append_zynqmp = "${@bb.utils.contains('MACHINE_FEATURES', 'fpga-overlay', '', ' bitstream', d)}"
++BIF_PARTITION_ATTR_zynqmp = "${@bb.utils.contains('MACHINE_FEATURES', 'fpga-overlay', 'fsbl pmufw arm-trusted-firmware device-tree u-boot-xlnx', 'fsbl bitstream pmufw arm-trusted-firmware device-tree u-boot-xlnx', d)}"
+ 
+ DEPENDS += 'u-boot-zynq-scr'
+ 
+-- 
+2.17.1
+

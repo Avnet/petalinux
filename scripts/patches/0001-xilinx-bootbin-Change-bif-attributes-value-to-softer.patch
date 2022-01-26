@@ -1,0 +1,30 @@
+From ddc247f0a0e775b6ea77f0100b01784cdf9fd783 Mon Sep 17 00:00:00 2001
+From: Sandeep Gundlupet Raju <sandeep.gundlupet-raju@xilinx.com>
+Date: Sun, 14 Nov 2021 21:20:05 -0700
+Subject: [meta-xilinx][rev-v2021.2][PATCH] xilinx-bootbin: Change bif
+ attributes value to softer assignment
+
+Change BIF_PARTITION_ATTR assignment value to softer assignment so that
+it allows you to override the values from other layers.
+
+Signed-off-by: Sandeep Gundlupet Raju <sandeep.gundlupet-raju@xilinx.com>
+---
+ meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynqmp.inc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynqmp.inc b/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynqmp.inc
+index 4eb404c1..92addecc 100644
+--- a/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynqmp.inc
++++ b/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynqmp.inc
+@@ -2,7 +2,7 @@
+ BIF_COMMON_ATTR ?= ""
+ 
+ # specify BIF partition attributes required for BOOT.bin
+-BIF_PARTITION_ATTR = "fsbl pmufw arm-trusted-firmware device-tree u-boot-xlnx"
++BIF_PARTITION_ATTR ?= "fsbl pmufw arm-trusted-firmware device-tree u-boot-xlnx"
+ 
+ # specify BIF partition attributes for FSBL
+ # bootloader is FSBL. Location where FSBL binary is present and dependency to build FSBL
+-- 
+2.17.1
+
