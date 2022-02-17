@@ -306,12 +306,15 @@ configure_petalinux_project()
     git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
   fi
 
-  # VITIS-AI FIX: meta not included in petalinux in 2021.1 version:
-  #     https://forums.xilinx.com/t5/Embedded-Linux/Petalinux-2021-1-packagegroup-petalinux-vitisai-problem/td-p/1257091
+  # FIX BIF Order issue: https://lists.yoctoproject.org/g/meta-xilinx/message/4944
+  # The bitstream was appended at the end of the BOOT.BIN, preventing the board from booting
   if [ ${SOC} = "zynqMP" ]
   then
-    echo -e "\nClone meta-vitis-ai layer and checkout rel-v2021.1 branch\n"
-    git clone -b rel-v2021.1 https://github.com/Xilinx/meta-vitis-ai.git  project-spec/meta-vitis-ai
+    echo -e "\nPatching meta-xilinx (BIF Order issue) ..."
+    patch -d components/yocto/layers/meta-xilinx/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Change-bif-attributes-value-to-softer.patch
+
+    echo -e "\nPatching meta-xilinx-tools (BIF Order issue) ..."
+    patch -d components/yocto/layers/meta-xilinx-tools/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Fix-order-of-bitstream-in-bif-attribu.patch
   fi
 
   if [ "$KEEP_CACHE" = "true" ]
