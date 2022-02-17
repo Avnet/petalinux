@@ -76,7 +76,7 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 create_petalinux_project_append()
 {
     META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-    META_ON_SEMI_BRANCH="2021.1"
+    META_ON_SEMI_BRANCH="2021.2"
     echo "Fetching meta-on-semi ..."
     git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
 }
