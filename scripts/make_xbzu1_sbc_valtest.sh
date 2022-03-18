@@ -34,7 +34,7 @@
 #
 #  Create Date:         Mar 11, 2022
 #  Design Name:         XBZU1 Validation Test BSP
-#  Module Name:         make_xbzu1_sbc_valtest.sh
+#  Module Name:         make_zub1cg_sbc_valtest.sh
 #  Project Name:        XBZU1 Validation Test BSP
 #  Target Devices:      Xilinx Zynq UltraScale+ 1CG
 #  Hardware Boards:     XBZU1 Board
@@ -52,12 +52,12 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
 HDL_PROJECT_NAME=valtest
-HDL_BOARD_NAME=xbzu1_sbc
+HDL_BOARD_NAME=zub1cg_sbc
 
 ARCH="aarch64"
 SOC="zynqMP"
 
-PETALINUX_BOARD_FAMILY=xbzu1
+PETALINUX_BOARD_FAMILY=zub1cg
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
 PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
