@@ -1,0 +1,40 @@
+From 6be0572cb9ea95396e13c0fb48b13a6c1956473a Mon Sep 17 00:00:00 2001
+From: Thomas Nizan <tnizan@witekio.com>
+Date: Wed, 20 Apr 2022 12:56:39 +0000
+Subject: [PATCH] xilinx-bootbin: Change bif attributes to use u-boot-xlnx
+
+Preferred bootloader is set to u-boot-xlnx
+
+Signed-off-by: Thomas Nizan <tnizan@witekio.com>
+---
+ .../recipes-bsp/bootbin/machine-xilinx-zynq.inc           | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynq.inc b/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynq.inc
+index b8d75c4..600d29a 100644
+--- a/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynq.inc
++++ b/meta-xilinx-bsp/recipes-bsp/bootbin/machine-xilinx-zynq.inc
+@@ -1,5 +1,5 @@
+ #specify BIF partition attributes required for BOOT.bin
+-BIF_PARTITION_ATTR ?= "fsbl bitstream u-boot"
++BIF_PARTITION_ATTR ?= "fsbl bitstream u-boot-xlnx"
+ 
+ #specify BIF partition attributes for FSBL
+ #bootloader is FSBL. Location where FSBL binary is present and dependency to build FSBL
+@@ -9,9 +9,9 @@ BIF_PARTITION_DEPENDS[fsbl] ?= "virtual/fsbl:do_deploy"
+ 
+ #specify BIF partition attributes for u-boot
+ #Location where u-boot binary is present
+-BIF_PARTITION_IMAGE[u-boot] ?= "${DEPLOY_DIR_IMAGE}/u-boot-${MACHINE}.elf"
+-BIF_PARTITION_DEPENDS[u-boot] ?= "virtual/bootloader:do_deploy"
++BIF_PARTITION_IMAGE[u-boot-xlnx] ?= "${DEPLOY_DIR_IMAGE}/u-boot-${MACHINE}.elf"
++BIF_PARTITION_DEPENDS[u-boot-xlnx] ?= "virtual/bootloader:do_deploy"
+ 
+ # enable bitstream-Note this is not enabled by default (missing in BIF_PARTITION_ATTR)
+ BIF_PARTITION_IMAGE[bitstream] ?= "${DEPLOY_DIR_IMAGE}/download-${MACHINE}.bit"
+-BIF_PARTITION_DEPENDS[bitstream] ?= "virtual/bitstream:do_deploy"
++BIF_PARTITION_DEPENDS[bitstream] ?= "virtual/bitstream:do_deploy"
+\ No newline at end of file
+-- 
+2.17.1
+

@@ -306,6 +306,13 @@ configure_petalinux_project()
     git clone -b ${META_AVNET_BRANCH} ${META_AVNET_URL} project-spec/meta-avnet
   fi
 
+  # FIX BIF attributes to use u-boot-xlnx
+  if [ ${SOC} = "zynq" ]
+  then
+    echo -e "\nPatching meta-xilinx (BIF bootloader) ..."
+    patch -d components/yocto/layers/meta-xilinx/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Change-bif-attributes-to-use-u-boot-x.patch
+  fi
+
   # FIX BIF Order issue: https://lists.yoctoproject.org/g/meta-xilinx/message/4944
   # The bitstream was appended at the end of the BOOT.BIN, preventing the board from booting
   if [ ${SOC} = "zynqMP" ]
