@@ -39,6 +39,6 @@
 # Stop the script whenever we had an error (non-zero returning function)
 set -e
 
-petalinux-package --boot --fsbl ./images/linux/zynq_fsbl.elf --fpga ./images/linux/system.bit --uboot --kernel ./image_INITRD_MINIMAL.ub -o BOOT_LINUX_QSPI.BIN --force --boot-device flash --add ./images/linux/avnet-boot/avnet_qspi.scr --offset 0xFC0000
+petalinux-package --boot --fsbl ./images/linux/zynq_fsbl.elf --fpga ./images/linux/system.bit --uboot --kernel ./image_INITRD_MINIMAL.ub -o BOOT_LINUX_QSPI.BIN --force --boot-device flash --add ./images/linux/avnet-boot/avnet_qspi.scr --offset 0xFC0000 --boot-script none
 
 program_flash -f ./BOOT_LINUX_QSPI.BIN -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/zynq_fsbl.elf
