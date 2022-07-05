@@ -56,7 +56,7 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2021.2"
+META_AVNET_BRANCH="bthomson-dev-2022-1"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
@@ -187,7 +187,7 @@ configure_cache_path ()
   mkdir -p ${CACHE_DIR}/${SSTATE_CACHE}
   mkdir -p ${CACHE_DIR}/${DOWNLOAD_CACHE}
 
-  echo -e "\nPREMIRRORS_prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n" \
+  echo -e "\nPREMIRRORS:prepend = \"git://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n" \
   "ftp://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n"                              \
   "http://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \\ \n"                             \
   "https://.*/.* file://${CACHE_DIR}/${DOWNLOAD_CACHE} \"\n" >> ${CONF_FILE}
@@ -315,14 +315,14 @@ configure_petalinux_project()
 
   # FIX BIF Order issue: https://lists.yoctoproject.org/g/meta-xilinx/message/4944
   # The bitstream was appended at the end of the BOOT.BIN, preventing the board from booting
-  if [ ${SOC} = "zynqMP" ]
-  then
-    echo -e "\nPatching meta-xilinx (BIF Order issue) ..."
-    patch -d components/yocto/layers/meta-xilinx/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Change-bif-attributes-value-to-softer.patch
+  # if [ ${SOC} = "zynqMP" ]
+  # then
+    # echo -e "\nPatching meta-xilinx (BIF Order issue) ..."
+    # patch -d components/yocto/layers/meta-xilinx/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Change-bif-attributes-value-to-softer.patch
 
-    echo -e "\nPatching meta-xilinx-tools (BIF Order issue) ..."
-    patch -d components/yocto/layers/meta-xilinx-tools/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Fix-order-of-bitstream-in-bif-attribu.patch
-  fi
+    # echo -e "\nPatching meta-xilinx-tools (BIF Order issue) ..."
+    # patch -d components/yocto/layers/meta-xilinx-tools/ -p1 < ${PETALINUX_SCRIPTS_FOLDER}/patches/0001-xilinx-bootbin-Fix-order-of-bitstream-in-bif-attribu.patch
+  # fi
 
   if [ "$KEEP_CACHE" = "true" ]
   then

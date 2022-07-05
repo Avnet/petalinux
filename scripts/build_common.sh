@@ -36,7 +36,7 @@
 # ----------------------------------------------------------------------------
 
 # Required version of the Xilinx Tools
-REQUIRED_VER=2021.2
+REQUIRED_VER=2022.1
 
 verify_environment ()
 {
