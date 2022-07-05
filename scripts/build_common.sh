@@ -95,12 +95,12 @@ build_bsp ()
   if [ "$NO_BIT_OPTION" = "yes" ]
   then
     # Create boot image which does not contain the bistream image.
-    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --uboot --force
+    petalinux-package --boot --fsbl images/linux/${FSBL_PROJECT_NAME}.elf --u-boot --force
     cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}_NO_BIT.BIN
   fi
 
   # Create boot image which DOES contain the bistream image.
-  petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --uboot --force
+  petalinux-package --boot --fsbl ./images/linux/${FSBL_PROJECT_NAME}.elf --fpga ./images/linux/system.bit --u-boot --force
   cp images/linux/BOOT.BIN BOOT_${BOOT_METHOD}${BOOT_SUFFIX}.BIN
 
   cp images/linux/image.ub image_${BOOT_METHOD}${BOOT_SUFFIX}.ub
