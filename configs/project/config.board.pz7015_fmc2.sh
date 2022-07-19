@@ -14,6 +14,9 @@ PETALINUX_PROJECT_HOSTNAME=$(echo $PETALINUX_PROJECT_NAME | sed 's/\_/-/g')
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_HOSTNAME -v "\"$PETALINUX_PROJECT_HOSTNAME\""
 ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_USER_LAYER_0 -v "\"\${PROOT}/project-spec/meta-avnet\""
 
+# For PicoZed, an invalid MAC address needs to be set for the MAC address to be fetched from the I2C EEPROM
+${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ETHERNET_PS7_ETHERNET_0_MAC -v "\"ff:ff:ff:ff:ff:ff\""
+
 if [ "$PETALINUX_BOARD_PROJECT" == "base" ];
 then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_MACHINE_NAME -v "\"$BASE_YOCTO_MACHINE\""
