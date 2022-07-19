@@ -15,7 +15,7 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the UltraZed community support forum:
+#  Please direct any questions to the Ultra96 community support forum:
 #     http://avnet.me/Ultra96_Forum
 #
 #  Product information is available at:
@@ -32,12 +32,12 @@
 #
 # ----------------------------------------------------------------------------
 #
-#  Create Date:         Nov 4, 2020
-#  Design Name:         Ultra96v2 Dual Camera Mezzanine BSP
-#  Module Name:         make_u96v2_sbc_dualcam.sh
-#  Project Name:        Ultra96v2 Dual Camera Mezzanine BSP
-#  Target Devices:      Xilinx Zynq UltraScale+ 3EG
-#  Hardware Boards:     Ultra96v2 Board + Dual Camera Mezzanine
+#  Create Date:         Mar 11, 2022
+#  Design Name:         XBZU1 Dualcam BSP
+#  Module Name:         make_zub1cg_sbc_dualcam.sh
+#  Project Name:        XBZU1 Dualcam BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 1CG
+#  Hardware Boards:     XBZU1 Board
 #
 # ----------------------------------------------------------------------------
 
@@ -52,12 +52,12 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
 HDL_PROJECT_NAME=dualcam
-HDL_BOARD_NAME=u96v2_sbc
+HDL_BOARD_NAME=zub1cg_sbc
 
 ARCH="aarch64"
 SOC="zynqMP"
 
-PETALINUX_BOARD_FAMILY=u96v2
+PETALINUX_BOARD_FAMILY=zub1cg
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
 PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
@@ -82,6 +82,11 @@ create_petalinux_project_append()
 }
 
 setup_project
+
+#BOOT_METHOD='INITRD'
+#BOOT_SUFFIX='_MINIMAL'
+#INITRAMFS_IMAGE='avnet-image-minimal'
+#build_bsp
 
 BOOT_METHOD='EXT4'
 unset BOOT_SUFFIX
