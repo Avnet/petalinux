@@ -33,6 +33,7 @@ then
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"cpio cpio.gz cpio.gz.u-boot tar.gz jffs2 ext4 ext4.gz wic\""
 fi
 
+<<<<<<< HEAD
 if [ "$PETALINUX_BOARD_FAMILY" == "zub1cg_sbc" ];
 then
     # make the sd card the default boot dev - SD1

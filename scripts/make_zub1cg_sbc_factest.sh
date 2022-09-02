@@ -33,9 +33,9 @@
 # ----------------------------------------------------------------------------
 #
 #  Create Date:         Mar 11, 2022
-#  Design Name:         XBZU1 Dualcam BSP
-#  Module Name:         make_zub1cg_sbc_dualcam.sh
-#  Project Name:        XBZU1 Dualcam BSP
+#  Design Name:         XBZU1 Factory Acceptance Test BSP
+#  Module Name:         make_zub1cg_sbc_factest.sh
+#  Project Name:        XBZU1 Factory Acceptance Test BSP
 #  Target Devices:      Xilinx Zynq UltraScale+ 1CG
 #  Hardware Boards:     XBZU1 Board
 #
@@ -51,7 +51,7 @@ MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
 FSBL_PROJECT_NAME=zynqmp_fsbl
 
-HDL_PROJECT_NAME=dualcam
+HDL_PROJECT_NAME=factest
 HDL_BOARD_NAME=zub1cg_sbc
 
 ARCH="aarch64"
@@ -62,10 +62,10 @@ PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
 PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
 
-PETALINUX_BUILD_IMAGE=avnet-image-full
+PETALINUX_BUILD_IMAGE=avnet-image-minimal
 
 KEEP_CACHE="true"
-KEEP_WORK="false"
+KEEP_WORK="true"
 DEBUG="no"
 
 #NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
@@ -73,20 +73,7 @@ NO_BIT_OPTION='yes'
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
-create_petalinux_project_append()
-{
-    META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-    META_ON_SEMI_BRANCH="frebaudo/dev_2021.2"
-    echo "Fetching meta-on-semi ..."
-    git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
-}
-
 setup_project
-
-#BOOT_METHOD='INITRD'
-#BOOT_SUFFIX='_MINIMAL'
-#INITRAMFS_IMAGE='avnet-image-minimal'
-#build_bsp
 
 BOOT_METHOD='EXT4'
 unset BOOT_SUFFIX
