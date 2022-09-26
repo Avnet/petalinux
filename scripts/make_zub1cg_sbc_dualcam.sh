@@ -57,7 +57,7 @@ HDL_BOARD_NAME=zub1cg_sbc
 ARCH="aarch64"
 SOC="zynqMP"
 
-PETALINUX_BOARD_FAMILY=zub1cg_sbc
+PETALINUX_BOARD_FAMILY=zub1cg
 PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
 PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
@@ -76,7 +76,7 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 create_petalinux_project_append()
 {
     META_ON_SEMI_URL="https://github.com/Avnet/meta-on-semiconductor.git"
-    META_ON_SEMI_BRANCH="frebaudo/dev_2021.2"
+    META_ON_SEMI_BRANCH="2022.1"
     echo "Fetching meta-on-semi ..."
     git clone -b ${META_ON_SEMI_BRANCH} ${META_ON_SEMI_URL} project-spec/meta-on-semiconductor
 }
