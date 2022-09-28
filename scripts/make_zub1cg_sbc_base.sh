@@ -15,8 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
+#  Please direct any questions to the Ultra96 community support forum:
+#     http://avnet.me/Ultra96_Forum
+#
 #  Product information is available at:
-#     http://avnet.me/zuboard-1cg
+#     http://avnet.me/ultra96-v2
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
