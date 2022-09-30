@@ -27,57 +27,19 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2021 Avnet, Inc.
+#                      Copyright(c) 2022 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
-#
-#  Create Date:         Mar 11, 2022
-#  Design Name:         ZUBoard-1CG Factory Acceptance Test BSP
-#  Module Name:         make_zub1cg_sbc_factest.sh
-#  Project Name:        ZUBoard-1CG Factory Acceptance Test BSP
-#  Target Devices:      Xilinx Zynq UltraScale+ 1CG
-#  Hardware Boards:     ZUBoard-1CG Board
-#
-# ----------------------------------------------------------------------------
-
 #!/bin/bash
+
+# This script will generate a BOOT.BIN file and program the qspi
+# This BOOT.BIN file will contain uboot, a boot.scr script to boot a kernel
+# from a SD/MMC card.
 
 # Stop the script whenever we had an error (non-zero returning function)
 set -e
 
-# MAIN_SCRIPT_FOLDER is the folder where this current script is
-MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
+petalinux-package --boot --fsbl ./images/linux/zynqmp_fsbl.elf --fpga ./images/linux/system.bit --uboot -o BOOT_LINUX_MMC_UBOOT_QSPI.BIN --force --boot-device flash --add ./images/linux/avnet-boot/avnet_mmc.scr --offset 0x01e80000
 
-FSBL_PROJECT_NAME=zynqmp_fsbl
-
-HDL_PROJECT_NAME=factest
-HDL_BOARD_NAME=zub1cg_sbc
-
-ARCH="aarch64"
-SOC="zynqMP"
-
-PETALINUX_BOARD_FAMILY=zub1cg
-PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
-PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
-PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
-
-PETALINUX_BUILD_IMAGE=avnet-image-minimal
-
-KEEP_CACHE="true"
-KEEP_WORK="true"
-DEBUG="no"
-
-#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
-NO_BIT_OPTION='yes'
-
-source ${MAIN_SCRIPT_FOLDER}/common.sh
-
-setup_project
-
-BOOT_METHOD='EXT4'
-unset BOOT_SUFFIX
-unset INITRAMFS_IMAGE
-build_bsp
-
-package_bsp
+program_flash -f ./BOOT_LINUX_MMC_UBOOT_QSPI.BIN -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/zynqmp_fsbl.elf

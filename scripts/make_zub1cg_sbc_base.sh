@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the PicoZed community support forum:
-#     http://avnet.me/zub1cg_forum
+#  Please direct any questions to the ZUBoard community support forum:
+#     http://avnet.me/zuboard-1cg-forum
 #
 #  Product information is available at:
-#     http://avnet.me/zub1cg
+#     http://avnet.me/zuboard-1cg
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -31,14 +31,57 @@
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
-#!/bin/bash
+#
+#  Create Date:         Sept 26, 2022
+#  Design Name:         ZUBoard-1CG Base BSP
+#  Module Name:         make_zub1cg_sbc_base.sh
+#  Project Name:        ZUBoard-1CG Base BSP
+#  Target Devices:      Xilinx Zynq UltraScale+ 1CG
+#  Hardware Boards:     ZUBoard-1CG
+# ----------------------------------------------------------------------------
 
-# This script will generate a BOOT.BIN file and program the qspi
-# This BOOT.BIN file will contain uboot, a kernel with INITRD and a boot.scr
+#!/bin/bash
 
 # Stop the script whenever we had an error (non-zero returning function)
 set -e
 
-petalinux-package --boot --fsbl ./images/linux/zynqmp_fsbl.elf --fpga ./images/linux/system.bit --uboot --kernel ./image_INITRD_MINIMAL.ub -o BOOT_LINUX_QSPI.BIN --force --boot-device flash --add ./images/linux/avnet-boot/avnet_qspi.scr --offset 0x1FC0000
+# MAIN_SCRIPT_FOLDER is the folder where this current script is
+MAIN_SCRIPT_FOLDER=$(realpath $0 | xargs dirname)
 
-program_flash -f ./BOOT_LINUX_QSPI.BIN -offset 0 -flash_type qspi-x4-single -fsbl ./images/linux/zynqmp_fsbl.elf
+FSBL_PROJECT_NAME=zynqmp_fsbl
+
+HDL_PROJECT_NAME=base
+HDL_BOARD_NAME=zub1cg_sbc
+
+ARCH="aarch64"
+SOC="zynqMP"
+
+PETALINUX_BOARD_FAMILY=zub1cg
+PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
+PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
+PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
+
+PETALINUX_BUILD_IMAGE=avnet-image-full
+
+KEEP_CACHE="true"
+KEEP_WORK="false"
+DEBUG="no"
+
+#NO_BIT_OPTION can be set to 'yes' to generate a BOOT.BIN without bitstream
+NO_BIT_OPTION='yes'
+
+source ${MAIN_SCRIPT_FOLDER}/common.sh
+
+setup_project
+
+BOOT_METHOD='INITRD'
+BOOT_SUFFIX='_MINIMAL'
+INITRAMFS_IMAGE='avnet-image-minimal'
+build_bsp
+
+BOOT_METHOD='EXT4'
+unset BOOT_SUFFIX
+unset INITRAMFS_IMAGE
+build_bsp
+
+package_bsp

@@ -83,14 +83,28 @@ BOOT METHODS:
 
     Reboot the board, and let u-boot automatically load the kernel on the EMMC.
 
-5- Boot from QSPI (u-boot) + eMMC FAT32 (kernel) + eMMC EXT4 (rootfs):
+5- Boot from QSPI (u-boot) + SD card FAT32 (kernel) + SD card INITRD (rootfs):
+
+    After having done the emmc partitioning from method 2, position the 
+    BOOT Switch SW2 on the board to "JTAG" mode (SW[1:4] ON,ON,ON,ON).
+
+    Then to install the bootloaders and mmc boot script on the qspi, run the command:
+
+        sh boot_qspi_mmc.sh
+
+    Position the BOOT Switch SW2 on the board to "QSPI" mode (SW[1:4] ON,OFF,ON,ON).
+
+    Reboot the board. The board will load u-boot from the qspi and then fetch the kernel from SD card.
+
+
+6 - Boot from QSPI (u-boot) + SD card FAT32 (kernel) + SD card EXT4 (rootfs):
 
     After having done the emmc partitioning from method 4, position the 
     BOOT Switch SW2 on the board to "JTAG" mode (SW[1:4] ON,ON,ON,ON).
 
-    Then to install the bootloaders on the qspi, run the command:
+    Then to install the bootloaders and mmc boot script on the qspi, run the command:
 
-        program_flash -f ./BOOT_INITRD_MINIMAL.BIN -offset 0 -flash_type qspi_dual_parallel -fsbl ./images/linux/zynqmp_fsbl.elf
+        sh boot_qspi_mmc.sh
 
     Position the BOOT Switch SW2 on the board to "QSPI" mode (SW[1:4] ON,OFF,ON,ON).
 
