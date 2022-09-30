@@ -15,11 +15,11 @@
 #  This design is the property of Avnet.  Publication of this
 #  design is not authorized without written consent from Avnet.
 #
-#  Please direct any questions to the Ultra96 community support forum:
-#     http://avnet.me/Ultra96_Forum
+#  Please direct any questions to the ZUBoard community support forum:
+#     http://avnet.me/zuboard-1cg-forum
 #
 #  Product information is available at:
-#     http://avnet.me/ultra96-v2
+#     http://avnet.me/zuboard-1cg
 #
 #  Disclaimer:
 #     Avnet, Inc. makes no warranty for the use of this code or design.
@@ -33,11 +33,11 @@
 # ----------------------------------------------------------------------------
 #
 #  Create Date:         Mar 11, 2022
-#  Design Name:         XBZU1 Validation Test BSP
+#  Design Name:         ZUBoard-1CG Validation Test BSP
 #  Module Name:         make_zub1cg_sbc_valtest.sh
-#  Project Name:        XBZU1 Validation Test BSP
+#  Project Name:        ZUBoard-1CG Validation Test BSP
 #  Target Devices:      Xilinx Zynq UltraScale+ 1CG
-#  Hardware Boards:     XBZU1 Board
+#  Hardware Boards:     ZUBoard-1CG Board
 #
 # ----------------------------------------------------------------------------
 
