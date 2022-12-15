@@ -40,6 +40,12 @@ then
 
     # set rootfs formats (add ext4, ext4.gz, and wic)
     ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"cpio cpio.gz cpio.gz.u-boot tar.gz jffs2 ext4 ext4.gz wic\""
+
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART0_NAME -v "\"system\""
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART0_SIZE -v "0x1C00000"
+
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART1_NAME -v "\"user\""
+    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART1_SIZE -v "0x400000"
 fi
 
 if [ "$PETALINUX_BOARD_NAME" == "minized_sbc" ];
