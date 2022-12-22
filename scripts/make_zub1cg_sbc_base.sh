@@ -74,10 +74,10 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 
 setup_project
 
-BOOT_METHOD='INITRD'
-BOOT_SUFFIX='_MINIMAL'
-INITRAMFS_IMAGE='avnet-image-minimal'
-build_bsp
+#~ BOOT_METHOD='INITRD'
+#~ BOOT_SUFFIX='_MINIMAL'
+#~ INITRAMFS_IMAGE='avnet-image-minimal'
+#~ build_bsp
 
 BOOT_METHOD='EXT4'
 unset BOOT_SUFFIX
