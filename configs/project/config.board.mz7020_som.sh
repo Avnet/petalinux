@@ -6,7 +6,7 @@ CONFIG_FILE=project-spec/configs/config
 PETALINUX_BOARD_PROJECT=$1
 PETALINUX_PROJECT_NAME=$2
 
-BASE_YOCTO_MACHINE='mz7020-som'
+BASE_YOCTO_MACHINE='mz7020-som-base'
 
 # The system Hostname will be the petalinux project name with '-' instead of '_'
 PETALINUX_PROJECT_HOSTNAME=$(echo $PETALINUX_PROJECT_NAME | sed 's/\_/-/g')
