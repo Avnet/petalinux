@@ -62,7 +62,8 @@ PETALINUX_BOARD_NAME=${HDL_BOARD_NAME}
 PETALINUX_BOARD_PROJECT=${HDL_PROJECT_NAME}
 PETALINUX_PROJECT_ROOT_NAME=${PETALINUX_BOARD_NAME}_${PETALINUX_BOARD_PROJECT}
 
-PETALINUX_BUILD_IMAGE=avnet-image-full
+# Use the PETALINUX_BUILD_IMAGE variable to build a different yocto image than the default petalinux-image-minimal
+#PETALINUX_BUILD_IMAGE=avnet-image-full
 
 KEEP_CACHE="true"
 KEEP_WORK="false"
@@ -76,8 +77,6 @@ source ${MAIN_SCRIPT_FOLDER}/common.sh
 setup_project
 
 BOOT_METHOD='EXT4'
-unset BOOT_SUFFIX
-unset INITRAMFS_IMAGE
 build_bsp
 
 package_bsp
