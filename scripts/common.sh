@@ -56,7 +56,7 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2022.2"
+META_AVNET_BRANCH="tc_dev_zub1cg_hsio_m2"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
