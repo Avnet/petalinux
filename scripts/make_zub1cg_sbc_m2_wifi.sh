@@ -73,14 +73,6 @@ NO_BIT_OPTION='yes'
 
 source ${MAIN_SCRIPT_FOLDER}/common.sh
 
-create_petalinux_project_append()
-{
-    META_LAIRD_CP_URL="https://github.com/LairdCP/meta-laird-cp.git"
-    META_LAIRD_CP_BRANCH="lrd-10.0.0.x"
-    echo "Fetching meta-laird-cp ..."
-    git clone -b ${META_LAIRD_CP_BRANCH} ${META_LAIRD_CP_URL} project-spec/meta-laird-cp
-}
-
 setup_project
 
 BOOT_METHOD='EXT4'
