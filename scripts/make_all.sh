@@ -27,7 +27,7 @@
 #     any errors, which may appear in this code, nor does it make a commitment
 #     to update the information contained herein. Avnet, Inc specifically
 #     disclaims any implied warranties of fitness for a particular purpose.
-#                      Copyright(c) 2021 Avnet, Inc.
+#                      Copyright(c) 2024 Avnet, Inc.
 #                              All rights reserved.
 #
 # ----------------------------------------------------------------------------
@@ -38,18 +38,19 @@
 #  Project Name:        Avnet All PetaLinux BSP Generator
 #  Target Devices:      Xilinx Zynq
 #
-#  Tool versions:       Xilinx Vivado 2020.2
+#  Tool versions:       Xilinx Vivado 2023.2
 #
 #  Description:         Build Script for all PetaLinux BSP HW Platform
 #
 #  Dependencies:        Common Script 'common.sh'
 #
-#  Revision:            Oct 1, 2020: 1.00 Initial version
+#  Revision:            Feb 12, 2024: 1.10 Make script run directory independent
+#                       Oct 1, 2020: 1.00 Initial version
 #
 # ----------------------------------------------------------------------------
 
 #!/bin/bash
-
-for script in $(ls make* | grep -v $(basename $0)); do
-    ./$script
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+for script in $(ls ${SCRIPT_DIR}/make* | grep -v $(basename $0)); do
+    $script
 done
