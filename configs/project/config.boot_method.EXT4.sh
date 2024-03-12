@@ -1,71 +1,36 @@
 #!/bin/bash
 
-KCONFIG_EDIT=${PETALINUX}/tools/common/petalinux/utils/petalinux-kconfig-edit
+KCONFIG_EDIT="${PETALINUX}/components/yocto/buildtools/sysroots/x86_64-petalinux-linux/usr/bin/kconfig-tweak"
 CONFIG_FILE=project-spec/configs/config
 ROOTFS_CONFIG_FILE=project-spec/configs/rootfs_config
 
 PETALINUX_BOARD_NAME=$1
 PETALINUX_BOARD_FAMILY=$2
 
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_INITRD -u
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_INITRAMFS -u
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_ROOTFS_EXT4
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --disable CONFIG_SUBSYSTEM_ROOTFS_INITRD
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --disable CONFIG_SUBSYSTEM_ROOTFS_INITRAMFS
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --enable CONFIG_SUBSYSTEM_ROOTFS_EXT4
 
-# Remove the dropbear package group from the rootfs.  This conflicts with 
+# Remove the dropbear package group from the rootfs.  This conflicts with
 # openssh, which is needed for greater throughput
-${KCONFIG_EDIT} -c ${ROOTFS_CONFIG_FILE} -o CONFIG_packagegroup-core-ssh-dropbear -u
+${KCONFIG_EDIT} --file ${ROOTFS_CONFIG_FILE} --disable CONFIG_packagegroup-core-ssh-dropbear
 
-if [ "$PETALINUX_BOARD_NAME" == "u96v2_sbc" ];
-then
-    # make the sd card the default boot dev - SD0
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
-    
-    # set rootfs formats
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz ext4 ext4.gz wic\""
-fi
+case "$PETALINUX_BOARD_FAMILY"  in
 
-if [ "$PETALINUX_BOARD_FAMILY" == "uz" ];
-then
-    # make the sd card the default boot dev - SD1
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk1p2\""
+    "u96v2" | "mz" | "pz")
+        # make the sd card the default boot dev - SD0
+        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_SDROOT_DEV '/dev/mmcblk0p2'
 
-    # set rootfs formats
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz ext4 ext4.gz wic\""
-fi
+        # set rootfs formats
+        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_RFS_FORMATS 'tar.gz ext4 ext4.gz wic'
+        ;;
 
-if [ "$PETALINUX_BOARD_FAMILY" == "zub1cg" ];
-then
-    # make the sd card the default boot dev - SD1
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
+    "uz" | "zub1cg" )
+        # make the sd card the default boot dev - SD1
+        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_SDROOT_DEV '/dev/mmcblk1p2'
 
-    # set rootfs formats
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz ext4 ext4.gz wic\""
-fi
+        # set rootfs formats
+        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_RFS_FORMATS 'tar.gz ext4 ext4.gz wic'
+        ;;
 
-if [ "$PETALINUX_BOARD_NAME" == "minized_sbc" ];
-then
-    # make the emmc the default boot dev - SD1
-    # Minized does not have sd card
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
-
-    # set rootfs formats
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz ext4 ext4.gz wic\""
-fi
-
-if [ "$PETALINUX_BOARD_FAMILY" == "mz" ];
-then
-    # make the sd card the default boot dev - SD0
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
-
-    # set rootfs formats
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz ext4 ext4.gz wic\""
-fi
-
-if [ "$PETALINUX_BOARD_FAMILY" == "pz" ];
-then
-    # make the sd card the default boot dev - SD0
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_SDROOT_DEV -v "\"/dev/mmcblk0p2\""
-
-    # set rootfs formats
-    ${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_SUBSYSTEM_RFS_FORMATS -v "\"tar.gz ext4 ext4.gz wic\""
-fi
+esac

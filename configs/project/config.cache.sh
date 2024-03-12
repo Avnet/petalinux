@@ -1,10 +1,12 @@
 #!/bin/bash
 
-KCONFIG_EDIT=${PETALINUX}/tools/common/petalinux/utils/petalinux-kconfig-edit
+KCONFIG_EDIT="${PETALINUX}/components/yocto/buildtools/sysroots/x86_64-petalinux-linux/usr/bin/kconfig-tweak"
 CONFIG_FILE=project-spec/configs/config
 
 ARCH=$1
 CACHE_DIR=$2
 
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL -v "\"$CACHE_DIR/sstate_${PETALINUX_VER}/$1/\""
-${KCONFIG_EDIT} -c ${CONFIG_FILE} -o CONFIG_PRE_MIRROR_URL -v "\"file://$CACHE_DIR/downloads_${PETALINUX_VER}/\""
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL "$CACHE_DIR/sstate_${PETALINUX_VER}/$ARCH/"
+# kconfig-tweak has issues when replacing a value that has ':'
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --undefine CONFIG_PRE_MIRROR_URL
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_PRE_MIRROR_URL "file://$CACHE_DIR/downloads_${PETALINUX_VER}/"
