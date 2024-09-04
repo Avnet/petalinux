@@ -30,7 +30,7 @@ case "$PETALINUX_BOARD_FAMILY"  in
         ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-val CONFIG_SUBSYSTEM_FLASH_PS7_QSPI_0_BANKLESS_PART0_NAME 0x40000
         ;&
 
-    "uz" )
+    "uz" | "u96v2" )
         # restore rootfs formats
         ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_RFS_FORMATS 'cpio cpio.gz cpio.gz.u-boot tar.gz jffs2'
         ;;
