@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KCONFIG_EDIT="${PETALINUX}/components/yocto/buildtools/sysroots/x86_64-petalinux-linux/usr/bin/kconfig-tweak"
+KCONFIG_EDIT="${PETALINUX}/sysroots/x86_64-petalinux-linux/usr/bin/kconfig-tweak"
 CONFIG_FILE=project-spec/configs/config
 
 PETALINUX_BOARD_PROJECT=$1
@@ -21,6 +21,8 @@ ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_
 ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-val CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART1_SIZE 0x1C00000
 
 ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_FLASH_PSU_QSPI_0_BANKLESS_PART1_NAME ''
+
+${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_ETHERNET_PSU_ETHERNET_2_MAC ''
 
 case "$PETALINUX_BOARD_PROJECT" in
     "dualcam")

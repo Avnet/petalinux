@@ -56,7 +56,7 @@ PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
 META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2023.2"
+META_AVNET_BRANCH="2024.1"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
@@ -248,7 +248,7 @@ create_petalinux_project ()
   cd ${PETALINUX_PROJECTS_FOLDER}
 
   # Create the PetaLinux project.
-  petalinux-create --type project --template ${SOC} --name ${PETALINUX_PROJECT_NAME} --force
+  petalinux-create project --template ${SOC} -n ${PETALINUX_PROJECT_NAME} --force
 
   # Create the hardware definition folder.
   mkdir -p ${PETALINUX_PROJECTS_FOLDER}/${PETALINUX_PROJECT_NAME}/hw_platform
@@ -413,7 +413,7 @@ package_bsp ()
   cd ${PETALINUX_PROJECTS_FOLDER}
 
   # Package the hardware source into a BSP package output.
-  petalinux-package --bsp -p ${PETALINUX_PROJECT_NAME} \
+  petalinux-package bsp -p ${PETALINUX_PROJECT_NAME} \
   --hwsource ${HDL_PROJECTS_FOLDER}/${HDL_BOARD_NAME}_${HDL_PROJECT_NAME}_${PLNX_VER}/ \
   --output ${PETALINUX_PROJECT_NAME} --force
 }

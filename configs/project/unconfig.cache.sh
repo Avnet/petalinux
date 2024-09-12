@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KCONFIG_EDIT="${PETALINUX}/components/yocto/buildtools/sysroots/x86_64-petalinux-linux/usr/bin/kconfig-tweak"
+KCONFIG_EDIT="${PETALINUX}/sysroots/x86_64-petalinux-linux/usr/bin/kconfig-tweak"
 CONFIG_FILE=project-spec/configs/config
 
 ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_YOCTO_LOCAL_SSTATE_FEEDS_URL ''
