@@ -55,8 +55,8 @@ PETALINUX_PROJECTS_FOLDER=${PETALINUX_FOLDER}/projects
 PETALINUX_SCRIPTS_FOLDER=${PETALINUX_FOLDER}/scripts
 PETALINUX_DOCS_FOLDER=${PETALINUX_FOLDER}/documentation
 
-META_AVNET_URL="https://github.com/Avnet/meta-avnet.git"
-META_AVNET_BRANCH="2024.1"
+META_AVNET_URL="git@github.com:Avnet/meta-avnet.git"
+META_AVNET_BRANCH="tnizan/k24-duo"
 
 PAUSE_DELAY=5
 BUILD_FROM_TAG="false"
