@@ -25,12 +25,6 @@ ${KCONFIG_EDIT} --file ${CONFIG_FILE} --enable CONFIG_SUBSYSTEM_ATF_SERIAL_PSU_U
 ${KCONFIG_EDIT} --file ${CONFIG_FILE} --enable CONFIG_SUBSYSTEM_SERIAL_PSU_UART_1_SELECT
 
 case "$PETALINUX_BOARD_PROJECT" in
-    "dualcam")
-        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_YOCTO_MACHINE_NAME 'u96v2-sbc-dualcam'
-        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_YOCTO_INCLUDE_MACHINE_NAME 'u96v2-sbc-dualcam';
-        ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_USER_LAYER_1 '${PROOT}/project-spec/meta-on-semiconductor'
-        ;;
-
     "factest")
         ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_YOCTO_MACHINE_NAME 'u96v2-sbc-factest';
         ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_YOCTO_INCLUDE_MACHINE_NAME 'u96v2-sbc-factest';
