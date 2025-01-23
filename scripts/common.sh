@@ -420,7 +420,7 @@ package_bsp ()
 
 create_petalinux_project_append()
 {
-    : # provides optional board specific project setup, see make_u96v2_sbc_dualcam.sh
+    : # provides optional board specific project setup.
 }
 
 setup_project()
