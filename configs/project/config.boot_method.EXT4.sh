@@ -21,7 +21,7 @@ ${KCONFIG_EDIT} --file ${ROOTFS_CONFIG_FILE} --disable CONFIG_packagegroup-core-
 
 case "$PETALINUX_BOARD_FAMILY"  in
 
-    "u96v2" | "mz" | "pz" | "k24" )
+    "mz" | "pz" | "k24" )
         # make the sd card the default boot dev - SD0
         ${KCONFIG_EDIT} --file ${CONFIG_FILE} --set-str CONFIG_SUBSYSTEM_SDROOT_DEV '/dev/mmcblk0p2'
 
